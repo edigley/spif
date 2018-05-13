@@ -1,0 +1,44 @@
+Inputs:
+   Landscape: JONQUERA1NOAP7.LCP
+   Weather: GEN_0_IND_0.WTR
+   Adjustments: BASE.ADJ
+   Fuel Moistures: GEN_0_IND_0.FMS
+   Conversions: NONE
+   Custom Fuel Models: NONE
+   Coarse Woody Fuels: NONE
+   Burning Period: NONE
+   Project File: 
+   Bookmark File: 
+Outputs:
+   Shapefile: /home/cbrun/SPIF/Jonquera/pob0/output/shape_0_0.shp
+   Raster file: Raster File: /home/cbrun/SPIF/Jonquera/pob0/output/raster_0_0.toa
+   Display Units: METRIC
+   Output File Units: METRIC
+Model:
+   Parameters: TimeStep 60.0
+   Parameters: Visibles 60.0, 120.0
+   Parameters: Perim Res 30.0
+   Parameters: Dist Res 30.0
+   Options: Crown Fire: DISABLED
+   Options: Spotting: DISABLED
+   Options: Spot Growth: DISABLED
+   Options: Ignition Delay: 0 mins
+   Options: Fire Level Dist. Check
+   Acceleration: ON
+   Acceleration: DEFAULTS
+   Post Frontal: OFF
+   Dead Fuel Moisture: PRE-CALCULATED
+Simulate:
+   Duration: Conditioning (Mo/Day): 7/22
+   Duration: Starting (Mo/Day Hour:Min): 7/22 12:0
+   Duration: Ending (Mo/Day Hour:Min): 7/22 20:30
+   Options: Duration Reset: FALSE
+   Options: Restore Ignitions: FALSE
+   Options: Rotation Sensitive Ignitions: FALSE
+   Options: Show Fires as Grown: TRUE
+   Options: Ignition Spread Rates: FALSE
+   Options: Preserve Inactive Enclaves: TRUE
+   Options: Simulation Threads: 01
+Attack:
+View:
+   Viewport: MAXIMIZED
