@@ -5,8 +5,8 @@
 #include <sys/types.h>
 #include "myutils.h"
 
-char    *baseAtmFile; 
-char    *atmFileNew; 
+char    *baseAtmFile;
+char    *atmFileNew;
 char    *atmFile;
 char    *resolution;
 char    *VGeneral;
@@ -21,7 +21,7 @@ void initWindninjaVariables(char *datafile)
 {
     dictionary * datos;
     datos 	= iniparser_load(datafile);
-    
+
     elevfilename2   = iniparser_getstr(datos, "windninja:elevfilename");
     baseAtmFile    = iniparser_getstr(datos, "windninja:baseAtmFile");
     atmFile        = iniparser_getstr(datos, "windninja:atmFile");
@@ -49,45 +49,45 @@ char * createATMFile(char *path_output, float vel, float dir, int id)
     atmFileNew = str_replace(atmFile, "$1", tmp);
     //printf("atmFileNew=%s\n",atmFileNew);
     sprintf(atmFileFullPath, "%s%s", path_output, atmFileNew);
-    
+
     char * elevOnlyName;
     elevOnlyName = strtok (elevfilename2,".");
     if ( (fATM = fopen(baseAtmFile, "r")) == NULL)
     {
-        	 printf("Unable to open ATM file");
-          return "";
+        printf("Unable to open ATM file");
+        return "";
     }
-	 else
-	 {
-            if((fATMnew = fopen(atmFileFullPath, "w")) == NULL)
-            {
-                    printf("Unable to create ATM temp file");
-                    return "";
-            }
-            else
-            {         
-                    //printf("VALORES DE LAS HUMEDADES: m1:%1.3f m10:%1.3f m100:%1.3f mherb:%1.3f\n", individuo.m1, individuo.m10, individuo.m100, individuo.mherb);
-                    fgets( line, 100, fATM );			
-                    fprintf(fATMnew,"%s", line);
+    else
+    {
+        if((fATMnew = fopen(atmFileFullPath, "w")) == NULL)
+        {
+            printf("Unable to create ATM temp file");
+            return "";
+        }
+        else
+        {
+            //printf("VALORES DE LAS HUMEDADES: m1:%1.3f m10:%1.3f m100:%1.3f mherb:%1.3f\n", individuo.m1, individuo.m10, individuo.m100, individuo.mherb);
+            fgets( line, 100, fATM );
+            fprintf(fATMnew,"%s", line);
 
-                    while(fgets( line, 100, fATM ) != NULL)
-                    {                         
-			sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_vel.asc", path_output, elevOnlyName, dir, vel, resolution);                      
-                        newline = str_replace(line, "ws", buffer);
-                        sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_ang.asc", path_output, elevOnlyName, dir, vel, resolution);
-                        newline = str_replace(newline, "wd", buffer);
-			sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_cld.asc", path_output, elevOnlyName, dir, vel, resolution);
-                        newline = str_replace(newline, "wc", buffer);
-                        fprintf(fATMnew,"%s", newline);
-                    }
-                    fclose(fATMnew);
-                               }
-            fclose(fATM);
-    }     
+            while(fgets( line, 100, fATM ) != NULL)
+            {
+                sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_vel.asc", path_output, elevOnlyName, dir, vel, resolution);
+                newline = str_replace(line, "ws", buffer);
+                sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_ang.asc", path_output, elevOnlyName, dir, vel, resolution);
+                newline = str_replace(newline, "wd", buffer);
+                sprintf(buffer,"%s%s_%1.0f_%1.0f_%sm_cld.asc", path_output, elevOnlyName, dir, vel, resolution);
+                newline = str_replace(newline, "wc", buffer);
+                fprintf(fATMnew,"%s", newline);
+            }
+            fclose(fATMnew);
+        }
+        fclose(fATM);
+    }
     free(line);
     free(newline);
     free(buffer);
-    
+
     return atmFileFullPath;
 }
 

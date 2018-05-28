@@ -36,23 +36,26 @@
 
 /* Private: add an entry to the dictionary */
 static void iniparser_add_entry(
-	dictionary * d,
-	char * sec,
-	char * key,
-	char * val)
+    dictionary * d,
+    char * sec,
+    char * key,
+    char * val)
 {
-	char		longkey[2*ASCIILINESZ+1];
+    char		longkey[2*ASCIILINESZ+1];
 
-	/* Make a key as section:keyword */
-	if (key!=NULL) {
-		sprintf(longkey, "%s:%s", sec, key);
-	} else {
-		strcpy(longkey, sec);
-	}
+    /* Make a key as section:keyword */
+    if (key!=NULL)
+    {
+        sprintf(longkey, "%s:%s", sec, key);
+    }
+    else
+    {
+        strcpy(longkey, sec);
+    }
 
-	/* Add (key,val) to dictionary */
-	dictionary_set(d, longkey, val);
-	return ;
+    /* Add (key,val) to dictionary */
+    dictionary_set(d, longkey, val);
+    return ;
 }
 
 
@@ -82,8 +85,10 @@ int iniparser_getnsec(dictionary * d)
 
     if (d==NULL) return -1 ;
     nsec=0 ;
-    for (i=0 ; i<d->n ; i++) {
-        if (strchr(d->key[i], ':')==NULL) {
+    for (i=0 ; i<d->n ; i++)
+    {
+        if (strchr(d->key[i], ':')==NULL)
+        {
             nsec ++ ;
         }
     }
@@ -113,14 +118,17 @@ char * iniparser_getsecname(dictionary * d, int n)
 
     if (d==NULL || n<0) return NULL ;
     foundsec=0 ;
-    for (i=0 ; i<d->n ; i++) {
-        if (strchr(d->key[i], ':')==NULL) {
+    for (i=0 ; i<d->n ; i++)
+    {
+        if (strchr(d->key[i], ':')==NULL)
+        {
             foundsec++ ;
             if (foundsec>n)
                 break ;
         }
     }
-    if (foundsec<=n) {
+    if (foundsec<=n)
+    {
         return NULL ;
     }
     return d->key[i] ;
@@ -142,17 +150,21 @@ char * iniparser_getsecname(dictionary * d, int n)
 /*--------------------------------------------------------------------------*/
 void iniparser_dump(dictionary * d, FILE * f)
 {
-	int		i ;
+    int		i ;
 
-	if (d==NULL || f==NULL) return ;
-	for (i=0 ; i<d->n ; i++) {
-		if (d->val[i]!=NULL) {
-			fprintf(f, "[%s]=[%s]\n", d->key[i], d->val[i]);
-		} else {
-			fprintf(f, "[%s]=UNDEF\n", d->key[i]);
-		}
-	}
-	return ;
+    if (d==NULL || f==NULL) return ;
+    for (i=0 ; i<d->n ; i++)
+    {
+        if (d->val[i]!=NULL)
+        {
+            fprintf(f, "[%s]=[%s]\n", d->key[i], d->val[i]);
+        }
+        else
+        {
+            fprintf(f, "[%s]=UNDEF\n", d->key[i]);
+        }
+    }
+    return ;
 }
 
 
@@ -172,28 +184,33 @@ void iniparser_dump(dictionary * d, FILE * f)
 /*--------------------------------------------------------------------------*/
 void iniparser_dump_lua(dictionary * d, FILE * f)
 {
-	int		i ;
-	char	lua_s[ASCIILINESZ+1];
-	int		j ;
+    int		i ;
+    char	lua_s[ASCIILINESZ+1];
+    int		j ;
 
-	if (d==NULL || f==NULL) return ;
-	fprintf(f, "ini={}\n");
-	for (i=0 ; i<d->n ; i++) {
-		memset(lua_s, 0, ASCIILINESZ+1);
-		strcpy(lua_s, d->key[i]);
-		j=0 ;
-		while (lua_s[j]) {
-			if (lua_s[j]==':' || lua_s[j]=='/')
-				lua_s[j] = '.' ;
-			j++ ;
-		}
-		if (d->val[i]!=NULL) {
-			fprintf(f, "ini.%s='%s'\n", lua_s, d->val[i]);
-		} else {
-			fprintf(f, "ini.%s={}\n", lua_s);
-		}
-	}
-	return ;
+    if (d==NULL || f==NULL) return ;
+    fprintf(f, "ini={}\n");
+    for (i=0 ; i<d->n ; i++)
+    {
+        memset(lua_s, 0, ASCIILINESZ+1);
+        strcpy(lua_s, d->key[i]);
+        j=0 ;
+        while (lua_s[j])
+        {
+            if (lua_s[j]==':' || lua_s[j]=='/')
+                lua_s[j] = '.' ;
+            j++ ;
+        }
+        if (d->val[i]!=NULL)
+        {
+            fprintf(f, "ini.%s='%s'\n", lua_s, d->val[i]);
+        }
+        else
+        {
+            fprintf(f, "ini.%s={}\n", lua_s);
+        }
+    }
+    return ;
 }
 
 
@@ -221,20 +238,25 @@ void iniparser_dump_ini(dictionary * d, FILE * f)
     if (d==NULL || f==NULL) return ;
 
     nsec = iniparser_getnsec(d);
-    if (nsec<1) {
+    if (nsec<1)
+    {
         /* No section in file: dump all keys as they are */
-        for (i=0 ; i<d->n ; i++) {
+        for (i=0 ; i<d->n ; i++)
+        {
             fprintf(f, "%s = %s\n", d->key[i], d->val[i]);
         }
         return ;
     }
-    for (i=0 ; i<nsec ; i++) {
+    for (i=0 ; i<nsec ; i++)
+    {
         secname = iniparser_getsecname(d, i) ;
         seclen  = (int)strlen(secname);
         fprintf(f, "\n[%s]\n", secname);
         sprintf(keym, "%s:", secname);
-        for (j=0 ; j<d->n ; j++) {
-            if (!strncmp(d->key[j], keym, seclen+1)) {
+        for (j=0 ; j<d->n ; j++)
+        {
+            if (!strncmp(d->key[j], keym, seclen+1))
+            {
                 fprintf(f, "%-30s = %s\n", d->key[j]+seclen+1, d->val[j]);
             }
         }
@@ -262,7 +284,7 @@ void iniparser_dump_ini(dictionary * d, FILE * f)
 
 char * iniparser_getstr(dictionary * d, char * key)
 {
-	return dictionary_get(d, strlwc(key));
+    return dictionary_get(d, strlwc(key));
 }
 
 
@@ -284,11 +306,11 @@ char * iniparser_getstr(dictionary * d, char * key)
 
 int iniparser_getint(dictionary * d, char * key, int notfound)
 {
-	char	*	str ;
+    char	*	str ;
 
-	str = iniparser_getstr(d, key);
-	if (str==NULL) return notfound ;
-	return atoi(str);
+    str = iniparser_getstr(d, key);
+    if (str==NULL) return notfound ;
+    return atoi(str);
 }
 
 
@@ -309,11 +331,11 @@ int iniparser_getint(dictionary * d, char * key, int notfound)
 
 double iniparser_getdouble(dictionary * d, char * key, double notfound)
 {
-	char	*	str ;
+    char	*	str ;
 
-	str = iniparser_getstr(d, key);
-	if (str==NULL) return notfound ;
-	return atof(str);
+    str = iniparser_getstr(d, key);
+    if (str==NULL) return notfound ;
+    return atof(str);
 }
 
 
@@ -354,16 +376,21 @@ double iniparser_getdouble(dictionary * d, char * key, double notfound)
 
 int iniparser_getboolean(dictionary * d, char * key, int notfound)
 {
-	char	*	c ;
-	int			ret ;
+    char	*	c ;
+    int			ret ;
 
-	c = iniparser_getstr(d, key);
-	if (c==NULL) return notfound ;
-    if (c[0]=='y' || c[0]=='Y' || c[0]=='1' || c[0]=='t' || c[0]=='T') {
+    c = iniparser_getstr(d, key);
+    if (c==NULL) return notfound ;
+    if (c[0]=='y' || c[0]=='Y' || c[0]=='1' || c[0]=='t' || c[0]=='T')
+    {
         ret = 1 ;
-    } else if (c[0]=='n' || c[0]=='N' || c[0]=='0' || c[0]=='f' || c[0]=='F') {
+    }
+    else if (c[0]=='n' || c[0]=='N' || c[0]=='0' || c[0]=='f' || c[0]=='F')
+    {
         ret = 0 ;
-    } else {
+    }
+    else
+    {
         ret = notfound ;
     }
     return ret;
@@ -384,27 +411,30 @@ int iniparser_getboolean(dictionary * d, char * key, int notfound)
 /*--------------------------------------------------------------------------*/
 
 int iniparser_find_entry(
-	dictionary	*	ini,
-	char		*	entry
+    dictionary	*	ini,
+    char		*	entry
 )
 {
-	int			i ;
-	unsigned	hash ;
-	int			found ;
+    int			i ;
+    unsigned	hash ;
+    int			found ;
     char    *   lc_entry ;
 
-	found = 0 ;
+    found = 0 ;
     lc_entry = strlwc(entry);
-	hash = dictionary_hash(lc_entry);
-	for (i=0 ; i<ini->n ; i++) {
-		if (hash==ini->hash[i]) {
-			if (!strcmp(lc_entry, ini->key[i])) {
-				found = 1 ;
-				break ;
-			}
-		}
-	}
-	return found ;
+    hash = dictionary_hash(lc_entry);
+    for (i=0 ; i<ini->n ; i++)
+    {
+        if (hash==ini->hash[i])
+        {
+            if (!strcmp(lc_entry, ini->key[i]))
+            {
+                found = 1 ;
+                break ;
+            }
+        }
+    }
+    return found ;
 }
 
 
@@ -424,13 +454,13 @@ int iniparser_find_entry(
 /*--------------------------------------------------------------------------*/
 
 int iniparser_setstr(
-	dictionary	*	ini,
-	char		*	entry,
-	char		*	val
+    dictionary	*	ini,
+    char		*	entry,
+    char		*	val
 )
 {
-	dictionary_set(ini, strlwc(entry), val);
-	return 0 ;
+    dictionary_set(ini, strlwc(entry), val);
+    return 0 ;
 }
 
 
@@ -451,55 +481,64 @@ int iniparser_setstr(
 
 dictionary * iniparser_load(char * ininame)
 {
-	dictionary	*	d ;
-	char		lin[ASCIILINESZ+1];
-	char		sec[ASCIILINESZ+1];
-	char		key[ASCIILINESZ+1];
-	char		val[ASCIILINESZ+1];
-	char	*	where ;
-	FILE	*	ini ;
-	int			lineno ;
+    dictionary	*	d ;
+    char		lin[ASCIILINESZ+1];
+    char		sec[ASCIILINESZ+1];
+    char		key[ASCIILINESZ+1];
+    char		val[ASCIILINESZ+1];
+    char	*	where ;
+    FILE	*	ini ;
+    int			lineno ;
 
-	if ((ini=fopen(ininame, "r"))==NULL) {
-		return NULL ;
-	}
+    if ((ini=fopen(ininame, "r"))==NULL)
+    {
+        return NULL ;
+    }
 
     sec[0]=0;
 
-	/*
-	 * Initialize a new dictionary entry
-	 */
-	d = dictionary_new(0);
-	lineno = 0 ;
-	while (fgets(lin, ASCIILINESZ, ini)!=NULL) {
-		lineno++ ;
-		where = strskp(lin); /* Skip leading spaces */
-		if (*where==';' || *where=='#' || *where==0)
-			continue ; /* Comment lines */
-		else {
-			if (sscanf(where, "[%[^]]", sec)==1) {
-				/* Valid section name */
-				strcpy(sec, strlwc(sec));
-				iniparser_add_entry(d, sec, NULL, NULL);
-			} else if (sscanf (where, "%[^=] = \"%[^\"]\"", key, val) == 2
-				   ||  sscanf (where, "%[^=] = '%[^\']'",   key, val) == 2
-				   ||  sscanf (where, "%[^=] = %[^;#]",     key, val) == 2) {
-				strcpy(key, strlwc(strcrop(key)));
-				/*
-				 * sscanf cannot handle "" or '' as empty value,
-				 * this is done here
-				 */
-				if (!strcmp(val, "\"\"") || !strcmp(val, "''")) {
-					val[0] = (char)0;
-				} else {
-					strcpy(val, strcrop(val));
-				}
-				iniparser_add_entry(d, sec, key, val);
-			}
-		}
-	}
-	fclose(ini);
-	return d ;
+    /*
+     * Initialize a new dictionary entry
+     */
+    d = dictionary_new(0);
+    lineno = 0 ;
+    while (fgets(lin, ASCIILINESZ, ini)!=NULL)
+    {
+        lineno++ ;
+        where = strskp(lin); /* Skip leading spaces */
+        if (*where==';' || *where=='#' || *where==0)
+            continue ; /* Comment lines */
+        else
+        {
+            if (sscanf(where, "[%[^]]", sec)==1)
+            {
+                /* Valid section name */
+                strcpy(sec, strlwc(sec));
+                iniparser_add_entry(d, sec, NULL, NULL);
+            }
+            else if (sscanf (where, "%[^=] = \"%[^\"]\"", key, val) == 2
+                     ||  sscanf (where, "%[^=] = '%[^\']'",   key, val) == 2
+                     ||  sscanf (where, "%[^=] = %[^;#]",     key, val) == 2)
+            {
+                strcpy(key, strlwc(strcrop(key)));
+                /*
+                 * sscanf cannot handle "" or '' as empty value,
+                 * this is done here
+                 */
+                if (!strcmp(val, "\"\"") || !strcmp(val, "''"))
+                {
+                    val[0] = (char)0;
+                }
+                else
+                {
+                    strcpy(val, strcrop(val));
+                }
+                iniparser_add_entry(d, sec, key, val);
+            }
+        }
+    }
+    fclose(ini);
+    return d ;
 }
 
 
@@ -518,7 +557,7 @@ dictionary * iniparser_load(char * ininame)
 
 void iniparser_freedict(dictionary * d)
 {
-	dictionary_del(d);
+    dictionary_del(d);
 }
 
 /* vim: set ts=4 et sw=4 tw=75 */

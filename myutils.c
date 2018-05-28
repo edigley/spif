@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <string.h>
 
-char *str_replace(char *orig, char *rep, char *with) 
+char *str_replace(char *orig, char *rep, char *with)
 {
     char *result; // the return string
     char *ins;    // the next insert point
@@ -24,7 +24,8 @@ char *str_replace(char *orig, char *rep, char *with)
         with = "";
     len_with = strlen(with);
 
-    for (count = 0; tmp = strstr(ins, rep); ++count) {
+    for (count = 0; tmp = strstr(ins, rep); ++count)
+    {
         ins = tmp + len_rep;
     }
 
@@ -33,7 +34,8 @@ char *str_replace(char *orig, char *rep, char *with)
     if (!result)
         return NULL;
 
-    while (count--) {
+    while (count--)
+    {
         ins = strstr(orig, rep);
         len_front = ins - orig;
         tmp = strncpy(tmp, orig, len_front) + len_front;
@@ -48,9 +50,9 @@ int deleteFilesFromFolder(char *folder, char * extension) //usage deleteFilesFro
 {
     char syscall[200];
     sprintf(syscall,"rm %s*.%s",folder,extension);
-    
+
     int err_syscall = system(syscall);
-    
+
     return err_syscall;
 }
 
@@ -65,9 +67,9 @@ int createLinkToFile(char *filename, char *filepath, char *folder)
     char syscall[200];
     printf("ELEVFILENAME: %s\n",filepath);
     sprintf(syscall,"ln %s%s %s%s",filepath,filename,folder,filename);
-    
+
     int err_syscall = system(syscall);
-    
+
     return err_syscall;
 }
 
@@ -75,6 +77,6 @@ int setEnvironmentVariable(char * var_name, char * var_value)
 {
     char syscall[200];
     sprintf(syscall,"%s=%s",var_name, var_value);
-    
+
     return putenv(syscall);
 }

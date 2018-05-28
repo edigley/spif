@@ -56,7 +56,7 @@ int get_population_farsite(POPULATIONTYPE * pobla, char * nombreInitSet)
         return -1;
     }
 
-    //printf("(get_population_farsite)-> Reading population (%s) \n", nombreInitSet); 
+    //printf("(get_population_farsite)-> Reading population (%s) \n", nombreInitSet);
     fscanf(fichero,"%d %d %d \n", &pobla->popuSize, &pobla->currentGen, &pobla->nParams);
 
     pobla->popu_fs = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE) * pobla->popuSize);
@@ -86,14 +86,14 @@ int get_population_default(POPULATIONTYPE * pobla, char * nombreInitSet)
         return -1;
     }
 
-    printf("Leyendo poblacion (%s) \n", nombreInitSet); 
+    printf("Leyendo poblacion (%s) \n", nombreInitSet);
     fscanf(fichero,"%d %d %d\n", &pobla->popuSize, &pobla->currentGen, &pobla->nParams);
     pobla->popu = (INDVTYPE *)malloc(sizeof(INDVTYPE) * pobla->popuSize);
 
     // read each individual
     for (i = 0; i <pobla->popuSize; i++)
     {
-        // read each parameter 
+        // read each parameter
         for (x = 0; x < pobla->popu[i].n; x ++)
             fscanf(fichero, "%f", &pobla->popu[i].p[x]);
 
@@ -121,7 +121,7 @@ int save_population_farsite(POPULATIONTYPE pobla, char * nombreSet)
 
     for (i = 0; i < pobla.popuSize; i++) //write each individual
         fprintf(fichero,"%1.2f %1.2f %1.2f %1.2f %1.0f %1.0f %1.0f %1.0f %1.4f %1.4f\n",pobla.popu_fs[i].m1, pobla.popu_fs[i].m10, pobla.popu_fs[i].m100, pobla.popu_fs[i].mherb, pobla.popu_fs[i].wndvel, pobla.popu_fs[i].wnddir, pobla.popu_fs[i].temp, pobla.popu_fs[i].hum, pobla.popu_fs[i].error, pobla.popu_fs[i].errorc);
-    
+
     fclose(fichero);
 
     return 1;
@@ -187,7 +187,7 @@ int print_populationScreen(POPULATIONTYPE pobla)
         for (x = 0; x < cantParams; x ++)
             printf(" %1.3f  ", pobla.popu[i].p[x]);
 
-        printf(" %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f  ", pobla.popu[i].fit, pobla.popu[i].dist, pobla.popu[i].dir, pobla.popu[i].vel, pobla.popu[i].error, pobla.popu[i].errorc, pobla.popu[i].wnddir,  pobla.popu[i].wndvel); 
+        printf(" %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f  ", pobla.popu[i].fit, pobla.popu[i].dist, pobla.popu[i].dir, pobla.popu[i].vel, pobla.popu[i].error, pobla.popu[i].errorc, pobla.popu[i].wnddir,  pobla.popu[i].wndvel);
 
         printf("\n");
     }
@@ -237,7 +237,7 @@ int sortPopulationByFitness(POPULATIONTYPE * p)
             if (p->popu[j].fit > p->popu[max].fit)
                 max = j;
 
-            // swapeo los individuos si cal
+        // swapeo los individuos si cal
         if (max != i)
         {
             //swapeo los parametros
@@ -257,7 +257,7 @@ int sortPopulationByFitness(POPULATIONTYPE * p)
             p->popu[i].dist = p->popu[max].dist;
             p->popu[max].dist = tmp;
 
-            tmp = p->popu[i].dir;               // direccion 
+            tmp = p->popu[i].dir;               // direccion
             p->popu[i].dir = p->popu[max].dir;
             p->popu[max].dir = tmp;
 
@@ -288,47 +288,47 @@ int sortPopulationByErrorFarsite(POPULATIONTYPE * p)
         if (min != i)
         {
             // swapeo los atributos
-            idtmp = p->popu_fs[i].id;              
+            idtmp = p->popu_fs[i].id;
             p->popu_fs[i].id = p->popu_fs[min].id;
             p->popu_fs[min].id = idtmp;
-          
-            tmp = p->popu_fs[i].m1;              
+
+            tmp = p->popu_fs[i].m1;
             p->popu_fs[i].m1 = p->popu_fs[min].m1;
             p->popu_fs[min].m1 = tmp;
 
-            tmp = p->popu_fs[i].m10;              
+            tmp = p->popu_fs[i].m10;
             p->popu_fs[i].m10 = p->popu_fs[min].m10;
             p->popu_fs[min].m10 = tmp;
 
-            tmp = p->popu_fs[i].m100;                
+            tmp = p->popu_fs[i].m100;
             p->popu_fs[i].m100 = p->popu_fs[min].m100;
             p->popu_fs[min].m100 = tmp;
 
-            tmp = p->popu_fs[i].mherb;               
+            tmp = p->popu_fs[i].mherb;
             p->popu_fs[i].mherb = p->popu_fs[min].mherb;
             p->popu_fs[min].mherb = tmp;
 
-            tmp = p->popu_fs[i].wndvel;             
+            tmp = p->popu_fs[i].wndvel;
             p->popu_fs[i].wndvel = p->popu_fs[min].wndvel;
             p->popu_fs[min].wndvel = tmp;
 
-            tmp = p->popu_fs[i].wnddir;                
+            tmp = p->popu_fs[i].wnddir;
             p->popu_fs[i].wnddir = p->popu_fs[min].wnddir;
             p->popu_fs[min].wnddir = tmp;
 
-            tmp = p->popu_fs[i].temp;                
+            tmp = p->popu_fs[i].temp;
             p->popu_fs[i].temp = p->popu_fs[min].temp;
             p->popu_fs[min].temp = tmp;
 
-            tmp = p->popu_fs[i].hum;                
+            tmp = p->popu_fs[i].hum;
             p->popu_fs[i].hum = p->popu_fs[min].hum;
             p->popu_fs[min].hum = tmp;
-            
-            tmp = p->popu_fs[i].error;                
+
+            tmp = p->popu_fs[i].error;
             p->popu_fs[i].error = p->popu_fs[min].error;
             p->popu_fs[min].error = tmp;
-            
-            tmp = p->popu_fs[i].errorc;                
+
+            tmp = p->popu_fs[i].errorc;
             p->popu_fs[i].errorc = p->popu_fs[min].errorc;
             p->popu_fs[min].errorc = tmp;
         } // if min != i
@@ -337,7 +337,7 @@ int sortPopulationByErrorFarsite(POPULATIONTYPE * p)
     return 1;
 }
 
-// ordeno por error (busco un minimo ahora!) 
+// ordeno por error (busco un minimo ahora!)
 int sortPopulationByErrorC(POPULATIONTYPE * p)
 {
     int i, j, max, k;
@@ -352,7 +352,7 @@ int sortPopulationByErrorC(POPULATIONTYPE * p)
             if (p->popu[j].errorc > p->popu[max].errorc)
                 max = j;
 
-            // swapeo los individuos si cal
+        // swapeo los individuos si cal
         if (max != i)
         {
             //swapeo los parametros
@@ -372,7 +372,7 @@ int sortPopulationByErrorC(POPULATIONTYPE * p)
             p->popu[i].dist = p->popu[max].dist;
             p->popu[max].dist = tmp;
 
-            tmp = p->popu[i].dir;               // direccion 
+            tmp = p->popu[i].dir;               // direccion
             p->popu[i].dir = p->popu[max].dir;
             p->popu[max].dir = tmp;
 
@@ -405,10 +405,10 @@ int sortPopulationByErrorC(POPULATIONTYPE * p)
 
 /**
  * Genera numeros Randon entre l y u
- * 
+ *
  * @param l      Limite inferior
  * @param u      Limite Superior
- * 
+ *
  * @return Valor Randon Generado
  */
 double
@@ -422,24 +422,24 @@ randLim(double l, double u)
 
 /**
  * busca el indice del individuo de menor error de toda la poblacion
- * 
+ *
  * @param p      poblacion
- * 
+ *
  * @return indice de individuo de menor error
  */
 int buscarIndividuoMinError(POPULATIONTYPE * p)
 {
-   int i, indMin;
-   double min = 999999.;
+    int i, indMin;
+    double min = 999999.;
 
-   for (i=0; i<p->popuSize; i++)
-       if (p->popu[i].error < min)
-       {
-           min = p->popu[i].error;
-           indMin = i;
-       }
+    for (i=0; i<p->popuSize; i++)
+        if (p->popu[i].error < min)
+        {
+            min = p->popu[i].error;
+            indMin = i;
+        }
 
-   return indMin;
+    return indMin;
 
 }
 
@@ -449,10 +449,10 @@ int buscarIndividuoMinError(POPULATIONTYPE * p)
  * es el de menor error. Como la poblacion no esta ordenada,
  * primero busco el mejor individio (min error) y luego lo
  * escribo en el fichero fBest
- * 
+ *
  * @param p      poblacion de la cual se quiere almacenar el mejor individuo
  * @param fBest  nombre del fichero donde se almacenara el mejor (se lee en datos.ini)
- * 
+ *
  * @return todo ok o no
  */
 int save_bestIndv(POPULATIONTYPE * p, char * fBest)
@@ -462,9 +462,9 @@ int save_bestIndv(POPULATIONTYPE * p, char * fBest)
     int numIndv, numGene;
     INDVTYPE indv;
     int cantParams, x, numindv;
- 
 
-   numindv = buscarIndividuoMinError(p);
+
+    numindv = buscarIndividuoMinError(p);
     get_indv(p, numindv, &indv);
     numIndv = p->popuSize;
     numGene = p->currentGen;
@@ -474,7 +474,8 @@ int save_bestIndv(POPULATIONTYPE * p, char * fBest)
     // si es la primer generacion, abro el fichero como w para que borre lo que haya
     // si no es la primera agrego las lineas al contenido existente
     if (numGene == 0)
-    {    if (!(mejores = fopen(fBest, "w")))
+    {
+        if (!(mejores = fopen(fBest, "w")))
         {
             printf("SAVE_BESTINDV:: no se pudo abrir el fichero %s \n", fBest);
             return -1;
@@ -483,10 +484,10 @@ int save_bestIndv(POPULATIONTYPE * p, char * fBest)
     else
     {
         if (!(mejores = fopen(fBest, "a")))
-         {
-             printf("SAVE_BESTINDV:: no se pudo abrir el fichero %s \n", fBest);
-             return -1;
-         }
+        {
+            printf("SAVE_BESTINDV:: no se pudo abrir el fichero %s \n", fBest);
+            return -1;
+        }
     }
 
     fprintf(mejores, "%d %d \n", numIndv, numGene);
@@ -494,7 +495,7 @@ int save_bestIndv(POPULATIONTYPE * p, char * fBest)
     cantParams = p->popu[numindv].n;
     fprintf(mejores, "%d ", cantParams);
     for (x = 0; x < cantParams; x ++)
-       fprintf(mejores," %1.3f  ", p->popu[numindv].p[x]);
+        fprintf(mejores," %1.3f  ", p->popu[numindv].p[x]);
     fprintf(mejores, " %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f    %1.2f \n", p->popu[numindv].fit, p->popu[numindv].dist, p->popu[numindv].dir, p->popu[numindv].vel, p->popu[numindv].error, p->popu[numindv].errorc, p->popu[numindv].wnddir,  p->popu[numindv].wndvel);
 
     fclose(mejores);
@@ -504,53 +505,55 @@ int save_bestIndv(POPULATIONTYPE * p, char * fBest)
 
 int evolve_population_farsite (POPULATIONTYPE * p, int eli, double cross, double mut, char * range, char * bestind, char * newpob)
 {
-  // EVOLVE POPULATION	
-      printf("GENETIC_Init_Farsite: BEGIN\n");
+    // EVOLVE POPULATION
+    printf("GENETIC_Init_Farsite: BEGIN\n");
 
-      if(GENETIC_Init_Farsite(eli,cross,mut,range,bestind,1,0,0)<1){
-          printf("\nERROR Initializing Genetic Algorithm! Exiting...\n");
-          return -1;
-      }
-      printf("GENETIC_Init_Farsite: END\n");
-      print_population_farsite(*p);
-      printf("GENETIC_Algorithm_Farsite: BEGIN\n");
+    if(GENETIC_Init_Farsite(eli,cross,mut,range,bestind,1,0,0)<1)
+    {
+        printf("\nERROR Initializing Genetic Algorithm! Exiting...\n");
+        return -1;
+    }
+    printf("GENETIC_Init_Farsite: END\n");
+    print_population_farsite(*p);
+    printf("GENETIC_Algorithm_Farsite: BEGIN\n");
 
-      if(GENETIC_Algorithm_Farsite(&p, newpob)<1){
-          printf("\nERROR Running Genetic Algorithm! Exiting...\n");
-          return -1;
-      }
+    if(GENETIC_Algorithm_Farsite(&p, newpob)<1)
+    {
+        printf("\nERROR Running Genetic Algorithm! Exiting...\n");
+        return -1;
+    }
 
-      printf("GENETIC_Algorithm_Farsite: END\n");
+    printf("GENETIC_Algorithm_Farsite: END\n");
 
-  return 0;
+    return 0;
 }
 
 void indFarsiteToArray (INDVTYPE_FARSITE * pin1,float * p1)
 {
-  p1[0] = pin1->m1;
-  p1[1] = pin1->m10;
-  p1[2] = pin1->m100;
-  p1[3] = pin1->mherb;
-  p1[4] = pin1->wndvel;
-  p1[5] = pin1->wnddir;
-  p1[6] = pin1->temp;
-  p1[7] = pin1->hum;
-  //p1[8] = pin1.error;
-  //p1[9] = pin1.errorc;
+    p1[0] = pin1->m1;
+    p1[1] = pin1->m10;
+    p1[2] = pin1->m100;
+    p1[3] = pin1->mherb;
+    p1[4] = pin1->wndvel;
+    p1[5] = pin1->wnddir;
+    p1[6] = pin1->temp;
+    p1[7] = pin1->hum;
+    //p1[8] = pin1.error;
+    //p1[9] = pin1.errorc;
 }
 
 void arrayToIndFarsite (float * p1, INDVTYPE_FARSITE * pin1)
 {
-  pin1->m1 = p1[0];
-  pin1->m10 = p1[1];
-  pin1->m100 = p1[2];
-  pin1->mherb = p1[3];
-  pin1->wndvel = p1[4];
-  pin1->wnddir = p1[5];
-  pin1->temp = p1[6];
-  pin1->hum = p1[7];
-  pin1->error = 0;
-  pin1->errorc = 0;
-  //p1[8] = pin1.error;
-  //p1[9] = pin1.errorc;
+    pin1->m1 = p1[0];
+    pin1->m10 = p1[1];
+    pin1->m100 = p1[2];
+    pin1->mherb = p1[3];
+    pin1->wndvel = p1[4];
+    pin1->wnddir = p1[5];
+    pin1->temp = p1[6];
+    pin1->hum = p1[7];
+    pin1->error = 0;
+    pin1->errorc = 0;
+    //p1[8] = pin1.error;
+    //p1[9] = pin1.errorc;
 }

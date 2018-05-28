@@ -60,7 +60,8 @@ char * strlwc(char * s)
     if (s==NULL) return NULL ;
     memset(l, 0, ASCIILINESZ+1);
     i=0 ;
-    while (s[i] && i<ASCIILINESZ) {
+    while (s[i] && i<ASCIILINESZ)
+    {
         l[i] = (char)tolower((int)s[i]);
         i++ ;
     }
@@ -91,7 +92,8 @@ char * strupc(char * s)
     if (s==NULL) return NULL ;
     memset(l, 0, ASCIILINESZ+1);
     i=0 ;
-    while (s[i] && i<ASCIILINESZ) {
+    while (s[i] && i<ASCIILINESZ)
+    {
         l[i] = (char)toupper((int)s[i]);
         i++ ;
     }
@@ -115,10 +117,10 @@ char * strupc(char * s)
 char * strskp(char * s)
 {
     char * skip = s;
-	if (s==NULL) return NULL ;
+    if (s==NULL) return NULL ;
     while (isspace((int)*skip) && *skip) skip++;
     return skip ;
-} 
+}
 
 
 
@@ -140,18 +142,19 @@ char * strskp(char * s)
 char * strcrop(char * s)
 {
     static char l[ASCIILINESZ+1];
-	char * last ;
+    char * last ;
 
     if (s==NULL) return NULL ;
     memset(l, 0, ASCIILINESZ+1);
-	strcpy(l, s);
-	last = l + strlen(l);
-	while (last > l) {
-		if (!isspace((int)*(last-1)))
-			break ;
-		last -- ;
-	}
-	*last = (char)0;
+    strcpy(l, s);
+    last = l + strlen(l);
+    while (last > l)
+    {
+        if (!isspace((int)*(last-1)))
+            break ;
+        last -- ;
+    }
+    *last = (char)0;
     return l ;
 }
 
@@ -174,39 +177,40 @@ char * strcrop(char * s)
 char * strstrip(char * s)
 {
     static char l[ASCIILINESZ+1];
-	char * last ;
-	
-    if (s==NULL) return NULL ;
-    
-	while (isspace((int)*s) && *s) s++;
-	
-	memset(l, 0, ASCIILINESZ+1);
-	strcpy(l, s);
-	last = l + strlen(l);
-	while (last > l) {
-		if (!isspace((int)*(last-1)))
-			break ;
-		last -- ;
-	}
-	*last = (char)0;
+    char * last ;
 
-	return (char*)l ;
+    if (s==NULL) return NULL ;
+
+    while (isspace((int)*s) && *s) s++;
+
+    memset(l, 0, ASCIILINESZ+1);
+    strcpy(l, s);
+    last = l + strlen(l);
+    while (last > l)
+    {
+        if (!isspace((int)*(last-1)))
+            break ;
+        last -- ;
+    }
+    *last = (char)0;
+
+    return (char*)l ;
 }
 
 /* Test code */
 #ifdef TEST
 int main(int argc, char * argv[])
 {
-	char * str ;
+    char * str ;
 
-	str = "\t\tI'm a lumberkack and I'm OK      " ;
-	printf("lowercase: [%s]\n", strlwc(str));
-	printf("uppercase: [%s]\n", strupc(str));
-	printf("skipped  : [%s]\n", strskp(str));
-	printf("cropped  : [%s]\n", strcrop(str));
-	printf("stripped : [%s]\n", strstrip(str));
+    str = "\t\tI'm a lumberkack and I'm OK      " ;
+    printf("lowercase: [%s]\n", strlwc(str));
+    printf("uppercase: [%s]\n", strupc(str));
+    printf("skipped  : [%s]\n", strskp(str));
+    printf("cropped  : [%s]\n", strcrop(str));
+    printf("stripped : [%s]\n", strstrip(str));
 
-	return 0 ;
+    return 0 ;
 }
 #endif
 /* vim: set ts=4 et sw=4 tw=75 */

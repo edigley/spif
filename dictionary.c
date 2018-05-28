@@ -49,7 +49,7 @@
 static void * mem_double(void * ptr, int size)
 {
     void    *   newptr ;
- 
+
     newptr = calloc(2*size, 1);
     memcpy(newptr, ptr, size);
     free(ptr);
@@ -76,20 +76,21 @@ static void * mem_double(void * ptr, int size)
 
 unsigned dictionary_hash(char * key)
 {
-	int			len ;
-	unsigned	hash ;
-	int			i ;
+    int			len ;
+    unsigned	hash ;
+    int			i ;
 
-	len = strlen(key);
-	for (hash=0, i=0 ; i<len ; i++) {
-		hash += (unsigned)key[i] ;
-		hash += (hash<<10);
-		hash ^= (hash>>6) ;
-	}
-	hash += (hash <<3);
-	hash ^= (hash >>11);
-	hash += (hash <<15);
-	return hash ;
+    len = strlen(key);
+    for (hash=0, i=0 ; i<len ; i++)
+    {
+        hash += (unsigned)key[i] ;
+        hash += (hash<<10);
+        hash ^= (hash>>6) ;
+    }
+    hash += (hash <<3);
+    hash ^= (hash >>11);
+    hash += (hash <<15);
+    return hash ;
 }
 
 
@@ -107,18 +108,18 @@ unsigned dictionary_hash(char * key)
 
 dictionary * dictionary_new(int size)
 {
-	dictionary	*	d ;
+    dictionary	*	d ;
 
-	/* If no size was specified, allocate space for DICTMINSZ */
-	if (size<1) size=DICTMINSZ ;
+    /* If no size was specified, allocate space for DICTMINSZ */
+    if (size<1) size=DICTMINSZ ;
 
-	d = (dictionary * ) malloc(sizeof(dictionary));	
-	d->n = 0 ;
-	d->size = size ;
-	d->val  = (char**) malloc(size * sizeof(char*));
-	d->key  =(char**) malloc(size * sizeof(char*));
-	d->hash =(unsigned*) malloc(size * sizeof(unsigned));
-	return d ;
+    d = (dictionary * ) malloc(sizeof(dictionary));
+    d->n = 0 ;
+    d->size = size ;
+    d->val  = (char**) malloc(size * sizeof(char*));
+    d->key  =(char**) malloc(size * sizeof(char*));
+    d->hash =(unsigned*) malloc(size * sizeof(unsigned));
+    return d ;
 }
 
 
@@ -134,20 +135,21 @@ dictionary * dictionary_new(int size)
 
 void dictionary_del(dictionary * d)
 {
-	int		i ;
+    int		i ;
 
-	if (d==NULL) return ;
-	for (i=0 ; i<d->n ; i++) {
-		if (d->val[i]!=NULL)
-			free(d->val[i]);
-		if (d->key[i]!=NULL)
-			free(d->key[i]);
-	}
-	free(d->val);
-	free(d->key);
-	free(d->hash);
-	free(d);
-	return ;
+    if (d==NULL) return ;
+    for (i=0 ; i<d->n ; i++)
+    {
+        if (d->val[i]!=NULL)
+            free(d->val[i]);
+        if (d->key[i]!=NULL)
+            free(d->key[i]);
+    }
+    free(d->val);
+    free(d->key);
+    free(d->hash);
+    free(d);
+    return ;
 }
 
 
@@ -167,18 +169,21 @@ void dictionary_del(dictionary * d)
 /*--------------------------------------------------------------------------*/
 char * dictionary_get(dictionary * d, char * key)
 {
-	unsigned	hash ;
-	int			i ;
+    unsigned	hash ;
+    int			i ;
 
-	hash = dictionary_hash(key);
-	for (i=0 ; i<d->n ; i++) {
-		if (hash==d->hash[i]) {
-			if (key[0] == d->key[i][0]) {
-				return d->val[i] ;
-			}
-		}
-	}
-	return NULL ;
+    hash = dictionary_hash(key);
+    for (i=0 ; i<d->n ; i++)
+    {
+        if (hash==d->hash[i])
+        {
+            if (key[0] == d->key[i][0])
+            {
+                return d->val[i] ;
+            }
+        }
+    }
+    return NULL ;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -187,7 +192,7 @@ char * dictionary_get(dictionary * d, char * key)
   @param	d		dictionary object to search.
   @param	key		Key to look for in the dictionary.
   @param	def		Default value for the key if not found.
-  @return 	char	
+  @return 	char
 
   This function locates a key in a dictionary using dictionary_get,
   and returns the first char of the found string.
@@ -195,13 +200,16 @@ char * dictionary_get(dictionary * d, char * key)
 /*--------------------------------------------------------------------------*/
 char dictionary_getchar(dictionary * d, char * key, char def)
 {
-	char * v ;
+    char * v ;
 
-	if ((v=dictionary_get(d,key))==NULL) {
-		return def ;
-	} else {
-		return v[0] ;
-	}
+    if ((v=dictionary_get(d,key))==NULL)
+    {
+        return def ;
+    }
+    else
+    {
+        return v[0] ;
+    }
 }
 
 
@@ -220,13 +228,16 @@ char dictionary_getchar(dictionary * d, char * key, char def)
 /*--------------------------------------------------------------------------*/
 int dictionary_getint(dictionary * d, char * key, int def)
 {
-	char * v ;
+    char * v ;
 
-	if ((v=dictionary_get(d,key))==NULL) {
-		return def ;
-	} else {
-		return atoi(v);
-	}
+    if ((v=dictionary_get(d,key))==NULL)
+    {
+        return def ;
+    }
+    else
+    {
+        return atoi(v);
+    }
 }
 
 /*-------------------------------------------------------------------------*/
@@ -244,13 +255,16 @@ int dictionary_getint(dictionary * d, char * key, int def)
 /*--------------------------------------------------------------------------*/
 double dictionary_getdouble(dictionary * d, char * key, double def)
 {
-	char * v ;
+    char * v ;
 
-	if ((v=dictionary_get(d,key))==NULL) {
-		return def ;
-	} else {
-		return atof(v);
-	}
+    if ((v=dictionary_get(d,key))==NULL)
+    {
+        return def ;
+    }
+    else
+    {
+        return atof(v);
+    }
 }
 
 
@@ -281,56 +295,67 @@ double dictionary_getdouble(dictionary * d, char * key, double def)
 
 void dictionary_set(dictionary * d, char * key, char * val)
 {
-	int			i ;
-	unsigned	hash ;
+    int			i ;
+    unsigned	hash ;
 
-	if (d==NULL || key==NULL) return ;
-	
-	/* Compute hash for this key */
-	hash = dictionary_hash(key) ;
-	/* Find if value is already in blackboard */
-	if (d->n>0) {
-		for (i=0 ; i<d->n ; i++) {
-			if (hash==d->hash[i]) { /* Same hash value */
-				if (key[0]==d->key[i][0]) {	 /* Same key */
-					/* Found a value: modify and return */
-					if (d->val[i]!=NULL)
-						free(d->val[i]);
-					if (val!=NULL) {
-						d->val[i] = strdup(val);
-					} else {
-						d->val[i] = NULL ;
-					}
-					return ;
-				}
-			}
-		}
-	}
+    if (d==NULL || key==NULL) return ;
 
-	/* Add a new value */
-	/* See if dictionary needs allocation */
-	if (d->n==d->size) {
+    /* Compute hash for this key */
+    hash = dictionary_hash(key) ;
+    /* Find if value is already in blackboard */
+    if (d->n>0)
+    {
+        for (i=0 ; i<d->n ; i++)
+        {
+            if (hash==d->hash[i])   /* Same hash value */
+            {
+                if (key[0]==d->key[i][0])  	 /* Same key */
+                {
+                    /* Found a value: modify and return */
+                    if (d->val[i]!=NULL)
+                        free(d->val[i]);
+                    if (val!=NULL)
+                    {
+                        d->val[i] = strdup(val);
+                    }
+                    else
+                    {
+                        d->val[i] = NULL ;
+                    }
+                    return ;
+                }
+            }
+        }
+    }
 
-		/* Reached maximum size: reallocate blackboard */
-		d->val  =(char**) mem_double(d->val, d->size * sizeof(char*)) ;
-		d->key  =(char**) mem_double(d->key, d->size * sizeof(char*)) ;
-		d->hash =(unsigned*) mem_double(d->hash, d->size * sizeof(unsigned)) ;
+    /* Add a new value */
+    /* See if dictionary needs allocation */
+    if (d->n==d->size)
+    {
 
-		/* Double size */
-		d->size *= 2 ;
-	}
+        /* Reached maximum size: reallocate blackboard */
+        d->val  =(char**) mem_double(d->val, d->size * sizeof(char*)) ;
+        d->key  =(char**) mem_double(d->key, d->size * sizeof(char*)) ;
+        d->hash =(unsigned*) mem_double(d->hash, d->size * sizeof(unsigned)) ;
 
-	/* Copy key */
+        /* Double size */
+        d->size *= 2 ;
+    }
 
-	d->key[d->n] = strdup(key);
-	if (val!=NULL) {
-		d->val[d->n] = strdup(val);
-	} else {
-		d->val[d->n] = NULL ;
-	}
-	d->hash[d->n] = hash;
-	d->n ++ ;
-	return ;
+    /* Copy key */
+
+    d->key[d->n] = strdup(key);
+    if (val!=NULL)
+    {
+        d->val[d->n] = strdup(val);
+    }
+    else
+    {
+        d->val[d->n] = NULL ;
+    }
+    d->hash[d->n] = hash;
+    d->n ++ ;
+    return ;
 }
 
 
@@ -350,9 +375,9 @@ void dictionary_set(dictionary * d, char * key, char * val)
 
 void dictionary_setint(dictionary * d, char * key, int val)
 {
-	char	sval[MAXVALSZ];
-	sprintf(sval, "%d", val);
-	dictionary_set(d, key, sval);
+    char	sval[MAXVALSZ];
+    sprintf(sval, "%d", val);
+    dictionary_set(d, key, sval);
 }
 
 
@@ -372,9 +397,9 @@ void dictionary_setint(dictionary * d, char * key, int val)
 
 void dictionary_setdouble(dictionary * d, char * key, double val)
 {
-	char	sval[MAXVALSZ];
-	sprintf(sval, "%g", val);
-	dictionary_set(d, key, sval);
+    char	sval[MAXVALSZ];
+    sprintf(sval, "%g", val);
+    dictionary_set(d, key, sval);
 }
 
 
@@ -394,19 +419,21 @@ void dictionary_setdouble(dictionary * d, char * key, double val)
 
 void dictionary_dump(dictionary * d, FILE * out)
 {
-	int		i ;
+    int		i ;
 
-	if (d==NULL || out==NULL) return ;
-	if (d->n<1) {
-		fprintf(out, "empty dictionary\n");
-		return ;
-	}
-	for (i=0 ; i<d->n ; i++) {
-		fprintf(out, "%20s\t[%s]\n",
-				d->key[i],
-				d->val[i]);
-	}
-	return ;
+    if (d==NULL || out==NULL) return ;
+    if (d->n<1)
+    {
+        fprintf(out, "empty dictionary\n");
+        return ;
+    }
+    for (i=0 ; i<d->n ; i++)
+    {
+        fprintf(out, "%20s\t[%s]\n",
+                d->key[i],
+                d->val[i]);
+    }
+    return ;
 }
 
 
@@ -416,35 +443,38 @@ void dictionary_dump(dictionary * d, FILE * out)
 #define NVALS 20000
 int main(int argc, char *argv[])
 {
-	dictionary	*	d ;
-	char	*	val ;
-	int			i ;
-	char		cval[90] ;
+    dictionary	*	d ;
+    char	*	val ;
+    int			i ;
+    char		cval[90] ;
 
-	/* allocate blackboard */
-	printf("allocating...\n");
-	d = dictionary_new(0);
-	
-	/* Set values in blackboard */
-	printf("setting %d values...\n", NVALS);
-	for (i=0 ; i<NVALS ; i++) {
-		sprintf(cval, "%04d", i);
-		dictionary_set(d, cval, "salut");
-	}
-	printf("getting %d values...\n", NVALS);
-	for (i=0 ; i<NVALS ; i++) {
-		sprintf(cval, "%04d", i);
-		val = dictionary_get(d, cval);
-		if (val==NULL) {
-			printf("cannot get value for key [%s]\n", cval);
-		}
-	}
-	printf("deallocating...\n");
-	dictionary_del(d);
+    /* allocate blackboard */
+    printf("allocating...\n");
+    d = dictionary_new(0);
+
+    /* Set values in blackboard */
+    printf("setting %d values...\n", NVALS);
+    for (i=0 ; i<NVALS ; i++)
+    {
+        sprintf(cval, "%04d", i);
+        dictionary_set(d, cval, "salut");
+    }
+    printf("getting %d values...\n", NVALS);
+    for (i=0 ; i<NVALS ; i++)
+    {
+        sprintf(cval, "%04d", i);
+        val = dictionary_get(d, cval);
+        if (val==NULL)
+        {
+            printf("cannot get value for key [%s]\n", cval);
+        }
+    }
+    printf("deallocating...\n");
+    dictionary_del(d);
 #if _XMEMORY_
-	xmemory_status();
+    xmemory_status();
 #endif
-	return 0 ;
+    return 0 ;
 }
 #endif
 /* vim: set ts=4 et sw=4 tw=75 */
