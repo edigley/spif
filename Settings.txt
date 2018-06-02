@@ -1,9 +1,9 @@
 Inputs:
    Landscape: CASE_7.LCP
-   Weather: GEN_10_IND_0.WTR
-   Winds: GEN_10_IND_0.WND
-   Adjustments: GEN_10_IND_0.ADJ
-   Fuel Moistures: GEN_10_IND_0.FMS
+   Weather: GEN_5_IND_4.WTR
+   Winds: GEN_5_IND_4.WND
+   Adjustments: GEN_5_IND_4.ADJ
+   Fuel Moistures: GEN_5_IND_4.FMS
    Conversions: NONE
    Custom Fuel Models: CUSTOMFUEL.FMD
    Coarse Woody Fuels: NONE
@@ -11,13 +11,13 @@ Inputs:
    Project File: 
    Bookmark File: 
 Outputs:
-   Raster file: Raster File: /home/ccarrillo/genetic/proba5/CASE_7/BASIC/CAL_1/output/raster_10_0.toa
+   Raster file: Raster File: /home/sgeadmin/two_stage_framework/proba5/CASE_7/BASIC/CAL_1/output/raster_5_4.toa
    Display Units: METRIC
    Output File Units: METRIC
 Model:
    Parameters: TimeStep 30.0
    Parameters: Visibles 60.0, 1440.0
-   Parameters: Perim Res 300.0
+   Parameters: Perim Res 100.0
    Parameters: Dist Res 100.0
    Options: Crown Fire: DISABLED
    Options: Spotting: DISABLED
@@ -36,7 +36,7 @@ Simulate:
    Options: Restore Ignitions: FALSE
    Options: Rotation Sensitive Ignitions: FALSE
    Options: Show Fires as Grown: TRUE
-   Options: Ignition Spread Rates: FALSE
+   Options: Ignition Spread Rates: TRUE
    Options: Preserve Inactive Enclaves: TRUE
    Options: Simulation Threads: 01
 Attack:

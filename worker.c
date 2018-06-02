@@ -109,24 +109,35 @@ int initWorker(char * datafile)
 {
     dictionary * datos;
     datos 	= iniparser_load(datafile);
-
+    int i=0;
     // fichero y size de individuos (conj de parametros)
+    printf("%d\n",++i);
     //
-    CalibrateAdjustments = iniparser_getint(datos,"main:CalibrateAdjusments",0);
+//    CalibrateAdjustments = iniparser_getint(datos,"main:CalibrateAdjusments",0);
+    printf("%d\n",++i);
     FuelsToCalibrateFileName	= iniparser_getstr(datos,"main:FuelsToCalibrate");
+    printf("%d\n",++i);
     landscapeName = iniparser_getstr(datos,"farsite:landscapeName");
+    printf("%d\n",++i);
     landscapePath = iniparser_getstr(datos,"farsite:landscapePath");
+    printf("%d\n",++i);
     pobini  	= iniparser_getstr(datos, "main:initial_population");
+    printf("%d\n",++i);
     final_popu 	= iniparser_getstr(datos, "main:final_population");
+    printf("%d\n",++i);
     bests_indv 	= iniparser_getstr(datos, "main:bests_indv");
+    printf("%d\n",++i);
     simulator   = iniparser_getstr(datos, "main:simulator");
+    printf("%d\n",++i);
     chunkSize   = iniparser_getint(datos, "main:chunkSize",1);
+    printf("%d\n",++i);
     numind          = iniparser_getint(datos, "main:numind",1);
     doWindFields    = iniparser_getint(datos, "main:doWindFields", 0);
     doMeteoSim    = iniparser_getint(datos, "main:doMeteoSim", 0);
     TracePathFiles              = iniparser_getstr(datos, "main:TracePathFiles");
     Trace		= iniparser_getint(datos,"main:Trace",1);
 
+    printf("%d\n",++i);
     elitism         = iniparser_getint(datos, "genetic:elitism",1);
     pMutation       = iniparser_getdouble(datos, "genetic:pMutation",1.0);
     pCrossover      = iniparser_getdouble(datos, "genetic:pCrossover",1.0);
@@ -143,6 +154,7 @@ int initWorker(char * datafile)
     CellWd = iniparser_getdouble(datos, "mapssize:CellWd", 1.0);
     CellHt = iniparser_getdouble(datos, "mapssize:CellHt", 1.0);
 
+    printf("%d\n",++i);
     // number of iterations (to evolve the population)
     alg     = iniparser_getstr(datos, "main:algorithm");
 
@@ -153,6 +165,7 @@ int initWorker(char * datafile)
     elevfilepath   = iniparser_getstr(datos, "windninja:elevfilepath");
     atm_file   = iniparser_getstr(datos, "windninja:atmFile");
     FireSimLimit  = iniparser_getint(datos, "farsite:ExecutionLimit", 1);
+    printf("%d\n",++i);
     if (CalibrateAdjustments)
     {
         FILE *FuelsToCalibrateFILE;
@@ -638,6 +651,8 @@ int NewWaitB(int * pIDs,int childs)
 
 void worker(int taskid, char * datosIni, int JobID, double Start)
 {
+
+    printf("It is going to launch worker for tarskid %d, datos %s, jobId %d, start %d \n", taskid, datosIni, JobID, Start);
     int stop = 0;
     int nroBloque;
     int num_generation;
@@ -698,7 +713,9 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
     proc_vect[Cores + 1] = -1;
 
     //INDVTYPE_FARSITE * poblacion = (INDVTYPE_FARSITE*)malloc(chunkSize * sizeof(INDVTYPE_FARSITE)*8);
+    printf("It's about to initWorker...\n");
     initWorker(datosIni);
+    printf("Worker initiated...\n");
     double MaxAvaibleTime = FireSimLimit;
     double GenTime;
     for (i=0; i<Cores; i++)

@@ -29,6 +29,6 @@ module list
 
 echo "--------------------------"
 
-/home/cbrun/Framework/Fases2/FarsiteSIM/ORIGINAL/core/farsite4P -i /home/cbrun/Framework/FFSS/Jonquera/pob$1/output/settings_10_$2.txt -f 4 -t 1 -g 2 -n 3 -w 1 -p 120m
+/home/sgeadmin/two_stage_framework/farsite/farsite4P -i /home/cbrun/Framework/FFSS/Jonquera/pob$1/output/settings_10_$2.txt -f 4 -t 1 -g 2 -n 3 -w 1 -p 120m
 
 exit 0

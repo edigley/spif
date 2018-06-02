@@ -1,1 +1,0 @@
-/home/tartes/Soft/openmpi/bin/mpirun -n 9 --rankfile rankbatman --report-bindings --display-allocation -report-bindings /scratch/078-hpca4se-comp/cbrun/SPIF/genetic 672975 /scratch/078-hpca4se-comp/cbrun/SPIF/Jonquera/pob0/datos.ini

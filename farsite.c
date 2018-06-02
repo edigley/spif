@@ -134,7 +134,8 @@ int runSimFarsite(INDVTYPE_FARSITE individuo, char * simID, double * err, int nu
     //printf("Worker:%d:",myid);
     //sprintf(syscall,"%sfarsite4P -i %s -l %d -f %d -t 1 -g %d -n %d -w %d",farsite_path,settings_filename,FireSimLimit,individuo.threads,numgen,individuo.id,myid);
 //    sprintf(syscall,"timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %s",AvailTime,farsite_path,settings_filename,individuo.threads,numgen,individuo.id,myid,perimeterResolution);
-    sprintf(syscall,"timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",AvailTime,farsite_path,settings_filename,individuo.threads,numgen,individuo.id,myid,res);
+    print_indv_farsite(individuo);
+    sprintf(syscall,"/usr/bin/time --format \"%d %d %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",numgen,individuo.id,AvailTime,farsite_path,settings_filename,individuo.threads,numgen,individuo.id,myid,res);
 
     /*********** LLAMADA FARSITE ORIGINAL ***********/
     //sprintf(syscall,"%sfarsite4 %s",farsite_path,settings_filename);
