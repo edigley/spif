@@ -17,17 +17,19 @@ por
 
 #include <stdio.h>
 
-#define INFINITY 999999999.
+#define INFINITY 999999
 
 double fitnessYError(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1, double t2, double * error);
 double errorXor(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1, double t2, double * error);
 
-double
-fitnessYError(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1, double t2, double * error)
+double fitnessYError(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1, double t2, double * error)
 {
     int Cells = Rows * Cols, cell;
-    int sumI=0, sumU=0, sumIni=0, sumReal = 0;
+    int sumI=0, sumU=0, sumIni=0, sumReal = 0, sumSim=0;
     int a,b;
+    // float alfa=1, beta=2, gamma=1;
+
+    // float alfa, beta, gamma;
     double fit;
 
 
@@ -47,6 +49,7 @@ fitnessYError(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1
 
         sumIni += mapaReal[cell] <= t1 ? 1 : 0;
         sumReal += mapaReal[cell] <= t2 ? 1: 0;
+        sumSim += mapaSim[cell] <= t2 ? 1 : 0;
 
         sumI += ((a==1) && (b==1)) ? 1 : 0;
         sumU += ((a==1) || (b==1)) ? 1 : 0;
@@ -56,16 +59,47 @@ fitnessYError(double * mapaReal, double * mapaSim, int Rows, int Cols, double t1
     if (sumU != sumIni)
         fit = ((float)(sumI - sumIni)) / ((float)(sumU - sumIni));
     else
-        fit = 0.0;
+        fit = 0.0f;
 
     if (sumReal != sumIni)
+//BIAS'
         * error = (((float)(sumU - sumIni)) - ((float)(sumI - sumIni))) / ((float)(sumReal - sumIni));
+
+//BIAS'+FAR
+    //  * error = (((((float)(sumU - sumIni)) - ((float)(sumI - sumIni))) / ((float)(sumReal - sumIni)))+((((float)(sumU - sumIni)) - ((float)(sumReal - sumIni))) / ((float)(sumSim - sumIni))))/2;
+
+//POD'+FAR
+    //* error = (((((float)(sumReal-sumIni))-((float)(sumI-sumIni)))/((float)(sumReal-sumIni)))+((((float)(sumSim-sumIni))-((float)(sumI-sumIni)))/((float)(sumSim-sumIni))))/2;
+
+//CAOS
+    // * error = (((((float)(sumU - sumIni)) - ((float)(sumI - sumIni))) / ((float)(sumReal - sumIni)))+((((float)(sumU-sumIni))-((float)(sumI-sumIni))) / ((float)(sumSim-sumIni))))/2;
+
+//BIAS'-FAR
+    // * error = (((((float)(sumU - sumIni)) - ((float)(sumI - sumIni))) / ((float)(sumReal - sumIni)))-((((float)(sumU-sumIni))-((float)(sumReal-sumIni)))/((float)(sumSim-sumIni))))/2;
+
+//NEW1
+
+//   float alfa=1, beta=2;
+
+    //* error = (alfa*(((float)(sumU-sumIni))-((float)(sumReal-sumIni))))+(beta*(((float)(sumU-sumIni))-((float)(sumSim-sumIni))));
+
+//NEW2
+    // float alfa=1, beta=2, gamma=1;
+
+//     * error = (alfa*(((float)(sumU-sumIni))-((float)(sumReal-sumIni))))+(beta*(((float)(sumU-sumIni))-((float)(sumSim-sumIni))))-(gamma*((float)(sumI-sumIni)));
+
+//NEW3
+//alfa=(((float)(sumI-sumIni))/((float)(sumSim-sumIni)))
+//beta=(((float)(sumI-sumIni))/((float)(sumReal-sumIni)))
+//
+    // * error = ((((float)(sumI-sumIni))/((float)(sumSim-sumIni)))*(((float)(sumU-sumIni))-((float)(sumReal-sumIni))))+((((float)(sumI-sumIni))/((float)(sumReal-sumIni)))*(((float)(sumU-sumIni))-((float)(sumSim-sumIni))));
+//
     else
-        * error = 9999.0;
+        * error = 9999.0f;
 
 //   printf("sumU= %d sumI= %d sumIni= %d sumReal=%d  fitness:%f error:%f t1:%f t2:%f \n", sumU, sumI, sumIni, sumReal, fit, * error, t1, t2);
-    fit=1234.0;
-    return (double)fit;
+    fit=1234.0f;
+    return fit;
 
 }
 

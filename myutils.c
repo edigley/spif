@@ -19,7 +19,11 @@ char *str_replace(char *orig, char *rep, char *with)
     if (!rep || !(len_rep = strlen(rep)))
         return NULL;
     if (!(ins = strstr(orig, rep)))
-        return NULL;
+    {
+        tmp = malloc(strlen(orig));
+        strcpy(tmp,orig);
+        return tmp;
+    }
     if (!with)
         with = "";
     len_with = strlen(with);
@@ -65,7 +69,7 @@ int createFolder(char * folder)
 int createLinkToFile(char *filename, char *filepath, char *folder)
 {
     char syscall[200];
-    printf("ELEVFILENAME: %s\n",filepath);
+    //printf("ELEVFILENAME: %s\n",filepath);
     sprintf(syscall,"ln %s%s %s%s",filepath,filename,folder,filename);
 
     int err_syscall = system(syscall);

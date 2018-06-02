@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   windninja.h
  * Author: carlos
  *

@@ -7,7 +7,10 @@
 #include "population.h"
 #include "genetic.h"
 #include <time.h>
-
+#include <sys/utsname.h>
+#define _GNU_SOURCE
+#include <utmpx.h>
+#include "iniparser.h"
 
 #define MASTER_ID 0
 
@@ -17,33 +20,69 @@
 //Carlos B.
 //argv[1] --> Archivo de parámetros de la simulación
 
-int simID;
+//int simID=0;
+
+
+
+
 
 //Carlos B.
 int main(int argc,char *argv[])
 {
-    char *      dataIniFile;
-    int  	myID, ntasks;
-    int  	namelen;
-    char 	processor_name[MPI_MAX_PROCESSOR_NAME];
-    double t1,t2;
-    time_t start, end;
-    double duration = 0;
-
+    /*
+        char       dataIniFile[500];
+        int  	myID, ntasks;
+        int  	namelen;
+    ///    char 	processor_name[MPI_MAX_PROCESSOR_NAME];
+    	 double t1,t2;
+    	 time_t start, end;
+    	 double duration = 0;
+        int JobID;
+        int cpu;
+        int FuelsN=0;
+    */
+    //double origin = MPI_Wtime();
     int provided;
-    time(&start);
-    MPI_Init_thread(&argc,&argv, MPI_THREAD_MULTIPLE, &provided);
-
+    int         myID, ntasks;
+    MPI_Init_thread(&argc,&argv, MPI_THREAD_SINGLE, &provided);
     MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
     MPI_Comm_rank(MPI_COMM_WORLD,&myID);
 
-    dataIniFile = argv[1];
-    t1 = MPI_Wtime();
+    char      * dataIniFile;
+    //int         myID, ntasks;
+    int         namelen;
+///    char     processor_name[MPI_MAX_PROCESSOR_NAME];
+    double t1,t2;
+    time_t start, end;
+    double duration = 0;
+    int JobID;
+    int FuelsN=0;
+//    MPI_Init(&argc,&argv);
+    printf("Start!\n");
+    time(&start);
+    //MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
+    //MPI_Comm_rank(MPI_COMM_WORLD,&myID);
+    //char hostname[2048];
+    struct utsname userinfo;
+    int cpu;
 
+    double origin = MPI_Wtime();
+    JobID = atoi(argv[1]);
+    dataIniFile = argv[2];
+    //strcpy(dataIniFile,argv[2]);
+    t1 = MPI_Wtime();
+    //printf("EXECUTION STARTS!:%d\n",myID);
+    //return 1;
     if(myID == MASTER_ID)
     {
-        printf("Soy el master\n");
-        if (argc == 2)
+        if(uname(&userinfo)>=0)
+        {
+            cpu = sched_getcpu();
+            printf("\n***** Master System Details ******\nSystem Name    : %s\nSystem Node    : %s\nSystem Release : %s\nSystem Version : %s\nSystem Machine : %s\nCPU:%d\n",userinfo.sysname,userinfo.nodename,userinfo.release,userinfo.version,userinfo.machine,cpu);
+        }
+        else
+            printf("\nSystem details fetch failed..\n");
+        if (argc == 3)
         {
             switch(provided)
             {
@@ -60,44 +99,8 @@ int main(int argc,char *argv[])
                 printf("MPI_THREAD_MULTIPLE\n");
                 break;
             }
-            master(dataIniFile, ntasks);
-            /*          INDVTYPE_FARSITE pin1;
-                        INDVTYPE_FARSITE pin2;
-                        INDVTYPE_FARSITE c1;
-                        INDVTYPE_FARSITE c2;
-
-                        pin1.id = 1;
-                        pin1.m1 = 0;
-                        pin1.m10 = 0;
-                        pin1.m100 = 0;
-                        pin1.mherb = 0;
-                        pin1.wnddir = 0;
-                        pin1.wndvel = 0;
-                        pin1.temp = 0;
-                        pin1.hum = 0;
-                        pin1.error = 0;
-                        pin1.errorc = 0;
-
-                        pin2.id = 2;
-                        pin2.m1 = 1;
-                        pin2.m10 = 1;
-                        pin2.m100 = 1;
-                        pin2.mherb = 1;
-                        pin2.wnddir = 1;
-                        pin2.wndvel = 1;
-                        pin2.temp = 1;
-                        pin2.hum = 1;
-                        pin2.error = 1;
-                        pin2.errorc = 1;
-
-                        GENETIC_Crossover_Farsite(pin1, pin2, &c1, &c2);
-
-                        printf("PADRES:\n");
-                        print_indv_farsite(pin1);
-                        print_indv_farsite(pin2);
-                        printf("HIJOS:\n");
-                        print_indv_farsite(c1);
-                        print_indv_farsite(c2);   */
+            //double origin = MPI_Wtime();
+            master(dataIniFile, ntasks,JobID,origin);
         }
         else
         {
@@ -106,16 +109,31 @@ int main(int argc,char *argv[])
     }
     else // worker
     {
-        printf("Soy el worker %d\n", myID);
-        worker(myID, dataIniFile);
+//		printf("Soy el worker %d\n", myID);
+        if(uname(&userinfo)>=0)
+        {
+            cpu = sched_getcpu();
+            printf("\n***** Worker %d System Details ******\nSystem Name    : %s\nSystem Node    : %s\nSystem Release : %s\nSystem Version : %s\nSystem Machine : %s\nCPU:%d\n",myID,userinfo.sysname,userinfo.nodename,userinfo.release,userinfo.version,userinfo.machine,cpu);
+        }
+        else
+        {
+            printf("\nSystem details fetch failed..\n");
+        }
+        worker(myID, dataIniFile,JobID,origin);
     }
-    t2 = MPI_Wtime();
-    printf("*************SPIF total time: %1.2f**************\n",t2-t1);
-    MPI_Finalize();
-    time(&end);
-    duration = difftime(end, start);
-    printf("*************SPIF total time in C: %1.2f**************\n",duration);
+    //t2 = MPI_Wtime();
+    // printf("*************SPIF total time: %1.2f**************\n",t2-t1);
+    printf("MPI thread %d waits and end.\n",myID);
+    MPI_Barrier(MPI_COMM_WORLD);
+    sleep(2);
+    if (myID == 0)
+    {
+        time(&end);
+        duration = difftime(end, start);
+        printf("*************SPIF total time in C: %1.2f**************\n",duration);
+    }
 
+    MPI_Finalize();
+    MPI_Abort(MPI_COMM_WORLD,0);
     return 0;
 }
-

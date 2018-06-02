@@ -60,6 +60,7 @@ main(int argv, char * argc[])
     {
         for(p = 0; p < min.n; p++)
             fprintf(f, "%f ", randim(min.p[p], max.p[p]));
+        fprintf(f,"0 %d 0",i);
         fprintf(f,"\n");
     }
 

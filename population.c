@@ -6,21 +6,32 @@
 #include <stdlib.h>
 #include "population.h"
 
-void init_population(POPULATIONTYPE *p, int popuSize)
+void init_population(POPULATIONTYPE *p, int popuSize,int nFuels)
 {
 
     p->currentGen = 0;
     p->maxGen = 0;
     p->totfit = 0;
     p->maxError = 0.0;
+    p->nparams_farsite = FarsiteFixVariables + nFuels;
+    p->maxparams = FarsiteFixVariables + nFuels + 2;
+
+    int nparams_farsite;				  		// number of parameters of each individuali
+    int maxparams;
 
     p->popuSize = popuSize;
     p->popu = (INDVTYPE *)malloc(sizeof(INDVTYPE)*popuSize);
     p->popu_fs = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE)*popuSize);
     int i = 0;
     for(i=0; i<popuSize; i++)
+    {
         p->popu_fs[i].id = i;
-
+        p->popu_fs[i].oldid = i;
+        p->popu_fs[i].Time = 0.0f;
+        p->popu_fs[i].nparams_farsite = FarsiteFixVariables + nFuels;
+        p->popu_fs[i].maxparams = FarsiteFixVariables + nFuels + 2;
+    }
+    //p->labels = (char**)malloc(sizeof(char*)*p->nParams);
 }
 
 void print_indv_default(INDVTYPE indv)
@@ -35,19 +46,25 @@ void print_indv_default(INDVTYPE indv)
         printf("%1.2f\t", indv.p[i]);
 
     // print individual attributes
-    printf(" || %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f \n", indv.fit, indv.dist, indv.dir, indv.vel, indv.error, indv.errorc, indv.wnddir, indv.wndvel);
+    printf(" || %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %d %d %s\n", indv.fit, indv.dist, indv.dir, indv.vel, indv.error, indv.errorc, indv.wnddir, indv.wndvel,indv.threads,indv.offset,indv.class_ind);
 
 }
 
 void print_indv_farsite(INDVTYPE_FARSITE indv)
 {
-    printf("%d - %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f\n", indv.id, indv.m1, indv.m10, indv.m100, indv.mherb, indv.wndvel, indv.wnddir, indv.temp, indv.hum, indv.error, indv.errorc);
+    // printf("%d - %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %d\n", indv.id, indv.m1, indv.m10, indv.m100, indv.mherb, indv.wndvel, indv.wnddir, indv.temp, indv.hum, indv.error, indv.errorc,indv.ExecTime,indv.executed);
+    int j;
+    for (j=0; j<indv.nparams_farsite; j++)
+    {
+        printf("%f ",indv.parameters[j]);
+    }
+    printf("%f %f %d\n",indv.error, indv.errorc,indv.executed);
 }
 
 int get_population_farsite(POPULATIONTYPE * pobla, char * nombreInitSet)
 {
     FILE * fichero;
-    int i;
+    int i,j;
 
 
     if ((fichero = fopen(nombreInitSet, "r")) == NULL)
@@ -57,16 +74,31 @@ int get_population_farsite(POPULATIONTYPE * pobla, char * nombreInitSet)
     }
 
     //printf("(get_population_farsite)-> Reading population (%s) \n", nombreInitSet);
-    fscanf(fichero,"%d %d %d \n", &pobla->popuSize, &pobla->currentGen, &pobla->nParams);
+    fscanf(fichero,"%d %d %d\n", &pobla->popuSize, &pobla->currentGen, &pobla->nParams);
 
     pobla->popu_fs = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE) * pobla->popuSize);
-
+    if((pobla->nParams-2)>pobla->maxparams)
+    {
+        printf("ERROR:The number of parameters specified in population files is greater than maxparams used in compilation.\n");
+    };
     // read each individual
     for (i = 0; i <pobla->popuSize; i++)
     {
         // read each parameter
-        fscanf(fichero, "%f %f %f %f %f %f %f %f %f %f", &pobla->popu_fs[i].m1, &pobla->popu_fs[i].m10, &pobla->popu_fs[i].m100, &pobla->popu_fs[i].mherb, &pobla->popu_fs[i].wndvel, &pobla->popu_fs[i].wnddir, &pobla->popu_fs[i].temp, &pobla->popu_fs[i].hum, &pobla->popu_fs[i].error, &pobla->popu_fs[i].errorc);
+//        fscanf(fichero, "%f %f %f %f %f %f %f %f %f %f %d", &pobla->popu_fs[i].m1, &pobla->popu_fs[i].m10, &pobla->popu_fs[i].m100, &pobla->popu_fs[i].mherb, &pobla->popu_fs[i].wndvel, &pobla->popu_fs[i].wnddir, &pobla->popu_fs[i].temp, &pobla->popu_fs[i].hum, &pobla->popu_fs[i].error, &pobla->popu_fs[i].errorc,&pobla->popu_fs[i].executed);
         pobla->popu_fs[i].id = i;
+        pobla->popu_fs[i].class_ind = 'A';
+        pobla->popu_fs[i].threads = 1;
+//	pobla->popu_fs[i].parameters = (float*)malloc(sizeof(float)*pobla->nParams);
+        //printf("Parametros a leer por individuo:%d\n",pobla->popu_fs[i].nparams_farsite);
+        for (j=0; j<(pobla->nParams-2); j++)
+        {
+            fscanf(fichero,"%f ", &(pobla->popu_fs[i].parameters[j]));
+            //printf("%f ",pobla->popu_fs[i].parameters[j]);
+        }
+        pobla->popu_fs[i].nparams_farsite=pobla->nParams-2;
+        fscanf(fichero,"%f %f %d %d %d",&pobla->popu_fs[i].error, &pobla->popu_fs[i].errorc,&pobla->popu_fs[i].executed,&pobla->popu_fs[i].oldid,&pobla->popu_fs[i].generation);
+        //printf("%f %f %d\n",pobla->popu_fs[i].error, pobla->popu_fs[i].errorc,pobla->popu_fs[i].executed);
     }
 
     fclose(fichero);
@@ -107,9 +139,9 @@ int get_population_default(POPULATIONTYPE * pobla, char * nombreInitSet)
 int save_population_farsite(POPULATIONTYPE pobla, char * nombreSet)
 {
     FILE * fichero;
-    int i, x, cantParams;
+    int i,j, x, cantParams;
 
-    if (!(fichero = fopen(nombreSet, "w")))
+    if (!(fichero = fopen(nombreSet, "w+")))
     {
         printf("(print_population)-> Population file can't be found or opened! (%s)", nombreSet);
         return -1;
@@ -119,8 +151,16 @@ int save_population_farsite(POPULATIONTYPE pobla, char * nombreSet)
     // first line: number of individuals in the population
     fprintf(fichero, "%d %d %d\n", pobla.popuSize, pobla.currentGen, pobla.nParams);
 
-    for (i = 0; i < pobla.popuSize; i++) //write each individual
-        fprintf(fichero,"%1.2f %1.2f %1.2f %1.2f %1.0f %1.0f %1.0f %1.0f %1.4f %1.4f\n",pobla.popu_fs[i].m1, pobla.popu_fs[i].m10, pobla.popu_fs[i].m100, pobla.popu_fs[i].mherb, pobla.popu_fs[i].wndvel, pobla.popu_fs[i].wnddir, pobla.popu_fs[i].temp, pobla.popu_fs[i].hum, pobla.popu_fs[i].error, pobla.popu_fs[i].errorc);
+//    for (i = 0; i < pobla.popuSize; i++) //write each individual
+    //      fprintf(fichero,"%1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.4f %1.4f %d\n",pobla.popu_fs[i].m1, pobla.popu_fs[i].m10, pobla.popu_fs[i].m100, pobla.popu_fs[i].mherb, pobla.popu_fs[i].wndvel, pobla.popu_fs[i].wnddir, pobla.popu_fs[i].temp, pobla.popu_fs[i].hum, pobla.popu_fs[i].error, pobla.popu_fs[i].errorc,pobla.popu_fs[i].executed);
+    for (i=0; i<pobla.popuSize; i++)
+    {
+        for(j=0; j<pobla.nParams-2; j++)
+        {
+            fprintf(fichero,"%f ",pobla.popu_fs[i].parameters[j]);
+        }
+        fprintf(fichero,"%f %f %d %d %d\n",pobla.popu_fs[i].error, pobla.popu_fs[i].errorc,pobla.popu_fs[i].executed,pobla.popu_fs[i].oldid,pobla.popu_fs[i].generation);
+    }
 
     fclose(fichero);
 
@@ -273,7 +313,7 @@ int sortPopulationByFitness(POPULATIONTYPE * p)
 
 int sortPopulationByErrorFarsite(POPULATIONTYPE * p)
 {
-    int i, j, min, idtmp;
+    int i, j, t, min, idtmp;
     float tmp;
 
     for (i = 0; i < p->popuSize; i++)
@@ -291,6 +331,18 @@ int sortPopulationByErrorFarsite(POPULATIONTYPE * p)
             idtmp = p->popu_fs[i].id;
             p->popu_fs[i].id = p->popu_fs[min].id;
             p->popu_fs[min].id = idtmp;
+
+            idtmp = p->popu_fs[i].oldid;
+            p->popu_fs[i].oldid = p->popu_fs[min].oldid;
+            p->popu_fs[min].oldid = idtmp;
+
+            idtmp = p->popu_fs[i].executed;
+            p->popu_fs[i].executed = p->popu_fs[min].executed;
+            p->popu_fs[min].executed = idtmp;
+
+            idtmp = p->popu_fs[i].generation;
+            p->popu_fs[i].generation = p->popu_fs[min].generation;
+            p->popu_fs[min].generation = idtmp;
 
             tmp = p->popu_fs[i].m1;
             p->popu_fs[i].m1 = p->popu_fs[min].m1;
@@ -331,6 +383,13 @@ int sortPopulationByErrorFarsite(POPULATIONTYPE * p)
             tmp = p->popu_fs[i].errorc;
             p->popu_fs[i].errorc = p->popu_fs[min].errorc;
             p->popu_fs[min].errorc = tmp;
+
+            for(t=0; t<p->popu_fs[i].nparams_farsite; t++)
+            {
+                tmp = p->popu_fs[i].parameters[t];
+                p->popu_fs[i].parameters[t]=p->popu_fs[min].parameters[t];
+                p->popu_fs[min].parameters[t]=tmp;
+            }
         } // if min != i
     }
 
@@ -530,20 +589,30 @@ int evolve_population_farsite (POPULATIONTYPE * p, int eli, double cross, double
 
 void indFarsiteToArray (INDVTYPE_FARSITE * pin1,float * p1)
 {
-    p1[0] = pin1->m1;
-    p1[1] = pin1->m10;
-    p1[2] = pin1->m100;
-    p1[3] = pin1->mherb;
-    p1[4] = pin1->wndvel;
-    p1[5] = pin1->wnddir;
-    p1[6] = pin1->temp;
-    p1[7] = pin1->hum;
+    int i;
+    /*
+     p1[0] = pin1->m1;
+      p1[1] = pin1->m10;
+      p1[2] = pin1->m100;
+      p1[3] = pin1->mherb;
+      p1[4] = pin1->wndvel;
+      p1[5] = pin1->wnddir;
+      p1[6] = pin1->temp;
+      p1[7] = pin1->hum;
+     */
     //p1[8] = pin1.error;
     //p1[9] = pin1.errorc;
+//printf("Converdison: to a :%d\n",pin1->nparams_farsite);
+    for(i=0; i<pin1->nparams_farsite; i++)
+    {
+        p1[i] = pin1->parameters[i];
+    }
 }
 
 void arrayToIndFarsite (float * p1, INDVTYPE_FARSITE * pin1)
 {
+    int i;
+    /*
     pin1->m1 = p1[0];
     pin1->m10 = p1[1];
     pin1->m100 = p1[2];
@@ -552,8 +621,16 @@ void arrayToIndFarsite (float * p1, INDVTYPE_FARSITE * pin1)
     pin1->wnddir = p1[5];
     pin1->temp = p1[6];
     pin1->hum = p1[7];
+    */
     pin1->error = 0;
     pin1->errorc = 0;
+//printf("Converdison: to i :%d\n",pin1->nparams_farsite);
+    for(i=0; i<pin1->nparams_farsite; i++)
+    {
+        pin1->parameters[i] = p1[i];
+    }
+
+
     //p1[8] = pin1.error;
     //p1[9] = pin1.errorc;
 }

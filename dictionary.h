@@ -50,12 +50,13 @@
   hash function.
  */
 /*-------------------------------------------------------------------------*/
-typedef struct _dictionary_ {
-	int				n ;		/** Number of entries in dictionary */
-	int				size ;	/** Storage size */
-	char 		**	val ;	/** List of string values */
-	char 		**  key ;	/** List of string keys */
-	unsigned	 *	hash ;	/** List of hash values for keys */
+typedef struct _dictionary_
+{
+    int				n ;		/** Number of entries in dictionary */
+    int				size ;	/** Storage size */
+    char 		**	val ;	/** List of string values */
+    char 		**  key ;	/** List of string keys */
+    unsigned	 *	hash ;	/** List of hash values for keys */
 } dictionary ;
 
 
@@ -122,7 +123,7 @@ char * dictionary_get(dictionary * vd, char * key);
   @param    d       dictionary object to search.
   @param    key     Key to look for in the dictionary.
   @param    def     Default value for the key if not found.
-  @return   char    
+  @return   char
 
   This function locates a key in a dictionary using dictionary_get,
   and returns the first char of the found string.

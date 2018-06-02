@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   myutils.h
  * Author: carlos
  *
