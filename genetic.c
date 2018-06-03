@@ -43,8 +43,7 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child);
 void GENETIC_ControlarValoresValidos(INDVTYPE_FARSITE * c);
 int GENETIC_InsertKnowledge(INDVTYPE * indv);
 
-int
-GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests, int guidedMutation, int guidedEllitism, int doCompu)
+int GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests, int guidedMutation, int guidedEllitism, int doCompu)
 {
     int i;
     FILE * fichero9;
@@ -59,10 +58,10 @@ GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests,
     // mutacion y elitismo guiado
     gMutation = guidedMutation;
     gEllitism = guidedEllitism;
-//   velVtoComp = wndSpdComp;
+    // velVtoComp = wndSpdComp;
 
-// leo del fichero de rangos los rangos validso para cada parametro
-// los guardo en 2 individuos: max y min
+    // leo del fichero de rangos los rangos validso para cada parametro
+    // los guardo en 2 individuos: max y min
     if ((fichero9 = fopen(fRange, "r")) == NULL)
     {
         printf("GENETIC: no se puede abrir fichero de rangos %s \n", fRange);
@@ -79,7 +78,7 @@ GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests,
     for (i = 0; i < max.n; i++)
         fscanf(fichero9, "%f ", &max.p[i]);
 
-// inicializo el resto de las vbles, aunque no haga mucha falta...
+    // inicializo el resto de las vbles, aunque no haga mucha falta...
     max.fit = min.fit = 0.0;
     max.dist = min.dist = 0.0;
     max.dir = min.dir = 0.0;
@@ -88,13 +87,13 @@ GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests,
 
     bests = fBests; // nombre del fichero donde se guardaran el mejor indv de cada poblacion
 
-#if PRINTRANGES
+    #if PRINTRANGES
     printf("GENETIC: init, min:  \n");
     print_indv(min);
 
     printf("GENETIC: init, max:  \n");
     print_indv(max);
-#endif
+    #endif
 
     // random init
     srand48((unsigned)time(NULL));
@@ -122,10 +121,10 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
     // mutacion y elitismo guiado
     gMutation = guidedMutation;
     gEllitism = guidedEllitism;
-//   velVtoComp = wndSpdComp;
+    // velVtoComp = wndSpdComp;
 
-// leo del fichero de rangos los rangos validso para cada parametro
-// los guardo en 2 individuos: max y min
+    // leo del fichero de rangos los rangos validso para cada parametro
+    // los guardo en 2 individuos: max y min
     if ((fichero9 = fopen(fRange, "r")) == NULL)
     {
         printf("GENETIC: no se puede abrir fichero de rangos %s \n", fRange);
@@ -172,8 +171,7 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
 }
 
 // setea los valores del viento para el metodo computacional (es llamado sii doComputacional == 1)
-int
-GENETIC_InitComputacional(double wndDirComp, double wndSpdComp, double valorD, double valorV)
+int GENETIC_InitComputacional(double wndDirComp, double wndSpdComp, double valorD, double valorV)
 {
     dirVtoComp = wndDirComp;
     velVtoComp = wndSpdComp;
@@ -182,12 +180,9 @@ GENETIC_InitComputacional(double wndDirComp, double wndSpdComp, double valorD, d
     printf("Computacional:: dirVtoIdeal:%f velVtoIdeal:%f sumaDire:%f sumaVel:%f \n", dirVtoComp, velVtoComp, valorDireccion, valorVelocidad);
 }
 
-
-
 // copia el individuo pa (parent) en ch (child)
 // lo llamo tantas veces como el parametro elitism lo diga
-int
-GENETIC_ElitismCopy(INDVTYPE pa, INDVTYPE * ch, int guidedE)
+int GENETIC_ElitismCopy(INDVTYPE pa, INDVTYPE * ch, int guidedE)
 {
     int i;
 
@@ -195,15 +190,15 @@ GENETIC_ElitismCopy(INDVTYPE pa, INDVTYPE * ch, int guidedE)
     ch->executed = pa.executed;
     ch->error = pa.error;
     ch->errorc = pa.errorc;
-// copio los parametros
+    // copio los parametros
     for(i = 0; i < pa.n; i ++)
         ch->p[i] = pa.p[i];
-// pongo los atributos en 0.0
+    // pongo los atributos en 0.0
     ch->fit = ch->dist = ch->dir = ch->vel = 0.;
 
     // si hay que guiar, pongo los valores de dir i vel del wind (metodo ANALITICO))
-// if (guidedE)
-// {     // si no es graduada, threshold es == 1 por lo que guio si o si!!!
+    // if (guidedE)
+    // {     // si no es graduada, threshold es == 1 por lo que guio si o si!!!
     //     double ran = (double)(rand() % 10) / 10.;
     //   printf("THRESHOLD: %f ran: %f ran < threshold --> muto! ()", threshold, ran);
     // if (ran < threshold)
@@ -211,8 +206,8 @@ GENETIC_ElitismCopy(INDVTYPE pa, INDVTYPE * ch, int guidedE)
     //  ch->p[8] = pa.wndvel;
     // ch->p[9] = pa.wnddir;
     // }
-// }
-//printf("\nControl Elitism\n");
+    // }
+    //printf("\nControl Elitism\n");
     return 1;
 
 }
@@ -250,8 +245,7 @@ int GENETIC_ElitismCopy_Farsite(INDVTYPE_FARSITE pa, INDVTYPE_FARSITE * ch)
 }
 
 // busca el error maximo y lo retorna
-double
-GENETIC_CalcularMaxError(POPULATIONTYPE * p)
+double GENETIC_CalcularMaxError(POPULATIONTYPE * p)
 {
     double maxE = -1.0;
     int i;
@@ -266,11 +260,9 @@ GENETIC_CalcularMaxError(POPULATIONTYPE * p)
     return maxE;
 }
 
-
 // calcula el complemento del error. El complemento es relativo
 // al maximo error de la poblacion... (esto no se si va bien...)
-void
-GENETIC_CalcularErrorC(POPULATIONTYPE * p, double maxError)
+void GENETIC_CalcularErrorC(POPULATIONTYPE * p, double maxError)
 {
     int i;
 
@@ -291,10 +283,8 @@ void GENETIC_CalcularErrorCFarsite(POPULATIONTYPE * p, double maxError)
 
 }
 
-
 // calculo la suma de todos los errorc para la seleccion
-double
-GENETIC_GetSumErrorC(POPULATIONTYPE * p)
+double GENETIC_GetSumErrorC(POPULATIONTYPE * p)
 {
     int i;
     double sumErrorc = 0.0;
@@ -323,13 +313,10 @@ double GENETIC_GetSumErrorCFarsite(POPULATIONTYPE * p)
     return sumErrorc;
 }
 
-
-
 // seleccion de los mejores individuos
 // numElite dice cuantos individuos elijo de la poblacion
 // anterior y los pongo en la nueva
-int
-GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
+int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
 {
     int i, p1,p2; //p1 y p2 son los padres
     double sumFit, maxError, sumErrorc;
@@ -340,10 +327,10 @@ GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
 
     GENETIC_CalcularErrorC(p,maxError);
 
-// ordeno para realizar la seleccion de mayor a menor fitness
-//  sortPopulationByFitness(p);
+    // ordeno para realizar la seleccion de mayor a menor fitness
+    // sortPopulationByFitness(p);
 
-// ordeno para realizar la seleccion de mayor a menor errorc
+    // ordeno para realizar la seleccion de mayor a menor errorc
     sortPopulationByErrorC(p);
 
     init_population(&newPopu, p->popuSize,nFuels);
@@ -353,8 +340,8 @@ GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
     //printf("generacion: %d poblacion Ordenada pero no evolucionada \n", p->currentGen);
     //print_populationScreen(*p);
 
-// ELITISMO
-// si numElite > 0 elijo esa cantidad de individuos para la nueva poblacion
+    // ELITISMO
+    // si numElite > 0 elijo esa cantidad de individuos para la nueva poblacion
     if (elitism)
     {
         // poner los mejores numElite en la nueva poblacion
@@ -370,17 +357,17 @@ GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
     //printf("vuelta: %d \n ", p->currentGen);
 
     sumErrorc = GENETIC_GetSumErrorC(p);
-//  sumFit = GENETIC_GetSumFitness(*p);
+    // sumFit = GENETIC_GetSumFitness(*p);
 
-// EVOLUTION
-// evoluciono la poblacion: selection, crossover, mutation
+    // EVOLUTION
+    // evoluciono la poblacion: selection, crossover, mutation
     while ((i < p->popuSize) && (i != p->popuSize - 1))
     {
 
         p1 = GENETIC_Select(*p, sumErrorc);         // antes enviaba sumFit
         p2 = GENETIC_Select(*p, sumErrorc);
 
-//printf("GENETIC p1:%d p2:%d \n", p1, p2);
+        //printf("GENETIC p1:%d p2:%d \n", p1, p2);
 
         newPopu.popu[i].n = p->popu[p1].n;
         newPopu.popu[i+1].n = p->popu[p2].n;
@@ -398,8 +385,8 @@ GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
         i += 2;
     }
 
-// esto es por si elitism es impar, la ultima vuelta me quedo con 1 solo individuo
-// entonces, selecciono 1 padre no hago crossover pero si lo muto.
+    // esto es por si elitism es impar, la ultima vuelta me quedo con 1 solo individuo
+    // entonces, selecciono 1 padre no hago crossover pero si lo muto.
     if (i == p->popuSize -1)
     {
         p1 =  GENETIC_Select(*p, sumFit);
@@ -415,9 +402,9 @@ GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels)
     }
     newPopu.currentGen = p->currentGen + 1;
 
-//   printf("despues de las operaciones, escribo en generacion.txt: i por pantalla generacion: %d (esto es newPopu) \n", newPopu.currentGen);
-//   print_populationScreen(newPopu);
-    //print_populationScreen(newPopu);
+    // printf("despues de las operaciones, escribo en generacion.txt: i por pantalla generacion: %d (esto es newPopu) \n", newPopu.currentGen);
+    // print_populationScreen(newPopu);
+    // print_populationScreen(newPopu);
 
     return 1;
 }
@@ -443,7 +430,7 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
 
     //printf("Antes Elitismo:\n");
     // print_population_farsite((*p));
-//printf("Despues Elitismo:\n");
+    //printf("Despues Elitismo:\n");
     // ELITISMO
     // si numElite > 0 elijo esa cantidad de individuos para la nueva poblacion
     if (elitism)
@@ -476,8 +463,7 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
         p1 = GENETIC_Select_Farsite(*p, sumErrorc);         // antes enviaba sumFit
         p2 = GENETIC_Select_Farsite(*p, sumErrorc);
 
-//printf("GENETIC p1:%d p2:%d \n", p1, p2);
-
+        //printf("GENETIC p1:%d p2:%d \n", p1, p2);
 
         GENETIC_Crossover_Farsite(p->popu_fs[p1], p->popu_fs[p2], &newPopu.popu_fs[i], &newPopu.popu_fs[i+1]);
 
@@ -500,8 +486,8 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
     //printf("NEWPOPU despues crossover\n");
     //print_population_farsite(newPopu);
 
-// esto es por si elitism es impar, la ultima vuelta me quedo con 1 solo individuo
-// entonces, selecciono 1 padre no hago crossover pero si lo muto.
+    // esto es por si elitism es impar, la ultima vuelta me quedo con 1 solo individuo
+    // entonces, selecciono 1 padre no hago crossover pero si lo muto.
     if (i == ( (p->popuSize-pend)-1))
     {
         p1 =  GENETIC_Select_Farsite(*p, sumErrorc);
@@ -539,10 +525,8 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
     return 1;
 }
 
-
 // calculo el fitness total de toda la poblacion
-double
-GENETIC_GetSumFitness(POPULATIONTYPE p)
+double GENETIC_GetSumFitness(POPULATIONTYPE p)
 {
     double total = 0.0;
     int i;
@@ -607,7 +591,7 @@ int GENETIC_Crossover(INDVTYPE pin1, INDVTYPE pin2, INDVTYPE * c1, INDVTYPE * c2
     c1->n = pin1.n;
     c2->n = pin2.n;
 
-//  printf("crossover antes de todo:: pin1.n:%d pin2.n:%d \n", pin1.n, pin2.n);
+    // printf("crossover antes de todo:: pin1.n:%d pin2.n:%d \n", pin1.n, pin2.n);
     // si supero la probabilidad realizo crossover sobre el individuo
 
     r = (rand() % 10) / 10.;
@@ -616,7 +600,7 @@ int GENETIC_Crossover(INDVTYPE pin1, INDVTYPE pin2, INDVTYPE * c1, INDVTYPE * c2
         // elijo random el crosspoint
         crossPoint = (int) rand() % pin1.n;
 
-// baker arma una de las partes como el promedio de los parametros!!
+    // baker arma una de las partes como el promedio de los parametros!!
         for (i = 0; i < crossPoint; i++)
         {
             c1->p[i] = pin1.p[i];
@@ -682,7 +666,7 @@ int GENETIC_Crossover_Farsite(INDVTYPE_FARSITE pin1, INDVTYPE_FARSITE pin2, INDV
         crossPoint = (int) rand() % nParams;
         // printf("Crosspoint = %d\n", crossPoint);
 
-// baker arma una de las partes como el promedio de los parametros!!
+    // baker arma una de las partes como el promedio de los parametros!!
 
         for (i = 0; i < crossPoint; i++)
         {
@@ -798,9 +782,9 @@ int GENETIC_Mutation(INDVTYPE * child, int guidedMutaFlag, double wnddir, double
             child->p[9] = randLim(limiteInfDir, limiteSupDir); //min.p[i], max.p[i]);
             child->p[8] = randLim(limiteInfVel, limiteSupVel); //min.p[i], max.p[i]);
 
-//printf("guide i %d value %f\n", i, child->p[8]);
-//printf("guide i %d value %f\n", i, child->p[9]);
-//printf("\n");
+            //printf("guide i %d value %f\n", i, child->p[8]);
+            //printf("guide i %d value %f\n", i, child->p[9]);
+            //printf("\n");
 
             // vuelvo a controlar los 2 valores correctos...
             if (child->p[9] > max.p[9])
@@ -841,7 +825,7 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child)
         if (mut < mutationP)
         {
             h1[i] = randLim((int)minrange[i], (int)maxrange[i]);
-//	    printf("Muto gen %d con %1.6f min:%f max:%f limit:%d\n",i, h1[i],minrange[i], maxrange[i],limit);
+            // printf("Muto gen %d con %1.6f min:%f max:%f limit:%d\n",i, h1[i],minrange[i], maxrange[i],limit);
         }
     }
 
@@ -856,10 +840,8 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child)
     return 1;
 }
 
-
 // used to insert knowledge in individual, e.g. when initialising population
-int
-GENETIC_InsertKnowledge(INDVTYPE * child)
+int GENETIC_InsertKnowledge(INDVTYPE * child)
 {
     if (doComputacional)
     {
@@ -903,10 +885,8 @@ GENETIC_InsertKnowledge(INDVTYPE * child)
     }
 }
 
-
 //pongo los valores de los parametros dentro de los rangos validos
-void
-GENETIC_ControlarValoresValidos(INDVTYPE_FARSITE * c)
+void GENETIC_ControlarValoresValidos(INDVTYPE_FARSITE * c)
 {
     int i;
 

@@ -117,8 +117,6 @@ int defineBlockSize()
         cantGrupos = (int)(numind / chunkSize);
 
     rest = numind % (ntasks - 1);
-    //if (rest > 0)
-    //        cantGrupos = cantGrupos + 1;
 
     return (0);
 
@@ -173,8 +171,8 @@ int master(char * datosIni, int ntareas, int JobID, double Start)
     printf("Master -Elitism:%d\n",elitism);
     char *ErrorBuffer = (char*)malloc(sizeof(char)*100*numGenerations);
     sprintf(ErrorBuffer,"");
-//   char *TraceBuffer = (char*)malloc(sizeof(char)*100*numGenerations);
-//        sprintf(TraceBuffer,"");
+    // char *TraceBuffer = (char*)malloc(sizeof(char)*100*numGenerations);
+    // sprintf(TraceBuffer,"");
     init_population(&p, popusizeM,nFuels);
     while(numgen < numGenerations)
     {
@@ -523,11 +521,11 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
             c--;
         }
     }
-// printf("Master Pending:%d elitism:%d\n",pending,elitism);
+    // printf("Master Pending:%d elitism:%d\n",pending,elitism);
     while ( ((block_received < (numind-(elitism+staticPending))) && (numgen!=0)) || ((block_received < numind) && (numgen==0) && para ) )
     {
-//printf("Master Pending:%d elitism:%d\n",pending,elitism);
-//printf("received:%d block_received:%d block_sended:%d\n",received, block_received,block_sended);
+    //printf("Master Pending:%d elitism:%d\n",pending,elitism);
+    //printf("received:%d block_received:%d block_sended:%d\n",received, block_received,block_sended);
         while ( (((block_sended < numind) && numgen==0 ) && goon) ||  (((block_sended < (numind-(elitism+staticPending))) && numgen!=0 ) && goon)  )
         {
             //if (pos != -1)
@@ -611,8 +609,8 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
             //}
 
         }
-        //printf("Cantidad de grupos %d, block_sended %d\n",cantGrupos,block_sended);
-//    printf("problema:%d: %d == %d - (%d + %d + 1)\n",numgen,block_sended,numind,elitism,pending);
+        // printf("Cantidad de grupos %d, block_sended %d\n",cantGrupos,block_sended);
+        // printf("problema:%d: %d == %d - (%d + %d + 1)\n",numgen,block_sended,numind,elitism,pending);
         if ( (( block_sended == (numind-(elitism+staticPending))) && (numgen!=0)) || ((block_sended == numind) && (numgen==0)) )
         {
             received = 1;
@@ -685,8 +683,6 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
 
     printf("TERMINO MASTER\n");
 }
-
-
 
 int repartirPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
 {
@@ -919,7 +915,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
         }
     }
 
-//	free(worker_busy);
+    // free(worker_busy);
 
     printf("TERMINO MASTER\n");
     printf("ACABO PREDICCIÓN...\n");
@@ -943,18 +939,17 @@ int repartirPoblacion(POPULATIONTYPE *p, int numind, int  nworkers, int cantBloq
     INDVTYPE *poblacion, *poblacionProcesada;
 
     poblacion = (INDVTYPE *)malloc(sizeof(INDVTYPE)*numind);
-// para almacenar los bloques que recibo desde los workers
+    // para almacenar los bloques que recibo desde los workers
     poblacionProcesada = (INDVTYPE *)malloc(sizeof(INDVTYPE)*numind);
 
-// poblacion sin procesar
+    // poblacion sin procesar
     poblacion = p->popu;
 
-
-// primer bucle = todos los nodos libres, asigno 1 grupo por nodo de forma secuencial
+    // primer bucle = todos los nodos libres, asigno 1 grupo por nodo de forma secuencial
     nroBloque=0;
     bloquesEnviados = 0;
     worker = 1; // comienzo desde el primer worker
-// mientras haya workers o bloques para distribuir
+    // mientras haya workers o bloques para distribuir
     while((worker <= nworkers) && (nroBloque < cantBloques))
     {
         MPI_Send(&chunkSize, 1, MPI_INT, worker, MASTER_TO_WORKER_OK_TAG, MPI_COMM_WORLD);
@@ -977,7 +972,7 @@ int repartirPoblacion(POPULATIONTYPE *p, int numind, int  nworkers, int cantBloq
 
         //printf("MASTER recibi desde worker %d el bloque %d con dimension %d \n", status.MPI_SOURCE, nroBloqueR, dimBloqueR);
 
-// si quedan bloques por enviar...
+        // si quedan bloques por enviar...
         if (bloquesEnviados < cantBloques)
         {
             MPI_Send(&chunkSize, 1, MPI_INT, worker, MASTER_TO_WORKER_OK_TAG, MPI_COMM_WORLD);
@@ -991,7 +986,6 @@ int repartirPoblacion(POPULATIONTYPE *p, int numind, int  nworkers, int cantBloq
 
     } //while bloquesRecibidos < cantBloques == queden bloques por recibir desde los workers
 
-
     //printf("fin procesamiento de la generacion numero....\n");
 
     p->popu = poblacionProcesada;
@@ -1000,7 +994,6 @@ int repartirPoblacion(POPULATIONTYPE *p, int numind, int  nworkers, int cantBloq
     free(poblacionProcesada);
 
 }
-
 
 /*******************************************************************************/
 // aplica algoritmo evolutivo sobre la poblacion  por si agrego mas algoritmos
@@ -1023,7 +1016,7 @@ void obtenerValoresPropagacionReal(double * direccionReal, double * velocidadRea
     int idPrimerWorker = 1; // pues los ids van de 0 a n-1 hence worker0 tiene id=1
 
     double vec[3];
-// me comunico con el worker 0 para que me devuelva los datos de la propagacion real
+    // me comunico con el worker 0 para que me devuelva los datos de la propagacion real
     MPI_Recv(vec, 3, MPI_DOUBLE, idPrimerWorker, WORKER_TO_MASTER_OK_TAG, MPI_COMM_WORLD, &status);
     * direccionReal = vec[0];
     * velocidadReal = vec[1];
@@ -1041,7 +1034,7 @@ int evolucionarPoblacionInicial(POPULATIONTYPE *p, int numind, int numGeneracion
     // determino como se repartira la poblacion entre los workers
     defineBlockSize(nworkers, numind, &rest, &cantBloques, &chunkSize);
 
-// evoluciono la poblacion
+    // evoluciono la poblacion
     geneActual = 0;
     while (geneActual < numGeneraciones)
     {
@@ -1062,11 +1055,12 @@ int evolucionarPoblacionInicial(POPULATIONTYPE *p, int numind, int numGeneracion
         geneActual ++;
     }
 
-//printf("desde evolucionarPoblacionInicial \n");
-//   print_populationScreen(*p);
+    // printf("desde evolucionarPoblacionInicial \n");
+    // print_populationScreen(*p);
     fin_workers(nworkers);
 
 }
+
 //FUNCION FAKE, mirar NewClassifyPopulationFARSITE_WORKS
 int NewClassifyPopulationFARSITE_FAKE(POPULATIONTYPE * pobla, int numgen)
 {
@@ -1113,7 +1107,7 @@ int NewClassifyPopulationFARSITE_FAKE(POPULATIONTYPE * pobla, int numgen)
     //if ( !((cagonto = fopen(tempName, "r")) == NULL) ){
     for (i = 0; i < pobla->popuSize; i++)  //write each individual
     {
-//        fscanf(cagonto,"%f,%f,%f,%f,%f,%f,%c\n",&pobla->popu_fs[i].parameters[4],&pobla->popu_fs[i].parameters[5],&pobla->popu_fs[i].parameters[0],&pobla->popu_fs[i].parameters[1],&pobla->popu_fs[i].parameters[2],&pobla->popu_fs[i].parameters[3],&pobla->popu_fs[i].class_ind);
+    // fscanf(cagonto,"%f,%f,%f,%f,%f,%f,%c\n",&pobla->popu_fs[i].parameters[4],&pobla->popu_fs[i].parameters[5],&pobla->popu_fs[i].parameters[0],&pobla->popu_fs[i].parameters[1],&pobla->popu_fs[i].parameters[2],&pobla->popu_fs[i].parameters[3],&pobla->popu_fs[i].class_ind);
         pobla->popu_fs[i].class_ind='A';
         pobla->popu_fs[i].threads = 1;
         pushIndividualInClass(&(pobla->popu_fs[i]));
@@ -1205,10 +1199,6 @@ int NewClassifyPopulationFARSITE(POPULATIONTYPE * pobla, int numgen)
     //if (numgen==0){exit(0);}
 }
 
-
-
-
-
 /*****************************************************************************************/
 // Se classifica la poblacion en classes utilizando Weka(j48) y una base de entrenamiento.
 // Se utilizará EL MISMO método y software (mismo script) que se ha utilizado en la tesis
@@ -1279,10 +1269,9 @@ int ClassifyPopulationFARSITE_WORKS(POPULATIONTYPE * pobla, int numgen)
 
 
     printf("END:Classify population\n");
-// free(tempName);
+    // free(tempName);
     //if (numgen==0){exit(0);}
 }
-
 
 int pushIndividualInClass(INDVTYPE_FARSITE * indv)
 {

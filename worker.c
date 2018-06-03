@@ -101,7 +101,6 @@ int nFuelsW=0;
 int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap);
 static int PrintMap (double * map, char *fileName, int Rows, int Cols);
 
-
 /*************************************************************************************/
 // ninicializa los datos del worker, mapas y tiempos
 /*************************************************************************************/
@@ -111,33 +110,21 @@ int initWorker(char * datafile)
     datos 	= iniparser_load(datafile);
     int i=0;
     // fichero y size de individuos (conj de parametros)
-    printf("%d\n",++i);
-    //
-//    CalibrateAdjustments = iniparser_getint(datos,"main:CalibrateAdjusments",0);
-    printf("%d\n",++i);
+    // CalibrateAdjustments = iniparser_getint(datos,"main:CalibrateAdjusments",0);
     FuelsToCalibrateFileName	= iniparser_getstr(datos,"main:FuelsToCalibrate");
-    printf("%d\n",++i);
     landscapeName = iniparser_getstr(datos,"farsite:landscapeName");
-    printf("%d\n",++i);
     landscapePath = iniparser_getstr(datos,"farsite:landscapePath");
-    printf("%d\n",++i);
     pobini  	= iniparser_getstr(datos, "main:initial_population");
-    printf("%d\n",++i);
     final_popu 	= iniparser_getstr(datos, "main:final_population");
-    printf("%d\n",++i);
     bests_indv 	= iniparser_getstr(datos, "main:bests_indv");
-    printf("%d\n",++i);
     simulator   = iniparser_getstr(datos, "main:simulator");
-    printf("%d\n",++i);
     chunkSize   = iniparser_getint(datos, "main:chunkSize",1);
-    printf("%d\n",++i);
     numind          = iniparser_getint(datos, "main:numind",1);
     doWindFields    = iniparser_getint(datos, "main:doWindFields", 0);
     doMeteoSim    = iniparser_getint(datos, "main:doMeteoSim", 0);
     TracePathFiles              = iniparser_getstr(datos, "main:TracePathFiles");
     Trace		= iniparser_getint(datos,"main:Trace",1);
 
-    printf("%d\n",++i);
     elitism         = iniparser_getint(datos, "genetic:elitism",1);
     pMutation       = iniparser_getdouble(datos, "genetic:pMutation",1.0);
     pCrossover      = iniparser_getdouble(datos, "genetic:pCrossover",1.0);
@@ -154,7 +141,6 @@ int initWorker(char * datafile)
     CellWd = iniparser_getdouble(datos, "mapssize:CellWd", 1.0);
     CellHt = iniparser_getdouble(datos, "mapssize:CellHt", 1.0);
 
-    printf("%d\n",++i);
     // number of iterations (to evolve the population)
     alg     = iniparser_getstr(datos, "main:algorithm");
 
@@ -165,7 +151,6 @@ int initWorker(char * datafile)
     elevfilepath   = iniparser_getstr(datos, "windninja:elevfilepath");
     atm_file   = iniparser_getstr(datos, "windninja:atmFile");
     FireSimLimit  = iniparser_getint(datos, "farsite:ExecutionLimit", 1);
-    printf("%d\n",++i);
     if (CalibrateAdjustments)
     {
         FILE *FuelsToCalibrateFILE;
@@ -181,14 +166,11 @@ int initWorker(char * datafile)
         }
         else
         {
-            //printf("INFO:Used fuels--> ");
             while( (fscanf(FuelsToCalibrateFILE,"%d",&nFuel)!=EOF) || (nFuelsW == 257) )
             {
                 FuelsUsed[nFuel-1]=1;
                 nFuelsW++;
-                //	printf("%d ",nFuel);
             }
-            //printf("\n");
         }
         printf("FUELS:%d to calibrate.\n",nFuelsW);
         fclose(FuelsToCalibrateFILE);
@@ -216,7 +198,7 @@ int getMaps()
         return -1;
     }
 
-// el mapa inicial se lee en fireSim, aca solo mapa real
+    // el mapa inicial se lee en fireSim, aca solo mapa real
     //printf("Leyendo el mapa real en t1 desde %s \n", real_line);
     getFinalFireLine(real_line, Rows, Cols, real_map_t1);
 
@@ -224,8 +206,6 @@ int getMaps()
 
     return 1;
 }
-
-
 
 /**************************************************************************/
 // PROCESAMIENTO DE UN INDIVIDUO llamado desde procesarBloque
@@ -249,12 +229,12 @@ int procesarIndividuo(INDVTYPE *individuo, char * nombre_init_map_t0, double sta
     // PrintMap(ign_map, "simulado.map", Rows, Cols);
 
 
-// valor de celdas no quemadas en ignMap==INFINITY
+    // valor de celdas no quemadas en ignMap==INFINITY
     noIgnValue = 999999999.;
     // faltan declarar todas estas variables
     //Carlos B.*****dist = distanciaMaxPropagacionReal(ign_map, Rows, Cols, start_time, final_time, &direccion, &velocidad, noIgnValue, &elapsedTime, CellHt, &p1xAux, &p1yAux, &p2xAux, &p2yAux);
     //Carlos B.*****fit = fitnessYError(real_map_t1, ign_map, Rows, Cols, start_time, final_time, &error);
-#if PRINTRESULTS
+    #if PRINTRESULTS
     printf("****************************** RESULTS ********************************** \n");
     printf("Distancia: %f feets  (%f metros) \n ", dist, (dist / 3.28083));
     printf("Direccion: %f \n ", direccion);
@@ -262,7 +242,7 @@ int procesarIndividuo(INDVTYPE *individuo, char * nombre_init_map_t0, double sta
     printf("Fitness mapas: real: %s, time: %f y  time: %f \n", real_line, start_time, final_time);
     printf("Fitness: %f -- Error: %f \n", fit, error);
     printf("*********************************************************************** \n");
-#endif
+    #endif
 
     individuo->fit = fit;
     individuo->dir = direccion;
@@ -337,7 +317,6 @@ void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * dat
     free(buffer);
 }
 
-
 /******************************************************************************/
 // lee el mapa de fuego inicial desde fichero de COORDENADAS
 /******************************************************************************/
@@ -366,7 +345,6 @@ int getInitFireLine(char * start_line, int Rows, int Cols, double * ignMap, doub
     fclose(fiche);
 }
 
-
 /******************************************************************************/
 // lee el mapa de fuego final para comparar con la simulacion
 /******************************************************************************/
@@ -385,11 +363,10 @@ int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap)
     for (cell = 0; cell < Rows*Cols; cell ++)
         fscanf(fil, "%lf", &realMap[cell]);
 
-// PrintMap(realMap, "sale1", Rows, Cols);
+    // PrintMap(realMap, "sale1", Rows, Cols);
     fclose(fil);
     return 1;
 }
-
 
 /******************************************************************************/
 // imprime el mapa pasado como parametro map en fileName
@@ -405,8 +382,8 @@ static int PrintMap (double * map, char *fileName, int Rows, int Cols)
         return (-1);
     }
 
-//   fprintf(fPtr, "north: %1.0f\nsouth: %1.0f\neast: %1.0f\nwest: %1.0f\nrows: %d\ncols: %d\n",
-//       (Rows*CellHt), 0., (Cols*CellWd), 0., Rows, Cols);
+    // fprintf(fPtr, "north: %1.0f\nsouth: %1.0f\neast: %1.0f\nwest: %1.0f\nrows: %d\ncols: %d\n",
+    // (Rows*CellHt), 0., (Cols*CellWd), 0., Rows, Cols);
     for ( row = 0; row < Rows; row++ )
     {
         for ( cell = row*Cols, col=0; col<Cols; col++, cell++ )
@@ -418,7 +395,6 @@ static int PrintMap (double * map, char *fileName, int Rows, int Cols)
     fclose(fPtr);
     return (1);
 }
-
 
 /***************************************************************************/
 // PROCESAMIENTO PRINCIPAL DEL WORKER
@@ -440,7 +416,7 @@ void old_worker(int taskid, char * datafile)
     MPI_Status status;
 
 
-// METODO COMPUTACIONAL solo el worker==1 envia al master los datos del mapa real
+    // METODO COMPUTACIONAL solo el worker==1 envia al master los datos del mapa real
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 
     if ((doComputacional) && (myid == 1))
@@ -498,7 +474,6 @@ void old_worker(int taskid, char * datafile)
 
 }
 
-
 void DeletePROC(int * vect,int pid,int size)
 {
     int i;
@@ -510,8 +485,6 @@ void DeletePROC(int * vect,int pid,int size)
         }
     }
 }
-
-
 
 int DeletePID(int * vect,int pid,int size)
 {
@@ -579,7 +552,6 @@ int SearchPOS(int * vect,int pid,int size,int threads)
     }
     return -1;
 }
-
 
 int SearchUnicPID(int * vect,int size)
 {
@@ -651,7 +623,6 @@ int NewWaitB(int * pIDs,int childs)
 
 void worker(int taskid, char * datosIni, int JobID, double Start)
 {
-
     printf("It is going to launch worker for tarskid %d, datos %s, jobId %d, start %d \n", taskid, datosIni, JobID, Start);
     int stop = 0;
     int nroBloque;
@@ -680,17 +651,17 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
     int myid;
     int aux2=-9;
     INDVTYPE_FARSITE ** poblacion;
-    //char TraceFileName[1000];
-    //FILE * TraceFile;
+    // char TraceFileName[1000];
+    // FILE * TraceFile;
 
-//    printf("MiPID:%d:Rank:%d\n",getpid(),);
+    // printf("MiPID:%d:Rank:%d\n",getpid(),);
 
     int ** fd = (int **)malloc((Cores)*sizeof(int *));
     for (i=0; i<Cores; i++)
     {
         fd[i] = (int *) malloc((sizeof(int)*2));
     }
-    //int fd[8][2];
+    // int fd[8][2];
     int aux=0;
 
     for (i=0; i<Cores; i++)
@@ -766,7 +737,7 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
         }
         // printf("Worker %d WORKER JUSTO Despues DE RECEPCIÓN avaibleCores:%d Cores:%d\n",myid,avaibleCores,Cores);
 
-//      printf("Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
+        // printf("Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
         if (received && (stop!=FINISH_SIGNAL))
         {
             printf("Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
@@ -938,40 +909,6 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
     }
     while(stop != FINISH_SIGNAL);
 
-
-
-    //char huder[2000];
-    //sprintf(huder,"gcore %d -o core.%d_\n",childs_vect[avaiblePosition]+1,myid);
-    //system(huder);
-    /*
-        int n=20;
-        i=0;
-        char* byte_array = 0x1900000030;
-        double *cacad = 0x1900000030;
-        float *cacaf = 0x1900000030;
-        int *cacai = 0x1900000030;
-
-        while (i < n)
-         {
-         printf("%02X",(int)byte_array[i]);
-         i++;
-         }
-        printf("double:%lf\n",cacad);
-         printf("float:%lf\n",cacaf);
-         printf("int:%lf\n",cacai);
-    */
-    /*
-    for (i=0;i<Cores;i++){
-     close(fd[i][0]);
-     close(fd[i][1]);
-      free(fd[i]);
-    }
-    */
-    //free(fd);
     printf("Worker %d acaba\n",myid);
-    //free(proc_vect);
-    //free(childs_vect);
-    //printf("LA SIMULACIÓN DE FARSITE %d HA TERMINADO!\n",taskid);
+
 }
-
-

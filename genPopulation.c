@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include "population.h"
 
-double
-randim(double l, double u)
+double randim(double l, double u)
 {
     return (drand48()* (u-l) + l);
 }
-
 
 main(int argv, char * argc[])
 {
@@ -34,7 +32,7 @@ main(int argv, char * argc[])
         return -1;
     }
 
-// leo los limites inferior y superior en min y max
+    // leo los limites inferior y superior en min y max
     if ((fRange = fopen(nameRange, "r")) == NULL)
     {
         printf("No se pudo abrir el fichero de rangos  %s \n", nameRange);

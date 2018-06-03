@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-
 int submitPopulation(POPULATIONTYPE p, int pob, int gen);
 
 int main (int argc, char** argv)
@@ -19,7 +18,7 @@ int main (int argc, char** argv)
 
     mode=atoi(argv[1]);
 
-// EVOLVE POPULATION
+   // EVOLVE POPULATION
 
     //GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests, int guidedMutation, int guidedEllitism, int doCompu)
     if(GENETIC_Init(5,0.2,0.1,"range.txt","bests.pob",1,0,0)<1)
@@ -40,8 +39,6 @@ int main (int argc, char** argv)
     return 0;
 
 }
-
-
 
 int submitPopulation(POPULATIONTYPE p, int pob, int gen)
 {
