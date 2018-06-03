@@ -52,6 +52,7 @@ void print_indv_default(INDVTYPE indv)
 
 void print_individuo(int generation, INDVTYPE_FARSITE indv)
 {
+    printf("individuo: ");
     printf("%d ",generation);
     printf("%d ",indv.id);
     int j;
@@ -475,8 +476,7 @@ int sortPopulationByErrorC(POPULATIONTYPE * p)
  *
  * @return Valor Randon Generado
  */
-double
-randLim(double l, double u)
+double randLim(double l, double u)
 {
     return(drand48() * (u-l) + l);
 }
