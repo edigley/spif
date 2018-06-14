@@ -14,6 +14,8 @@
 #include "fitness.h"
 #include "myutils.h"
 
+#define ERROR_INFINITY 9999.99f
+
 int FireSimLimit, numGenerations;
 char * farsite_path, * windninja_path, * input_path, * output_path, * real_fire_map_t0, * real_fire_map_t1, * FuelsToCalibrateFileName, * CustomFuelFile, * real_fire_map_tINI;
 char * landscapeFile, * ignitionFile, * ignitionFileType, * wndFile, * wtrFile, * adjFile, * fmsFile;
@@ -24,7 +26,7 @@ char * timestep, * visibleStep, * secondaryVisibleStep, * perimeterResolution, *
 char * fmsFileNew, * wndFileNew, * wtrFileNew, * adjFileNew, * atmPath;
 char * RasterFileNameNew, FuelsUsedFileName;
 
-int numgen=1, num_threads;
+int generation=1, num_threads;
 int start_time, end_time;
 int doWindFields;
 int doMeteoSim;
@@ -34,10 +36,10 @@ float TEMP_VARIATION, HUM_VARIATION;
 int FuelsUs[256];
 int TotalFuels;
 
-int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * err, int numgen, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
-void initFarsiteVariables(char * filename, int numgen);
-void createInputFiles(INDVTYPE_FARSITE individual, char * dataFile);
-void createSettingsFile(char * filename, int individualId, int gen,int res);
+int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
+void initFarsiteVariables(char * filename, int generation);
+void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile);
+void createSettingsFile(char * filename, int individualId, int gen,int resolution);
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
 /**
@@ -87,7 +89,7 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
 /**
  * - argv[1] file path: spif configuration file
  * - argv[2] file path: population file
- * - argv[3] int: id of the individual to be simulated
+ * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
 */
 int main(int argc,char *argv[]) {
 
@@ -114,9 +116,8 @@ int main(int argc,char *argv[]) {
 
 }
 
-int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * err, int numgene, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
-    double error = 9999.99f;
-    numgen = numgene;
+int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
+
     //Init variables
     if(doWindFields == 1) {
         atmPath = atm;
@@ -130,42 +131,42 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * err, int n
     char TraceFileName[3000];
     FILE * TraceFile;
     sprintf(TraceFileName,"%sWorkerTrace_%d_%d_%d.dat",TracePathFiles,myid,JobID,executed);
-    initFarsiteVariables(configurationFile, numgen);
-    sprintf(settings_filename,"%ssettings_%d_%d.txt",output_path,numgen,individual.id);
+    initFarsiteVariables(configurationFile, generation);
+    sprintf(settings_filename,"%ssettings_%d_%d.txt",output_path,generation,individual.id);
 
     createInputFiles(individual, configurationFile);
-    int res=100;
+    int resolution=100;
     switch(individual.class_ind) {
         case 'E':
-            res=100;
+            resolution=100;
             break;
         case 'D':
-            res=100;
+            resolution=100;
             break;
         default:
-            res=100;
+            resolution=100;
             break;
     }
-    if (numgen==10) {
+    if (generation==10) {
         AvailTime=3600.0;
-        res=300;
+        resolution=300;
         individual.threads=8;
     };
-    createSettingsFile(settings_filename, individual.id,numgen,res);
+    createSettingsFile(settings_filename, individual.id,generation,resolution);
 
     if (AvailTime<=1.0f) {
         AvailTime=1.0;
     };
-    if (numgen==10) {
+    if (generation==10) {
         AvailTime=3600.0;
-        res=300;
+        resolution=300;
         individual.threads=8;
     };
-    //printf("timeout --signal=SIGXCPU %.0fs %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm\n",AvailTime,farsite_path,settings_filename,individual.threads,numgen,individual.id,myid,res);
+    //printf("timeout --signal=SIGXCPU %.0fs %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm\n",AvailTime,farsite_path,settings_filename,individual.threads,generation,individual.id,myid,resolution);
 
     //print_indv_farsite(individual);
-    //print_individuo(numgen,individual);
-    sprintf(syscall,"/usr/bin/time --format \"%d %d %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",numgen,individual.id,AvailTime,farsite_path,settings_filename,individual.threads,numgen,individual.id,myid,res);
+    //print_individuo(generation,individual);
+    sprintf(syscall,"/usr/bin/time --format \"%d %d %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",generation,individual.id,AvailTime,farsite_path,settings_filename,individual.threads,generation,individual.id,myid,resolution);
 
     /*********** LLAMADA FARSITE ORIGINAL ***********/
     ti = MPI_Wtime();
@@ -176,12 +177,11 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * err, int n
     if (err_syscall == 0) {
         char sim_fire_line[5000];
         sprintf(sim_fire_line,"%s%s.toa", output_path, RasterFileNameNew);
-        error = getSimulationError(sim_fire_line, real_fire_map_t1, real_fire_map_tINI, start_time, end_time);
-        *err = error;
+        *adjustmentError = getSimulationError(sim_fire_line, real_fire_map_t1, real_fire_map_tINI, start_time, end_time);
         sprintf(TraceBuffer,"Worker%d %1.2f %1.2f %d %d %d %d\n",myid,ti-Start,te-Start,myid,individual.threads,proc,1);
     } else {
-        //printf( "FARSITE:%d:%d_%d_%d_%f_%f_%d_%s\n",myid,numgen,individual.id,individual.threads,(float)AvailTime,(float)AvailTime,myid,perimeterResolution);
-        *err = 9999.99f;
+        //printf( "FARSITE:%d:%d_%d_%d_%f_%f_%d_%s\n",myid,generation,individual.id,individual.threads,(float)AvailTime,(float)AvailTime,myid,perimeterResolution);
+        *adjustmentError = ERROR_INFINITY;
         sprintf(TraceBuffer,"Worker%d %1.2f %1.2f %d %d %d %d\n",myid,ti-Start,te-Start,myid,individual.threads,proc,0);
     }
 
@@ -194,10 +194,9 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * err, int n
         }
     }
     return (EXIT_SUCCESS);
-
 }
 
-void initFarsiteVariables(char * configurationFile, int numgen) {
+void initFarsiteVariables(char * configurationFile, int generation) {
     dictionary * configuration = iniparser_load(configurationFile);
 
     numGenerations           = iniparser_getint(configuration, "genetic:numGenerations",1);
@@ -228,7 +227,7 @@ void initFarsiteVariables(char * configurationFile, int numgen) {
     doRaster         = iniparser_getstr(configuration, "farsite:doRaster");
     doShape          = iniparser_getstr(configuration, "farsite:doShape");
     doVector         = iniparser_getstr(configuration, "farsite:doVector");
-    if (numgen == numGenerations) {
+    if (generation == numGenerations) {
         ignitionFile        = iniparser_getstr(configuration, "prediction:PignitionFile");
         ignitionFileType    = iniparser_getstr(configuration, "prediction:PignitionFileType");
         ConditMonth         = iniparser_getstr(configuration, "prediction:PConditMonth");
@@ -293,22 +292,27 @@ void initFarsiteVariables(char * configurationFile, int numgen) {
 
 }
 
-void createInputFiles(INDVTYPE_FARSITE individual, char * dataFile) {
+/**
+ * Create input files to be used in farsite simulation (fms, adj, wnd, wtr).
+ * - individual
+ * - configurationFile
+ */
+void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile) {
     char * line = (char*)malloc(sizeof(char) * 200);
-    char * newline= (char*)malloc(sizeof(char) * 200);
-    char * buffer= (char*)malloc(sizeof(char) * 200);
+    char * newline = (char*)malloc(sizeof(char) * 200);
+    char * buffer = (char*)malloc(sizeof(char) * 200);
 
     fmsFileNew = (char*)malloc(sizeof(char) * 200);
     adjFileNew = (char*)malloc(sizeof(char) * 200);
 
-    if(doMeteoSim == 0) {
+    if (doMeteoSim == 0) {
         wndFileNew = (char*)malloc(sizeof(char) * 200);
         wtrFileNew = (char*)malloc(sizeof(char) * 200);
     }
     FILE * fFMS, *fWND, *fWTR, *fADJ, *fFMSnew, *fWNDnew, *fWTRnew,*fADJnew;
     char * tmp = (char*)malloc(sizeof(char) * 400);
     // Create corresponding fms,wnd & wtr filename for each individual
-    sprintf(tmp,"%d",numgen);
+    sprintf(tmp,"%d",generation);
 
     fmsFileNew = str_replace(fmsFile, "$1", tmp);
 
@@ -435,18 +439,25 @@ void createInputFiles(INDVTYPE_FARSITE individual, char * dataFile) {
     }
 }
 
-void createSettingsFile(char * filename, int individualId, int generation, int res) {
+/**
+ * Create settings file to be used in farsite simulation.
+ * - settingsFile
+ * - individualId
+ * - generation
+ * - resolution
+*/
+void createSettingsFile(char * settingsFile, int individualId, int generation, int resolution) {
     char * shapefileNew = (char*)malloc(sizeof(char) * 400);
     RasterFileNameNew = (char*)malloc(sizeof(char) * 400);
     char * VectorFileNameNew = (char*)malloc(sizeof(char) * 400);
     char * tmp = (char*)malloc(sizeof(char) * 400);
 
-    FILE * file;
+    FILE * settings;
 
-    if ( (file = fopen(filename, "w")) == NULL ) {
+    if ( (settings = fopen(settingsFile, "w")) == NULL ) {
         printf("ERROR: Farsite.createSettingsFile -> Unable to open settings file");
     } else {
-        sprintf(tmp,"%d",numgen);
+        sprintf(tmp,"%d",generation);
         shapefileNew = str_replace(shapefile, "$1", tmp);
         RasterFileNameNew = str_replace(RasterFileName,"$1", tmp);
         VectorFileNameNew = str_replace(VectorFileName,"$1", tmp);
@@ -455,113 +466,113 @@ void createSettingsFile(char * filename, int individualId, int generation, int r
         RasterFileNameNew = str_replace(RasterFileNameNew,"$2", tmp);
         VectorFileNameNew = str_replace(VectorFileNameNew,"$2", tmp);
 
-        fprintf(file,"version = 43\n");
-        fprintf(file,"landscapeFile = %s\n", landscapeFile);
-        fprintf(file,"FUELMOISTUREFILE =  %s\n", fmsFileNew);
+        fprintf(settings,"version = 43\n");
+        fprintf(settings,"landscapeFile = %s\n", landscapeFile);
+        fprintf(settings,"FUELMOISTUREFILE =  %s\n", fmsFileNew);
         if (CustomFuelFile != NULL) {
-            fprintf(file,"fuelmodelfile = %s\n",CustomFuelFile);
+            fprintf(settings,"fuelmodelfile = %s\n",CustomFuelFile);
         }
         if(doWindFields == 0) {
             if(doMeteoSim == 0) {
-                fprintf(file,"windFile0 =  %s\n", wndFileNew);
+                fprintf(settings,"windFile0 =  %s\n", wndFileNew);
             } else {
-                fprintf(file,"windFile0 =  %s\n", wndFile);
+                fprintf(settings,"windFile0 =  %s\n", wndFile);
             }
         } else {
             if(doMeteoSim == 0) {
-                fprintf(file,"windFile0 =  %s\n", atmPath);
+                fprintf(settings,"windFile0 =  %s\n", atmPath);
             }
             if(doMeteoSim == 1) {
-                fprintf(file,"windFile0 =  %s\n", wndFile);
+                fprintf(settings,"windFile0 =  %s\n", wndFile);
             }
         }
         if(CalibrateAdjustments) {
-            fprintf(file,"adjustmentFile = %s\n", adjFileNew);
+            fprintf(settings,"adjustmentFile = %s\n", adjFileNew);
         } else {
-            fprintf(file,"adjustmentFile = %s\n", baseAdjFile);
+            fprintf(settings,"adjustmentFile = %s\n", baseAdjFile);
         }
         if(doMeteoSim == 0) {
-            fprintf(file,"weatherFile0 = %s\n", wtrFileNew);
+            fprintf(settings,"weatherFile0 = %s\n", wtrFileNew);
         } else {
-            fprintf(file,"weatherFile0 = %s\n", wtrFile);
+            fprintf(settings,"weatherFile0 = %s\n", wtrFile);
         }
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
         // OUTPUTS CREATION
-        fprintf(file,"vectMake = %s\n", doVector);
-        fprintf(file,"rastMake = %s\n", doRaster);
-        fprintf(file,"shapeMake = %s\n", doShape);
+        fprintf(settings,"vectMake = %s\n", doVector);
+        fprintf(settings,"rastMake = %s\n", doRaster);
+        fprintf(settings,"shapeMake = %s\n", doShape);
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
         // RESOLUTION
-        fprintf(file,"timestep = %s\n", timestep);
-        fprintf(file,"visibleStep = %s\n", visibleStep);
-        fprintf(file,"secondaryVisibleStep = %s\n", secondaryVisibleStep);
+        fprintf(settings,"timestep = %s\n", timestep);
+        fprintf(settings,"visibleStep = %s\n", visibleStep);
+        fprintf(settings,"secondaryVisibleStep = %s\n", secondaryVisibleStep);
         //fprintf(file,"perimeterResolution = %s\n", perimeterResolution);
-        fprintf(file,"perimeterResolution = %dm\n", res);
-        fprintf(file,"distanceResolution = %s\n", distanceResolution);
+        fprintf(settings,"perimeterResolution = %dm\n", resolution);
+        fprintf(settings,"distanceResolution = %s\n", distanceResolution);
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
         // IGNITION DATA & TYPE
-        fprintf(file,"ignitionFile = %s\n", ignitionFile);
-        fprintf(file,"ignitionFileType = %s\n", ignitionFileType);
+        fprintf(settings,"ignitionFile = %s\n", ignitionFile);
+        fprintf(settings,"ignitionFileType = %s\n", ignitionFileType);
         if(strcmp(doShape,"true") == 0) {
-            fprintf(file,"shapefile=%s%s.shp\n", output_path, shapefileNew);
+            fprintf(settings,"shapefile=%s%s.shp\n", output_path, shapefileNew);
         }
         if(strcmp(doRaster,"true") == 0) {
-            fprintf(file,"RasterFileName=%s%s\n", output_path, RasterFileNameNew);
+            fprintf(settings,"RasterFileName=%s%s\n", output_path, RasterFileNameNew);
         }
         if(strcmp(doVector,"true") == 0) {
-            fprintf(file,"VectorFileName=%s%s\n", output_path, VectorFileNameNew);
+            fprintf(settings,"VectorFileName=%s%s\n", output_path, VectorFileNameNew);
         }
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
-        fprintf(file,"enableCrownfire = false\n");
-        fprintf(file,"linkCrownDensityAndCover = false\n");
-        fprintf(file,"embersFromTorchingTrees = false\n");
-        fprintf(file,"enableSpotFireGrowth = false\n");
-        fprintf(file,"nwnsBackingROS = false\n");
-        fprintf(file,"fireacceleration=false\n");
-        fprintf(file,"accelerationtranstion=1m\n");
-        fprintf(file,"distanceChecking = fireLevel\n");
-        fprintf(file,"simulatePostFrontalCombustion = false\n");
-        fprintf(file,"fuelInputOption = absent\n");
-        fprintf(file,"calculationPrecision = normal\n");
+        fprintf(settings,"enableCrownfire = false\n");
+        fprintf(settings,"linkCrownDensityAndCover = false\n");
+        fprintf(settings,"embersFromTorchingTrees = false\n");
+        fprintf(settings,"enableSpotFireGrowth = false\n");
+        fprintf(settings,"nwnsBackingROS = false\n");
+        fprintf(settings,"fireacceleration=false\n");
+        fprintf(settings,"accelerationtranstion=1m\n");
+        fprintf(settings,"distanceChecking = fireLevel\n");
+        fprintf(settings,"simulatePostFrontalCombustion = false\n");
+        fprintf(settings,"fuelInputOption = absent\n");
+        fprintf(settings,"calculationPrecision = normal\n");
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
-        fprintf(file,"useConditioningPeriod = false\n");
-        fprintf(file,"ConditMonth = %s\n",ConditMonth);
-        fprintf(file,"ConditDay = %s\n", ConditDay);
-        fprintf(file,"StartMonth = %s\n", StartMonth);
-        fprintf(file,"StartDay = %s\n", StartDay);
-        fprintf(file,"StartHour = %s\n", StartHour);
-        fprintf(file,"StartMin = %s\n", StartMin);
-        fprintf(file,"EndMonth = %s\n", EndMonth);
+        fprintf(settings,"useConditioningPeriod = false\n");
+        fprintf(settings,"ConditMonth = %s\n",ConditMonth);
+        fprintf(settings,"ConditDay = %s\n", ConditDay);
+        fprintf(settings,"StartMonth = %s\n", StartMonth);
+        fprintf(settings,"StartDay = %s\n", StartDay);
+        fprintf(settings,"StartHour = %s\n", StartHour);
+        fprintf(settings,"StartMin = %s\n", StartMin);
+        fprintf(settings,"EndMonth = %s\n", EndMonth);
         if (generation==10) {
-            fprintf(file,"EndDay = %d\n", atoi(StartDay)+1);
+            fprintf(settings,"EndDay = %d\n", atoi(StartDay)+1);
         } else {
-            fprintf(file,"EndDay = %s\n", EndDay);
+            fprintf(settings,"EndDay = %s\n", EndDay);
         }
-        fprintf(file,"EndHour = %s\n", EndHour);
-        fprintf(file,"EndMin = %s\n", EndMin);
+        fprintf(settings,"EndHour = %s\n", EndHour);
+        fprintf(settings,"EndMin = %s\n", EndMin);
 
-        fprintf(file,"\n");
+        fprintf(settings,"\n");
 
-        fprintf(file,"rast_arrivaltime = true\n");
-        fprintf(file,"rast_fireIntensity = false\n");
-        fprintf(file,"rast_spreadRate = false\n");
-        fprintf(file,"rast_flameLength = false\n");
-        fprintf(file,"rast_heatPerArea = false\n");
-        fprintf(file,"rast_crownFire = false\n");
-        fprintf(file,"rast_fireDirection = false\n");
-        fprintf(file,"rast_reactionIntensity = false\n");
+        fprintf(settings, "rast_arrivaltime = true\n");
+        fprintf(settings, "rast_fireIntensity = false\n");
+        fprintf(settings, "rast_spreadRate = false\n");
+        fprintf(settings, "rast_flameLength = false\n");
+        fprintf(settings, "rast_heatPerArea = false\n");
+        fprintf(settings, "rast_crownFire = false\n");
+        fprintf(settings, "rast_fireDirection = false\n");
+        fprintf(settings, "rast_reactionIntensity = false\n");
 
-        fclose(file);
+        fclose(settings);
     }
 }
 
@@ -590,7 +601,7 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
     char name[20];
     int i, n, j, srows, scols, rrows=0, rcols=0, aux;
     double *realMap, *simulatedMap;
-    double error=9999.9, fitness, doubleValue, val;
+    double error=ERROR_INFINITY, fitness, doubleValue, val;
 
     if(((fd = fopen(realFireMap, "r")) == NULL) || ((fd2 = fopen(ignitionFireMap, "r")) == NULL) ) {
         printf("ERROR: Farsite.getSimulationError -> Unable to open real map file or ignition fire map file\n");
@@ -627,7 +638,7 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
                     fscanf(fd,"%lf\n",&simulatedMap[i]);
                 }
                 fclose(fd);
-                fitness=fitnessYError(realMap, simulatedMap, rrows, rcols, startTime, endTime, &error);
+                fitness = fitnessYError(realMap, simulatedMap, rrows, rcols, startTime, endTime, &error);
                 free(realMap);
                 free(simulatedMap);
             }
