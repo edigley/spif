@@ -36,16 +36,16 @@ float TEMP_VARIATION, HUM_VARIATION;
 int FuelsUs[256];
 int TotalFuels;
 
-int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
+int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
 void initFarsiteVariables(char * filename, int generation);
 void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile);
-void createSettingsFile(char * filename, int individualId, int gen,int resolution);
+void createSettingsFile(char * settingsFile, int individualId, int generation, int perimeterResolution);
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
 /**
  * - population (output): pointer to store the population
  * - populationFileName: path to the population file
-*/
+ */
 int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
     
     FILE * populationFile;
@@ -90,34 +90,51 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
  * - argv[1] file path: spif configuration file
  * - argv[2] file path: population file
  * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
-*/
-int main(int argc,char *argv[]) {
+ */
+int main(int argc, char *argv[]) {
+
+    if (argc < 3 ) {
+        printf("ERROR: Farsite.main -> number of args invalid. Please inform at least a configuration and a population files. ");
+        printf("You can optionally inform the if of the individual to be executed.\n");
+    }
 
     POPULATIONTYPE population;
     readPopulation(&population, argv[2]);
     //print_population_farsite(population);
     //print_individuo(0,population.popu_fs[0]);
 
-    int generation  = 0;
-    int individuoId = atoi(argv[3]);
-
     double adjustmentError;
     char * configurationFile = argv[1];
     char * atmPath;
+    int generation = 0;
+    int individuoId;
+    int begin, end;
 
-    printf("INFO: Farsite.main: Going to start...\n");
+    if (argc == 4 ) {
+        individuoId = atoi(argv[3]);
+        begin = individuoId;
+        end = individuoId;
+    } else {
+        begin = 0;
+        end = population.popuSize;
+    }
 
-    runSimFarsite(population.popu_fs[individuoId], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
+    int i;
+    for (i=begin; i < end; i++) {
 
-    printf("INFO: Farsite.main: Finished.\n");
+        printf("INFO: Farsite.main: Going to start for individual %d ...\n", i);
 
-    printf(" adjustmentError: %f \n", adjustmentError);
-    printf(" &adjustmentError: %f \n", &adjustmentError);
+        runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
+
+        printf("INFO: Farsite.main: Finished.\n");
+
+        printf(" adjustmentError: %f \n", adjustmentError);
+        printf(" &adjustmentError: %f \n", &adjustmentError);
+    }
 
 }
 
-int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
-
+int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
     //Init variables
     if(doWindFields == 1) {
         atmPath = atm;
@@ -149,19 +166,15 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simID, double * adjustment
     }
     if (generation==10) {
         AvailTime=3600.0;
-        resolution=300;
+        resolution=30;
         individual.threads=8;
     };
-    createSettingsFile(settings_filename, individual.id,generation,resolution);
+    createSettingsFile(settings_filename, individual.id, generation, resolution);
 
     if (AvailTime<=1.0f) {
         AvailTime=1.0;
     };
-    if (generation==10) {
-        AvailTime=3600.0;
-        resolution=300;
-        individual.threads=8;
-    };
+
     //printf("timeout --signal=SIGXCPU %.0fs %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm\n",AvailTime,farsite_path,settings_filename,individual.threads,generation,individual.id,myid,resolution);
 
     //print_indv_farsite(individual);
@@ -445,8 +458,8 @@ void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile) {
  * - individualId
  * - generation
  * - resolution
-*/
-void createSettingsFile(char * settingsFile, int individualId, int generation, int resolution) {
+ */
+void createSettingsFile(char * settingsFile, int individualId, int generation, int perimeterResolution) {
     char * shapefileNew = (char*)malloc(sizeof(char) * 400);
     RasterFileNameNew = (char*)malloc(sizeof(char) * 400);
     char * VectorFileNameNew = (char*)malloc(sizeof(char) * 400);
@@ -468,22 +481,22 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
 
         fprintf(settings,"version = 43\n");
         fprintf(settings,"landscapeFile = %s\n", landscapeFile);
-        fprintf(settings,"FUELMOISTUREFILE =  %s\n", fmsFileNew);
+        fprintf(settings,"FUELMOISTUREFILE = %s\n", fmsFileNew);
         if (CustomFuelFile != NULL) {
             fprintf(settings,"fuelmodelfile = %s\n",CustomFuelFile);
         }
         if(doWindFields == 0) {
             if(doMeteoSim == 0) {
-                fprintf(settings,"windFile0 =  %s\n", wndFileNew);
+                fprintf(settings,"windFile0 = %s\n", wndFileNew);
             } else {
-                fprintf(settings,"windFile0 =  %s\n", wndFile);
+                fprintf(settings,"windFile0 = %s\n", wndFile);
             }
         } else {
             if(doMeteoSim == 0) {
-                fprintf(settings,"windFile0 =  %s\n", atmPath);
+                fprintf(settings,"windFile0 = %s\n", atmPath);
             }
             if(doMeteoSim == 1) {
-                fprintf(settings,"windFile0 =  %s\n", wndFile);
+                fprintf(settings,"windFile0 = %s\n", wndFile);
             }
         }
         if(CalibrateAdjustments) {
@@ -509,9 +522,8 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
         // RESOLUTION
         fprintf(settings,"timestep = %s\n", timestep);
         fprintf(settings,"visibleStep = %s\n", visibleStep);
-        fprintf(settings,"secondaryVisibleStep = %s\n", secondaryVisibleStep);
-        //fprintf(file,"perimeterResolution = %s\n", perimeterResolution);
-        fprintf(settings,"perimeterResolution = %dm\n", resolution);
+        fprintf(settings,"secondaryVisibleStep = %s\n", secondaryVisibleStep);        
+        fprintf(settings,"perimeterResolution = %dm\n", perimeterResolution);
         fprintf(settings,"distanceResolution = %s\n", distanceResolution);
 
         fprintf(settings,"\n");
@@ -520,13 +532,13 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
         fprintf(settings,"ignitionFile = %s\n", ignitionFile);
         fprintf(settings,"ignitionFileType = %s\n", ignitionFileType);
         if(strcmp(doShape,"true") == 0) {
-            fprintf(settings,"shapefile=%s%s.shp\n", output_path, shapefileNew);
+            fprintf(settings,"shapefile = %s%s.shp\n", output_path, shapefileNew);
         }
         if(strcmp(doRaster,"true") == 0) {
-            fprintf(settings,"RasterFileName=%s%s\n", output_path, RasterFileNameNew);
+            fprintf(settings,"RasterFileName = %s%s\n", output_path, RasterFileNameNew);
         }
         if(strcmp(doVector,"true") == 0) {
-            fprintf(settings,"VectorFileName=%s%s\n", output_path, VectorFileNameNew);
+            fprintf(settings,"VectorFileName = %s%s\n", output_path, VectorFileNameNew);
         }
 
         fprintf(settings,"\n");
@@ -536,8 +548,8 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
         fprintf(settings,"embersFromTorchingTrees = false\n");
         fprintf(settings,"enableSpotFireGrowth = false\n");
         fprintf(settings,"nwnsBackingROS = false\n");
-        fprintf(settings,"fireacceleration=false\n");
-        fprintf(settings,"accelerationtranstion=1m\n");
+        fprintf(settings,"fireacceleration = false\n");
+        fprintf(settings,"accelerationtranstion = 1m\n");
         fprintf(settings,"distanceChecking = fireLevel\n");
         fprintf(settings,"simulatePostFrontalCombustion = false\n");
         fprintf(settings,"fuelInputOption = absent\n");
@@ -593,7 +605,7 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
  * - ignitionFireMap: path to the raster map file with the ignition fire evolution (initial fire perimeter).
  * - startTime: the simulation start time in hours
  * - endTime the simulation end time in hours
-*/
+ */
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int startTime, int endTime) {
     //Args: mode mapaRealFileName mapaSimFileName t1 t2
     FILE *fd,*fd2;
