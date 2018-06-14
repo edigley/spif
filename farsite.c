@@ -41,7 +41,6 @@ double getSimulationError(char * simulatedMap);
 
 int readPopulation(POPULATIONTYPE * population, char * scenarioFileName) {
     FILE * scenario;
-    int i,j;
 
     if ((scenario = fopen(scenarioFileName, "r")) == NULL) {
         printf("(get_population_farsite)-> Population file can't be found or opened!: %s \n", scenarioFileName);
@@ -57,6 +56,7 @@ int readPopulation(POPULATIONTYPE * population, char * scenarioFileName) {
     };
 
     // read each individual
+    int i,j;
     for (i = 0; i < population->popuSize; i++) {
         population->popu_fs[i].id = i;
         population->popu_fs[i].class_ind = 'A';
