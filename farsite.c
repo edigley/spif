@@ -39,20 +39,24 @@ void createInputFiles(INDVTYPE_FARSITE individuo, char * dataFile);
 void createSettingsFile(char * filename, int idInd, int gen,int res);
 double getSimulationError(char * simulatedMap);
 
-int readPopulation(POPULATIONTYPE * population, char * scenarioFileName) {
-    FILE * scenario;
-
-    if ((scenario = fopen(scenarioFileName, "r")) == NULL) {
-        printf("(get_population_farsite)-> Population file can't be found or opened!: %s \n", scenarioFileName);
+/**
+*  population (output): pointer to store the population
+*  populationFileName: path to the population file
+*/
+int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
+    
+    FILE * populationFile;
+    if ((populationFile = fopen(populationFileName, "r")) == NULL) {
+        printf("ERROR: Farsite.readPopulation -> Population file can't be found or opened: %s \n", populationFileName);
         return -1;
     }
 
-    //read the header file populationSize currentGeneration numberOfParams
-    fscanf(scenario,"%d %d %d\n", &population->popuSize, &population->currentGen, &population->nParams);
+    //read the header: populationSize currentGeneration numberOfParams
+    fscanf(populationFile,"%d %d %d\n", &population->popuSize, &population->currentGen, &population->nParams);
 
     population->popu_fs = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE) * population->popuSize);
     if( (population->nParams-2) > population->maxparams ) {
-        printf("ERROR: The number of parameters specified in population file is greater than maxparams used in compilation.\n");
+        printf("ERROR: Farsite.readPopulation -> The number of parameters specified in population file is greater than maxparams used in compilation.\n");
     };
 
     // read each individual
@@ -62,10 +66,10 @@ int readPopulation(POPULATIONTYPE * population, char * scenarioFileName) {
         population->popu_fs[i].class_ind = 'A';
         population->popu_fs[i].threads = 1;
         for (j=0; j < (population->nParams-2); j++) {
-            fscanf(scenario,"%f ", &(population->popu_fs[i].parameters[j]));
+            fscanf(populationFile,"%f ", &(population->popu_fs[i].parameters[j]));
         }
         population->popu_fs[i].nparams_farsite = population->nParams-2;
-        fscanf(scenario, "%f %f %d %d %d",
+        fscanf(populationFile, "%f %f %d %d %d",
             &population->popu_fs[i].error, 
             &population->popu_fs[i].errorc,
             &population->popu_fs[i].executed,
@@ -74,15 +78,15 @@ int readPopulation(POPULATIONTYPE * population, char * scenarioFileName) {
         );
     }
 
-    fclose(scenario);
+    fclose(populationFile);
 
     return 0;
 }
 
 /**
-*  argv[1] scenario   file
-*  argv[2] population file
-*  argv[3] individual to be simulated
+*  argv[1] file path: spif configuration file
+*  argv[2] file path: population file
+*  argv[3] int: id of the individual to be simulated
 */
 int main(int argc,char *argv[]) {
 
