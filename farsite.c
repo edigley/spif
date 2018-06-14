@@ -15,13 +15,13 @@
 #include "myutils.h"
 
 int FireSimLimit, numGenerations;
-char * farsite_path, *windninja_path, *input_path, *output_path, * real_fire_map_t0, * real_fire_map_t1,*FuelsToCalibrateFileName,*CustomFuelFile,*real_fire_map_tINI;
-char * landscapeFile, *ignitionFile, *ignitionFileType, *wndFile, *wtrFile, *adjFile, *fmsFile;
-char * baseWndFile, *baseWtrFile, *baseFmsFile, *baseAdjFile;
-char * RasterFileName, *shapefile, *VectorFileName, *doRaster, *doShape, *doVector;
-char * ConditMonth, *ConditDay, *StartMonth, *StartDay, *StartHour, *StartMin, *EndMonth, *EndDay, *EndHour, *EndMin;
-char * timestep, *visibleStep, *secondaryVisibleStep, *perimeterResolution,*distanceResolution;
-char * fmsFileNew, * wndFileNew, * wtrFileNew, *adjFileNew, *atmPath;
+char * farsite_path, * windninja_path, * input_path, * output_path, * real_fire_map_t0, * real_fire_map_t1, * FuelsToCalibrateFileName, * CustomFuelFile, * real_fire_map_tINI;
+char * landscapeFile, * ignitionFile, * ignitionFileType, * wndFile, * wtrFile, * adjFile, * fmsFile;
+char * baseWndFile, * baseWtrFile, * baseFmsFile, * baseAdjFile;
+char * RasterFileName, * shapefile, * VectorFileName, * doRaster, * doShape, * doVector;
+char * ConditMonth, * ConditDay, * StartMonth, * StartDay, * StartHour, * StartMin, * EndMonth, * EndDay, * EndHour, * EndMin;
+char * timestep, * visibleStep, * secondaryVisibleStep, * perimeterResolution, * distanceResolution;
+char * fmsFileNew, * wndFileNew, * wtrFileNew, * adjFileNew, * atmPath;
 char * RasterFileNameNew, FuelsUsedFileName;
 
 int numgen=1, num_threads;
@@ -33,15 +33,16 @@ int seguir = 1;
 float TEMP_VARIATION, HUM_VARIATION;
 int FuelsUs[256];
 int TotalFuels;
+
 int runSimFarsite(INDVTYPE_FARSITE individuo, char * simID, double * err, int numgen, char * atm, char * datos, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
 void initFarsiteVariables(char * filename, int numgen);
 void createInputFiles(INDVTYPE_FARSITE individuo, char * dataFile);
 void createSettingsFile(char * filename, int idInd, int gen,int res);
-double getSimulationError(char * simulatedMap);
+double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
 /**
-*  population (output): pointer to store the population
-*  populationFileName: path to the population file
+* - population (output): pointer to store the population
+* - populationFileName: path to the population file
 */
 int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
     
@@ -102,12 +103,12 @@ int main(int argc,char *argv[]) {
     char * datos = argv[1];
     char * atmPath;
 
-    printf("FARSITE: Going to start...\n");
+    printf("INFO: Farsite.main: Going to start...\n");
 
     runSimFarsite(population.popu_fs[individuoId], "FARSITE", &adjustmentError, generation, atmPath, datos, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
     //double error = getSimulationError("/home/edigley/doutorado_uab/so_oh_leite/two_stage_prediction_framework/jonquera/output/raster_1_85.toa");
 
-    printf("FARSITE: Finished.\n");
+    printf("INFO: Farsite.main: Finished.\n");
 
     printf(" adjustmentError: %f \n", adjustmentError);
     printf(" &adjustmentError: %f \n", &adjustmentError);
@@ -182,7 +183,7 @@ int runSimFarsite(INDVTYPE_FARSITE individuo, char * simID, double * err, int nu
     {
         char sim_fire_line[5000];
         sprintf(sim_fire_line,"%s%s.toa", output_path, RasterFileNameNew);
-        error = getSimulationError(sim_fire_line);
+        error = getSimulationError(sim_fire_line, real_fire_map_t1, real_fire_map_tINI, start_time, end_time);
         *err = error;
         sprintf(TraceBuffer,"Worker%d %1.2f %1.2f %d %d %d %d\n",myid,ti-Start,te-Start,myid,individuo.threads,proc,1);
     }
@@ -198,7 +199,7 @@ int runSimFarsite(INDVTYPE_FARSITE individuo, char * simID, double * err, int nu
     {
         if (( TraceFile = fopen(TraceFileName, "w")) == NULL)
         {
-            printf("Error opening file 'w' %s\n",TraceFileName);
+            printf("ERROR: Error opening file 'w' %s\n",TraceFileName);
         }
         else
         {
@@ -608,62 +609,69 @@ void createSettingsFile(char * filename, int idInd,int generation,int res) {
     }
 }
 
-double getSimulationError(char * simulatedMap) {
+/**
+ * All the files must be provided in GRASS ASCII format (see https://grass.osgeo.org/grass75/manuals/r.in.ascii.html) with one data value per line.
+ * For example, the 2x3 grid
+ * 1 2 3
+ * 4 5 6
+ * should be formated as: 
+ * 1 
+ * 2 
+ * 3 
+ * 4 
+ * 5 
+ * 6
+ * - simulatedFireMap (input): path to the farsite output file (.toa).
+ * - realFireMap: path to the raster map file with the real fire evolution.
+ * - ignitionFireMap: path to the raster map file with the ignition fire evolution (initial fire perimeter).
+*/
+double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int startTime, int endTime) {
     //Args: mode mapaRealFileName mapaSimFileName t1 t2
-    //ambos mapas -> rutas absolutas al fichero .toa tal cual sale del farsite
-    //printf("---> getSimulationError.simulatedMap %s\n",simulatedMap);
     FILE *fd,*fd2;
     char tmp;
     char name[20];
-    int i,n,j,srows,scols,rrows=0,rcols=0,aux;
-    double *mapaReal, *mapaSim;
+    int i, n, j, srows, scols, rrows=0, rcols=0, aux;
+    double *realMap, *simulatedMap;
     double error=9999.9, fitness, doubleValue, val;
 
-    //printf("---> getSimulationError.real_fire_map_t1 %s\n",real_fire_map_t1);
-    //printf("---> getSimulationError.real_fire_map_tINI %s\n",real_fire_map_tINI);
-
-    if(((fd = fopen(real_fire_map_t1, "r")) == NULL) || ((fd2 = fopen(real_fire_map_tINI, "r")) == NULL) ) {
-        printf("Unable to open real map file\n");
+    if(((fd = fopen(realFireMap, "r")) == NULL) || ((fd2 = fopen(ignitionFireMap, "r")) == NULL) ) {
+        printf("ERROR: Farsite.getSimulationError -> Unable to open real map file or ignition fire map file\n");
     } else {
         fscanf(fd,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&rrows,name,&rcols);
-        printf("---> getSimulationError.real_fire_map_t1.fd name(%7s) val(%f) rrows(%d) rcols(%d)\n",name,val,rrows,rcols);
+        printf("INFO: Farsite.getSimulationError.realFireMap.fd -> name(%7s) val(%f) rrows(%d) rcols(%d)\n",name,val,rrows,rcols);
         fscanf(fd2,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&aux,name,&aux);
-        printf("---> getSimulationError.real_fire_map_tINI.fd2 name(%7s) val(%f) aux(%d) \n",name,val,aux);
-        mapaReal=(double *)calloc(rrows*rcols,sizeof(double));
+        printf("INFO: Farsite.getSimulationError.ignitionFireMap.fd2 -> name(%7s) val(%f) aux(%d) \n",name,val,aux);
+        realMap=(double *)calloc(rrows*rcols,sizeof(double));
 
         for(i=0; i<rrows*rcols; i++) {
             fscanf(fd2,"%lf\n",&doubleValue);
             if(doubleValue==1.0f) {
-                fscanf(fd,"%lf\n",&mapaReal[i]);
-                mapaReal[i]=-1.0f;
+                fscanf(fd,"%lf\n",&realMap[i]);
+                realMap[i]=-1.0f;
             } else {
-                fscanf(fd,"%lf\n",&mapaReal[i]);
+                fscanf(fd,"%lf\n",&realMap[i]);
             }
         }
         fclose(fd);
         fclose(fd2);
 
-        //printf("---> getSimulationError.simulatedMap %s\n",simulatedMap);
-        if((fd=fopen(simulatedMap,"r")) == NULL) {
-            printf("Unable to open simulated map file");
+        if((fd=fopen(simulatedFireMap,"r")) == NULL) {
+            printf("ERROR: Unable to open simulated map file");
         } else {
             fscanf(fd,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&srows,name,&scols);
-            printf("---> getSimulationError.simulatedMap.fd name(%7s) val(%f) srows(%d) scols(%d)\n",name,val,srows,scols);
-            mapaSim=(double *)calloc(srows*scols,sizeof(double));
+            printf("INFO: Farsite.getSimulationError.simulatedFireMap.fd -> name(%7s) val(%f) srows(%d) scols(%d)\n",name,val,srows,scols);
+            simulatedMap=(double *)calloc(srows*scols,sizeof(double));
 
             if( (srows!=rrows) || (scols!=rcols) ) {
-                printf("ERROR: Different map dimensions!! Real: %dx%d Simulated: %dx%d\n",rrows,rcols,srows,scols);
+                printf("ERROR: Farsite.getSimulationError -> Different map dimensions: Real (%dx%d) X Simulated (%dx%d)\n",rrows,rcols,srows,scols);
             } else {
-                for(i=0; i<srows*scols; i++) {
-                    fscanf(fd,"%lf\n",&mapaSim[i]);
+                for(i=0; i< srows*scols; i++) {
+                    fscanf(fd,"%lf\n",&simulatedMap[i]);
                 }
-
                 fclose(fd);
-
-                fitness=fitnessYError(mapaReal,mapaSim,rrows,rcols,start_time,end_time,&error);
-
-                free(mapaReal);
-                free(mapaSim);
+                fitness=fitnessYError(realMap, simulatedMap, rrows, rcols, startTime, endTime, &error);
+                free(realMap);
+                free(simulatedMap);
             }
         }
     }
