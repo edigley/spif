@@ -102,7 +102,7 @@ int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap);
 static int PrintMap (double * map, char *fileName, int Rows, int Cols);
 
 /*************************************************************************************/
-// ninicializa los datos del worker, mapas y tiempos
+// Inicializa los datos del worker, mapas y tiempos
 /*************************************************************************************/
 int initWorker(char * datafile)
 {
@@ -305,10 +305,11 @@ void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * dat
         }
         //printf("WorkerAvailTime:%lf\n",AvailTime);
         //printf("Ruta trazas:%s\n",TracePathFiles);
-        if(doMeteoSim == 0)
-            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atmPath, datos, myid, Start, TracePathFiles, JobID, executed, proc,Trace, nFuelsW, FuelsUsed,AvailTime);
-        else
-            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atm_file, datos,myid, Start, TracePathFiles, JobID, executed, proc,Trace,nFuelsW,FuelsUsed,AvailTime);
+        if(doMeteoSim == 0) {
+            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atmPath, datos, myid, Start, TracePathFiles, JobID, executed, proc,Trace, nFuelsW, FuelsUsed, AvailTime);
+        } else {
+            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atm_file, datos, myid, Start, TracePathFiles, JobID, executed, proc,Trace, nFuelsW, FuelsUsed, AvailTime);
+        }
         individuos[i].error = err;
         //printf("errorProcesa :%f\n",individuos[i].error);
         //printf("Worker:%d Error Individuo(%d): %1.4f\n", myid, individuos[i].id, individuos[i].error);
@@ -621,9 +622,8 @@ int NewWaitB(int * pIDs,int childs)
     //return auxp;
 }
 
-void worker(int taskid, char * datosIni, int JobID, double Start)
-{
-    printf("It is going to launch worker for tarskid %d, datos %s, jobId %d, start %d \n", taskid, datosIni, JobID, Start);
+void worker(int taskid, char * datosIni, int JobID, double Start) {
+    printf("INFO: It is going to launch worker for tarskid %d, datos %s, jobId %d, start %d \n", taskid, datosIni, JobID, Start);
     int stop = 0;
     int nroBloque;
     int num_generation;
@@ -657,52 +657,45 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
     // printf("MiPID:%d:Rank:%d\n",getpid(),);
 
     int ** fd = (int **)malloc((Cores)*sizeof(int *));
-    for (i=0; i<Cores; i++)
-    {
+    for (i=0; i<Cores; i++) {
         fd[i] = (int *) malloc((sizeof(int)*2));
     }
     // int fd[8][2];
     int aux=0;
 
-    for (i=0; i<Cores; i++)
-    {
+    for (i=0; i<Cores; i++) {
         pipe(fd[i]);
         //close(fd[i][0]);close(fd[i][1]);
     }
 
     poblacion = (INDVTYPE_FARSITE**)malloc(sizeof(INDVTYPE_FARSITE*)*avaibleCores);
-    for (i=0; i<Cores; i++)
-    {
+    for (i=0; i<Cores; i++) {
         poblacion[i] = (INDVTYPE_FARSITE*)malloc(sizeof(INDVTYPE_FARSITE));
     }
 
-    for (i=0; i<Cores; i++)
-    {
+    for (i=0; i<Cores; i++) {
         childs_vect[i] = -1;
         proc_vect[i] = -1;
     }
     proc_vect[Cores + 1] = -1;
 
     //INDVTYPE_FARSITE * poblacion = (INDVTYPE_FARSITE*)malloc(chunkSize * sizeof(INDVTYPE_FARSITE)*8);
-    printf("It's about to initWorker...\n");
+    printf("INFO: It's about to initWorker...\n");
     initWorker(datosIni);
-    printf("Worker initiated...\n");
+    printf("INFO: Worker initiated...\n");
     double MaxAvaibleTime = FireSimLimit;
     double GenTime;
-    for (i=0; i<Cores; i++)
-    {
+    for (i=0; i<Cores; i++) {
         proc_avail_time[i] = 0.0f;
         generationsCore[i] = 0;
     }
 
-
     //long long int *addd=0x1900000030;
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
     //printf("Debug ->Worker %d &numind:%p %f %d %c %s\n",myid,&numind,(float)*(addd),(int)*(addd),(char)*(addd),(char *)*(addd));
-    printf("MiPID:%d:Rank:%d\n",getpid(),myid);
+    printf("INFO: MiPID:%d:Rank:%d\n",getpid(),myid);
     Childs = 0;
-    do
-    {
+    do {
         //comm_time = 0;
         t1 = MPI_Wtime();
         t3 = t1;
@@ -710,37 +703,27 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
         //printf("Worker %d WORKER JUSTO ANTES DE RECEPCIÓN avaibleCores:%d Cores:%d\n",myid,avaibleCores,Cores);
         //poblacion[Childs] = Worker_ReceivedMPI_SetOfIndividualTask(chunkSize, &nroBloque, &num_generation, numind, &stop,&MPIstatus,wait);
 
-
-        if (avaibleCores == Cores)
-        {
+        if (avaibleCores == Cores) {
             /*
             for (i=0;i<Cores;i++){
               poblacion[i] = NULL;
             }
             */
-            for (i=0; i<Cores; i++)
-            {
+            for (i=0; i<Cores; i++) {
                 childs_vect[i] = -1;
             }
             avaiblePosition = SearchPID(childs_vect,-1,Cores);
             poblacion[avaiblePosition] = Worker_ReceivedMPI_SetOfIndividualTask(chunkSize, &nroBloque, &num_generation, numind, &stop,1,&received);
-
-        }
-        else
-        {
+        } else {
             avaiblePosition = SearchPID(childs_vect,-1,Cores);
             poblacion[avaiblePosition] = Worker_ReceivedMPI_SetOfIndividualTask(chunkSize, &nroBloque, &num_generation, numind, &stop,0,&received);
             //MPI_Test(&MPIstatus, &flag, &Status);
-
-
-
         }
         // printf("Worker %d WORKER JUSTO Despues DE RECEPCIÓN avaibleCores:%d Cores:%d\n",myid,avaibleCores,Cores);
 
         // printf("Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
-        if (received && (stop!=FINISH_SIGNAL))
-        {
-            printf("Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
+        if (received && (stop!=FINISH_SIGNAL)) {
+            printf("INFO: Debug Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
             //printf("Worker %d avaiblePosition:%d\n",myid,avaiblePosition);
             //printf("Recibo Worker %d poblacion:%d posicion:%d\n",myid,poblacion[avaiblePosition]->threads,avaiblePosition);
             Childs++;
@@ -751,71 +734,55 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
             //{
             executed++;
             proc = SearchPOS(proc_vect,-1,CoresIn,poblacion[avaiblePosition]->threads);
-            if (proc != -1)
-            {
-                printf("Debug Worker %d proc:%d\n",myid,proc);
-                if (numgen_ant < poblacion[avaiblePosition]->generation )
-                {
+            if (proc != -1) {
+                printf("INFO: Debug Worker %d proc:%d\n",myid,proc);
+                if (numgen_ant < poblacion[avaiblePosition]->generation ) {
                     GenTime=MPI_Wtime();
                     MaxAvaibleTime=((FireSimLimit*numGenerations)-(MPI_Wtime()-StartingTime))/(numGenerations-poblacion[avaiblePosition]->generation);
-                    printf("MaxAvailableTime per generation=%f\n",MaxAvaibleTime);
+                    printf("INFO: MaxAvailableTime per generation=%f\n",MaxAvaibleTime);
                     numgen_ant = poblacion[avaiblePosition]->generation;
-
                 }
-                if (generationsCore[proc] < poblacion[avaiblePosition]->generation)
-                {
-                    for (i=proc; i<(proc+poblacion[avaiblePosition]->threads); i++)
-                    {
+                if (generationsCore[proc] < poblacion[avaiblePosition]->generation) {
+                    for (i=proc; i<(proc+poblacion[avaiblePosition]->threads); i++) {
                         proc_avail_time[i] = 0.0f + (MPI_Wtime()-GenTime);
                     }
                 }
 
                 availTime = MaxAvaibleTime-proc_avail_time[proc];
-                if (availTime > 1080*numGenerations)
-                {
+                if (availTime > 1080*numGenerations) {
                     availTime=(1080*numGenerations)-(MPI_Wtime()-StartingTime);
                 }
-                if (availTime<=1)
-                {
+                if (availTime<=1) {
                     availTime=1;
                 }
                 start_time[proc]=MPI_Wtime();
-                printf("Worker %d ocupa core %d con tiempo disponible %f a tiempo MPI %f\n",myid,proc,availTime,proc_avail_time[proc]);
+                printf("INFO: Worker %d ocupa core %d con tiempo disponible %f a tiempo MPI %f\n",myid,proc,availTime,proc_avail_time[proc]);
                 childs_vect[avaiblePosition] = (fork()-1);
-                if (childs_vect[avaiblePosition] == -1)
-                {
+                if (childs_vect[avaiblePosition] == -1) {
                     procesarBloqueFarsite(poblacion[avaiblePosition],num_generation,datosIni,myid,Start,TracePathFiles,JobID,executed,proc,Trace,availTime);
                     //close(fd[avaiblePosition][0]);
                     open(fd[avaiblePosition][1]);
                     write(fd[avaiblePosition][1],&(poblacion[avaiblePosition]->error),sizeof(float));
                     //open(fd[avaiblePosition][0]);
-                    printf("Worker %d acaba ejecucion y enviar error %f de individuo %d \n",myid,poblacion[avaiblePosition]->error,poblacion[avaiblePosition]->oldid);
+                    printf("INFO: Worker %d acaba ejecucion y enviar error %f de individuo %d \n",myid,poblacion[avaiblePosition]->error,poblacion[avaiblePosition]->oldid);
                     //sleep(2);
                     _exit(2);
-                }
-                else
-                {
-                    for (fillin=0; fillin<poblacion[avaiblePosition]->threads && ( fillin < CoresIn  ) ; fillin++)
-                    {
+                } else {
+                    for (fillin=0; fillin<poblacion[avaiblePosition]->threads && ( fillin < CoresIn  ) ; fillin++) {
                         proc_vect[proc+fillin] = childs_vect[avaiblePosition];
                     }
                 }
-            }
-            else
-            {
-                printf("Worker:%d Se proporciona posicion: %d!!!!!\n,Cores:%d threadsNeeded:%d\n",myid,proc,Cores,poblacion[avaiblePosition]->threads);
+            } else {
+                printf("INFO: Worker:%d Se proporciona posicion: %d!!!!!\n,Cores:%d threadsNeeded:%d\n",myid,proc,Cores,poblacion[avaiblePosition]->threads);
             }
         }
 
-        if (stop != FINISH_SIGNAL)
-        {
+        if (stop != FINISH_SIGNAL) {
             //printf("Worker %d avaibleCores%d\n",myid,avaibleCores);
-            if (avaibleCores == 0)
-            {
-                if (Childs > 0)
-                {
+            if (avaibleCores == 0) {
+                if (Childs > 0) {
                     //pID = waitpid(-1,&status,0);
-                    printf("Worker %d espera con wait bloqueante\n",myid);
+                    printf("INFO: Worker %d espera con wait bloqueante\n",myid);
                     //pID = waitpid(0,&status,0);
                     pID = NewWaitB(childs_vect,Cores);
                     //pID = wait(&status);
@@ -823,12 +790,10 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                     //else{
                     //pID = waitpid((SearchUnicPID(childs_vect,Cores)+1),&status,0);
                     //}
-                    if ((pID > 0))
-                    {
+                    if ((pID > 0)) {
                         //if (pID == -1){pID=SearchUnicPID(childs_vect,Cores)+1;}
-                        printf("Worker  %d Acaba pID %d en posicion %d avaiblecores=0\n",myid,pID,SearchPID(childs_vect,pID-1,Cores));
-                        if (SearchPID(childs_vect,pID-1,Cores) != -1  )
-                        {
+                        printf("INFO: Worker %d Acaba pID %d en posicion %d avaiblecores=0\n", myid, pID, SearchPID(childs_vect,pID-1,Cores));
+                        if (SearchPID(childs_vect,pID-1,Cores) != -1  ) {
                             //sleep(2);
                             //close(fd[SearchPID(childs_vect,pID-1,Cores)][1]);
                             open(fd[SearchPID(childs_vect,pID-1,Cores)][0]);
@@ -837,20 +802,17 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                             Worker_SendMPI_IndividualError(poblacion[SearchPID(childs_vect,pID-1,Cores)], chunkSize);
                             avaibleCores = avaibleCores + poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads;
                             proc=SearchPID(proc_vect,pID-1,CoresIn);
-                            printf("Debug Worker %d pID%d proc%d\n",myid,pID,proc);
-                            if (proc > -1 && (proc < Cores)  )
-                            {
+                            printf("DEBUG: Worker %d pID%d proc%d\n",myid,pID,proc);
+                            if (proc > -1 && (proc < Cores)  ) {
                                 proc_avail_time[proc]=proc_avail_time[proc]+(MPI_Wtime()-start_time[proc]);
                                 generationsCore[proc]=poblacion[SearchPID(childs_vect,pID-1,Cores)]->generation;
-                                for (i=proc+1; i<(proc+poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads); i++)
-                                {
+                                for (i=proc+1; i<(proc+poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads); i++) {
                                     proc_avail_time[i]=proc_avail_time[proc];
                                     generationsCore[i]=generationsCore[proc];
                                 }
-                                printf("Worker %d libera core %d con tiempo disponible %lf a tiempo MPI %lf:(%d,%d) error %f ind %d\n",myid,proc,availTime,proc_avail_time[proc],proc,proc+ poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads,poblacion[SearchPID(childs_vect,pID-1,Cores)]->error,poblacion[SearchPID(childs_vect,pID-1,Cores)]->oldid);
+                                printf("INFO: Worker %d libera core %d con tiempo disponible %lf a tiempo MPI %lf:(%d,%d) error %f ind %d\n", myid, proc,availTime, proc_avail_time[proc], proc, proc + poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads,poblacion[SearchPID(childs_vect,pID-1,Cores)]->error,poblacion[SearchPID(childs_vect,pID-1,Cores)]->oldid);
                             }
-                            if (poblacion[SearchPID(childs_vect,pID-1,Cores)]->generation > numgen_ant)
-                            {
+                            if (poblacion[SearchPID(childs_vect,pID-1,Cores)]->generation > numgen_ant) {
                                 numgen_ant=poblacion[SearchPID(childs_vect,pID-1,Cores)]->generation;
                             }
 
@@ -861,19 +823,15 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                     }
                 }
             }
-            else
-            {
-                if (Childs > 0)
-                {
+            else {
+                if (Childs > 0) {
                     pID = NewWait(childs_vect,Cores);
                     //pID = waitpid(-1,&status,WNOHANG);
                     //pID = wait(&status);
-                    if ((pID > 0))
-                    {
-                        if (SearchPID(childs_vect,pID-1,Cores) != -1   )
-                        {
+                    if ((pID > 0)) {
+                        if (SearchPID(childs_vect,pID-1,Cores) != -1   ) {
                             //sleep(2);
-                            printf("Worker  %d Acaba pID %d en posicion %d avaiblecores !=0\n",myid,pID,SearchPID(childs_vect,pID-1,Cores));
+                            printf("INFO: Worker.worker -> Worker %d Acaba pID %d en posicion %d avaiblecores !=0\n",myid,pID,SearchPID(childs_vect,pID-1,Cores));
                             //close(fd[SearchPID(childs_vect,pID-1,Cores)][1]);
                             open(fd[SearchPID(childs_vect,pID-1,Cores)][0]);
                             aux = read(fd[SearchPID(childs_vect,pID-1,Cores)][0], &(poblacion[SearchPID(childs_vect,pID-1,Cores)]->error), sizeof(float));
@@ -881,7 +839,7 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                             Worker_SendMPI_IndividualError(poblacion[SearchPID(childs_vect,pID-1,Cores)], chunkSize);
                             avaibleCores = avaibleCores + poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads;
                             proc=SearchPID(proc_vect,pID-1,CoresIn);
-                            printf("Debug Worker %d pID%d proc%d\n",myid,pID,proc);
+                            printf("DEBUG: Worker.worker -> Debug Worker %d pID%d proc%d\n",myid,pID,proc);
                             if (proc > -1 && (proc < Cores)  )
                             {
                                 proc_avail_time[proc]=proc_avail_time[proc]+(MPI_Wtime()-start_time[proc]);
@@ -891,7 +849,7 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                                     proc_avail_time[i]=proc_avail_time[proc];
                                     generationsCore[i]=generationsCore[proc];
                                 }
-                                printf("Worker %d libera core %d con tiempo disponible %lf a tiempo MPI %lf:(%d,%d) error %f ind %d\n",myid,proc,availTime,proc_avail_time[proc],proc,proc+ poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads,poblacion[SearchPID(childs_vect,pID-1,Cores)]->error,poblacion[SearchPID(childs_vect,pID-1,Cores)]->oldid);
+                                printf("INFO: Worker.worker -> Worker %d libera core %d con tiempo disponible %lf a tiempo MPI %lf:(%d,%d) error %f ind %d\n",myid,proc,availTime,proc_avail_time[proc],proc,proc+ poblacion[SearchPID(childs_vect,pID-1,Cores)]->threads,poblacion[SearchPID(childs_vect,pID-1,Cores)]->error,poblacion[SearchPID(childs_vect,pID-1,Cores)]->oldid);
                             }
                             if (poblacion[SearchPID(childs_vect,pID-1,Cores)]->generation > numgen_ant)
                             {
@@ -905,10 +863,8 @@ void worker(int taskid, char * datosIni, int JobID, double Start)
                 }
             }
         }
+    } while (stop != FINISH_SIGNAL);
 
-    }
-    while(stop != FINISH_SIGNAL);
-
-    printf("Worker %d acaba\n",myid);
+    printf("INFO: Worker.worker -> Worker %d acaba\n",myid);
 
 }
