@@ -42,6 +42,25 @@ void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile);
 void createSettingsFile(char * settingsFile, int individualId, int generation, int perimeterResolution);
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
+void individualToString(INDVTYPE_FARSITE individual, char * pszIndividual, int buffersize) {
+    if (!pszIndividual || buffersize<1) {
+        *pszIndividual = '\0'; // return an 'empty' string 
+    } else {
+        sprintf(pszIndividual, "%d %d %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f", 
+            generation, individual.id, 
+            individual.parameters[0], individual.parameters[1], individual.parameters[2], individual.parameters[3],
+            individual.parameters[4],
+            individual.parameters[5], individual.parameters[6],
+            individual.parameters[7], individual.parameters[8],
+            individual.parameters[9], individual.parameters[10], individual.parameters[11], individual.parameters[12], individual.parameters[13], 
+            individual.parameters[14], individual.parameters[15],
+            individual.parameters[16], individual.parameters[17],
+            individual.parameters[18], individual.parameters[19], individual.parameters[20]
+        );
+    }
+    //pszIndividual[buffersize-1] = '\0'; // ensure a valid terminating zero! Many people forget this!
+}
+
 /**
  * - population (output): pointer to store the population
  * - populationFileName: path to the population file
@@ -59,7 +78,7 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
 
     population->popu_fs = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE) * population->popuSize);
     if( (population->nParams-2) > population->maxparams ) {
-        printf("ERROR: Farsite.readPopulation -> The number of parameters specified in population file is greater than maxparams used in compilation.\n");
+        printf("WARNING: Farsite.readPopulation -> The number of parameters specified in population file is greater than maxparams used in compilation.\n");
     };
 
     // read each individual
@@ -91,11 +110,12 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
  * - argv[2] file path: population file
  * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
  */
+
 int main(int argc, char *argv[]) {
 
     if (argc < 3 ) {
         printf("ERROR: Farsite.main -> number of args invalid. Please inform at least a configuration and a population files. ");
-        printf("You can optionally inform the if of the individual to be executed.\n");
+        printf("You can optionally inform the individual to be executed.\n");
     }
 
     POPULATIONTYPE population;
@@ -109,27 +129,39 @@ int main(int argc, char *argv[]) {
     int generation = 0;
     int individuoId;
     int begin, end;
+    char individualAsString[256]; // 256 bytes allocated here on the stack.
+    char * adjustmentErrorsFileName = "output_individuals_adjustment_result.txt";
+    FILE * adjustmentErrors;
 
     if (argc == 4 ) {
         individuoId = atoi(argv[3]);
         begin = individuoId;
-        end = individuoId;
+        end = individuoId + 1;
     } else {
         begin = 0;
         end = population.popuSize;
     }
 
-    int i;
-    for (i=begin; i < end; i++) {
+    if ((adjustmentErrors = fopen(adjustmentErrorsFileName, "w")) == NULL) {
+        printf("ERROR: Farsite.main -> Error opening output adjustment errors file 'w' %s\n", adjustmentErrorsFileName);
+    } else {
+        int i;
+        for (i=begin; i < end; i++) {
+            printf("INFO: Farsite.main -> Going to start for individual (%d,%d)...\n", generation, i);
 
-        printf("INFO: Farsite.main: Going to start for individual %d ...\n", i);
+            individualToString(population.popu_fs[i], individualAsString, sizeof(individualAsString));
+            printf("INFO: Farsite.main -> %s\n", individualAsString); // prints "Mar"
 
-        runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
+            runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
 
-        printf("INFO: Farsite.main: Finished.\n");
+            printf("INFO: Farsite.main -> Finished for individual (%d,%d).\n", generation, i);
 
-        printf(" adjustmentError: %f \n", adjustmentError);
-        printf(" &adjustmentError: %f \n", &adjustmentError);
+            printf("INFO: Farsite.main -> adjustmentError: (%d,%d): %f\n", generation, i, adjustmentError);
+            printf("INFO: Farsite.main -> &adjustmentError: (%d,%d): %f\n", generation, i, &adjustmentError);
+
+            fprintf(adjustmentErrors,"%s %f\n", individualAsString, adjustmentError);
+        }   
+        fclose(adjustmentErrors);
     }
 
 }
@@ -175,11 +207,12 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
         AvailTime=1.0;
     };
 
-    //printf("timeout --signal=SIGXCPU %.0fs %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm\n",AvailTime,farsite_path,settings_filename,individual.threads,generation,individual.id,myid,resolution);
-
-    //print_indv_farsite(individual);
-    //print_individuo(generation,individual);
-    sprintf(syscall,"/usr/bin/time --format \"%d %d %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",generation,individual.id,AvailTime,farsite_path,settings_filename,individual.threads,generation,individual.id,myid,resolution);
+    char * individualAsString[256];
+    individualToString(individual, individualAsString, sizeof(individual));
+    sprintf(syscall,"/usr/bin/time --format \"%s %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",
+        individualAsString,
+        AvailTime, farsite_path, settings_filename, individual.threads, generation, individual.id, myid, resolution
+    );
 
     /*********** LLAMADA FARSITE ORIGINAL ***********/
     ti = MPI_Wtime();
@@ -200,9 +233,9 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
 
     if (Trace) {
         if (( TraceFile = fopen(TraceFileName, "w")) == NULL) {
-            printf("ERROR: Error opening file 'w' %s\n",TraceFileName);
+            printf("ERROR: Farsite.runSimFarsite -> Error opening trace file 'w' %s\n", TraceFileName);
         } else {
-            fprintf(TraceFile,"%s",TraceBuffer);
+            fprintf(TraceFile, "%s", TraceBuffer);
             fclose(TraceFile);
         }
     }
@@ -233,7 +266,7 @@ void initFarsiteVariables(char * configurationFile, int generation) {
     baseWndFile      = iniparser_getstr(configuration, "farsite:baseWndFile");
     baseWtrFile      = iniparser_getstr(configuration, "farsite:baseWtrFile");
     baseFmsFile      = iniparser_getstr(configuration, "farsite:baseFmsFile");
-    baseAdjFile	     = iniparser_getstr(configuration,"farsite:baseAdjFile");
+    baseAdjFile	     = iniparser_getstr(configuration, "farsite:baseAdjFile");
     RasterFileName   = iniparser_getstr(configuration, "farsite:RasterFileName");
     shapefile        = iniparser_getstr(configuration, "farsite:shapefile");
     VectorFileName   = iniparser_getstr(configuration, "farsite:VectorFileName");
