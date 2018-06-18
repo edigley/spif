@@ -104,8 +104,7 @@ static int PrintMap (double * map, char *fileName, int Rows, int Cols);
 /*************************************************************************************/
 // Inicializa los datos del worker, mapas y tiempos
 /*************************************************************************************/
-int initWorker(char * datafile)
-{
+int initWorker(char * datafile){
     dictionary * datos;
     datos 	= iniparser_load(datafile);
     int i=0;
@@ -151,23 +150,18 @@ int initWorker(char * datafile)
     elevfilepath   = iniparser_getstr(datos, "windninja:elevfilepath");
     atm_file   = iniparser_getstr(datos, "windninja:atmFile");
     FireSimLimit  = iniparser_getint(datos, "farsite:ExecutionLimit", 1);
-    if (CalibrateAdjustments)
-    {
+    if (CalibrateAdjustments) {
         FILE *FuelsToCalibrateFILE;
         int i,nFuel;
         nFuelsW=0;
-        for (i=0; i<259; i++)
-        {
+        for (i=0; i<259; i++) {
             FuelsUsed[i]=0;
         }
-        if ((FuelsToCalibrateFILE = fopen(FuelsToCalibrateFileName,"r"))==NULL)
-        {
+        if ((FuelsToCalibrateFILE = fopen(FuelsToCalibrateFileName,"r"))==NULL) {
             printf("ERROR:Opening fuels used file.\n");
         }
-        else
-        {
-            while( (fscanf(FuelsToCalibrateFILE,"%d",&nFuel)!=EOF) || (nFuelsW == 257) )
-            {
+        else {
+            while( (fscanf(FuelsToCalibrateFILE,"%d",&nFuel)!=EOF) || (nFuelsW == 257) ) {
                 FuelsUsed[nFuel-1]=1;
                 nFuelsW++;
             }
@@ -175,12 +169,9 @@ int initWorker(char * datafile)
         printf("FUELS:%d to calibrate.\n",nFuelsW);
         fclose(FuelsToCalibrateFILE);
 
-    }
-    else
-    {
+    } else {
         nFuelsW = 0;
     }
-
 
     return (0);
 }
@@ -210,8 +201,7 @@ int getMaps()
 /**************************************************************************/
 // PROCESAMIENTO DE UN INDIVIDUO llamado desde procesarBloque
 /**************************************************************************/
-int procesarIndividuo(INDVTYPE *individuo, char * nombre_init_map_t0, double start_time, double *  real_map_t1, double final_time, int Rows, int Cols)
-{
+int procesarIndividuo(INDVTYPE *individuo, char * nombre_init_map_t0, double start_time, double *  real_map_t1, double final_time, int Rows, int Cols) {
 
     double wnddir, wndvel;
     int p1x, p1y, p2x, p2y;
@@ -258,20 +248,17 @@ int procesarIndividuo(INDVTYPE *individuo, char * nombre_init_map_t0, double sta
 /**************************************************************************/
 // PROCESAMIENTO DEL BLOQUE ENVIADO
 /**************************************************************************/
-void procesarBloque(INDVTYPE * individuos, int dimBloque)
-{
+void procesarBloque(INDVTYPE * individuos, int dimBloque) {
     int i;
 
-    for (i=0; i<dimBloque; i++)
-    {
+    for (i=0; i<dimBloque; i++) {
         procesarIndividuo(&individuos[i], start_line, start_time, real_map_t1, final_time, Rows, Cols);
         //   individuos[i].error = 1.0;
     }
 
 }
 
-void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * datos, int myid,double Start,char * TracePathFiles, int JobID,int executed, int proc,int Trace,double AvailTime)
-{
+void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * datos, int myid,double Start,char * TracePathFiles, int JobID,int executed, int proc,int Trace,double AvailTime) {
     int i;
     float v,d;
     double err;
@@ -281,11 +268,9 @@ void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * dat
     char * buffer = (char*)malloc(sizeof(char) * 500);
 
     //printf("procesarBloqueFarsite::El chunksize es %d\n",chunkSize);
-    for (i=0; i<chunkSize; i++)
-    {
+    for (i=0; i<chunkSize; i++) {
         //print_indv_farsite(individuos[i]);
-        if (doWindFields == 1 && doMeteoSim == 0)
-        {
+        if (doWindFields == 1 && doMeteoSim == 0) {
             sprintf(buffer,"%d", individuos[i].id);
             path_output = str_replace(wn_output_path,"$1", buffer);
 
@@ -306,9 +291,9 @@ void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * dat
         //printf("WorkerAvailTime:%lf\n",AvailTime);
         //printf("Ruta trazas:%s\n",TracePathFiles);
         if(doMeteoSim == 0) {
-            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atmPath, datos, myid, Start, TracePathFiles, JobID, executed, proc,Trace, nFuelsW, FuelsUsed, AvailTime);
+            runSimFarsite(individuos[i], "FARSITE", &err, numgen,  atmPath, datos, myid, Start, TracePathFiles, JobID, executed, proc, Trace, nFuelsW, FuelsUsed, AvailTime);
         } else {
-            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atm_file, datos, myid, Start, TracePathFiles, JobID, executed, proc,Trace, nFuelsW, FuelsUsed, AvailTime);
+            runSimFarsite(individuos[i], "FARSITE", &err, numgen, atm_file, datos, myid, Start, TracePathFiles, JobID, executed, proc, Trace, nFuelsW, FuelsUsed, AvailTime);
         }
         individuos[i].error = err;
         //printf("errorProcesa :%f\n",individuos[i].error);
@@ -321,16 +306,14 @@ void procesarBloqueFarsite(INDVTYPE_FARSITE * individuos, int numgen, char * dat
 /******************************************************************************/
 // lee el mapa de fuego inicial desde fichero de COORDENADAS
 /******************************************************************************/
-int getInitFireLine(char * start_line, int Rows, int Cols, double * ignMap, double start_time)
-{
+int getInitFireLine(char * start_line, int Rows, int Cols, double * ignMap, double start_time){
 
     int cell=0, size;
     int x,y;
 
     FILE * fiche;
 
-    if ((fiche = fopen(start_line, "r")) == NULL)
-    {
+    if ((fiche = fopen(start_line, "r")) == NULL) {
         printf("getInitFireLine:: error al abrir el fichero %s \n ", start_line);
         return -1;
     }
@@ -338,8 +321,7 @@ int getInitFireLine(char * start_line, int Rows, int Cols, double * ignMap, doub
     fscanf(fiche, "%d \n", &size);
 
     // leo la celda y le pongo el tiempo de inicio de fuego
-    for (cell = 0; cell < size; cell ++)
-    {
+    for (cell = 0; cell < size; cell ++) {
         fscanf(fiche, "%d %d \n", &x, &y);        //.coo = (x,y) por lo tanto, x==columna y==fila
         ignMap[(y-1) * Cols + (x-1)] = start_time;
     }
@@ -349,8 +331,7 @@ int getInitFireLine(char * start_line, int Rows, int Cols, double * ignMap, doub
 /******************************************************************************/
 // lee el mapa de fuego final para comparar con la simulacion
 /******************************************************************************/
-int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap)
-{
+int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap){
 
     FILE * fil;
     int cell;
@@ -372,8 +353,7 @@ int  getFinalFireLine(char * real_line, int Rows, int Cols, double * realMap)
 /******************************************************************************/
 // imprime el mapa pasado como parametro map en fileName
 /******************************************************************************/
-static int PrintMap (double * map, char *fileName, int Rows, int Cols)
-{
+static int PrintMap (double * map, char *fileName, int Rows, int Cols){
     FILE *fPtr;
     int cell, col, row;
 
@@ -400,8 +380,7 @@ static int PrintMap (double * map, char *fileName, int Rows, int Cols)
 /***************************************************************************/
 // PROCESAMIENTO PRINCIPAL DEL WORKER
 /***************************************************************************/
-void old_worker(int taskid, char * datafile)
-{
+void old_worker(int taskid, char * datafile){
 
     int dimBloque, nroBloque;
     INDVTYPE *individuos;
@@ -475,8 +454,7 @@ void old_worker(int taskid, char * datafile)
 
 }
 
-void DeletePROC(int * vect,int pid,int size)
-{
+void DeletePROC(int * vect,int pid,int size){
     int i;
     for (i=0; i<size; i++)
     {
@@ -487,8 +465,7 @@ void DeletePROC(int * vect,int pid,int size)
     }
 }
 
-int DeletePID(int * vect,int pid,int size)
-{
+int DeletePID(int * vect,int pid,int size){
     int i;
     for (i=0; i<size; i++)
     {
@@ -501,8 +478,7 @@ int DeletePID(int * vect,int pid,int size)
     return 1;
 }
 
-int SearchPID(int * vect,int pid,int size)
-{
+int SearchPID(int * vect,int pid,int size){
     int i=-1;
     for (i=0; i<size; i++)
     {
@@ -514,8 +490,7 @@ int SearchPID(int * vect,int pid,int size)
     return -1;
 }
 
-int SearchPOS(int * vect,int pid,int size,int threads)
-{
+int SearchPOS(int * vect,int pid,int size,int threads){
     int i;
     int disp = 0;
     int pos = -1;
@@ -554,8 +529,7 @@ int SearchPOS(int * vect,int pid,int size,int threads)
     return -1;
 }
 
-int SearchUnicPID(int * vect,int size)
-{
+int SearchUnicPID(int * vect,int size){
     int i;
     for (i=0; i<size; i++)
     {
@@ -567,8 +541,7 @@ int SearchUnicPID(int * vect,int size)
     return -1;
 }
 
-int NewWait(int * pIDs,int childs)
-{
+int NewWait(int * pIDs,int childs){
     int i;
     int auxp = 0;
     int status = -1;
@@ -595,8 +568,7 @@ int NewWait(int * pIDs,int childs)
     return auxp;
 }
 
-int NewWaitB(int * pIDs,int childs)
-{
+int NewWaitB(int * pIDs,int childs){
     int i=0;
     int auxp = 0;
     int status = -1;
