@@ -110,7 +110,6 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
  * - argv[2] file path: population file
  * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
  */
-
 int main(int argc, char *argv[]) {
 
     if (argc < 3 ) {

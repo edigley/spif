@@ -35,12 +35,13 @@ int popusizeM=0;
 int RecyclePopulations = 0;
 int ClassBasedSched = 0;
 char * ClassesFile;
+
 // mapas, ficheros que contienen las lineas de fuego
 char * start_line;
 char * real_line;
 char * simulated_line;
 char * ClassesLabel;
-int * ClassesCores;
+int  * ClassesCores;
 int nClasses = 0;
 int CoresXMPIThread = 1;
 
@@ -52,7 +53,7 @@ double CellHt;
 
 // poblacion
 char * ClassToReplace;
-char * 	pobini;
+char * pobini;
 char * population_error;
 char * final_popu;
 char * bests_indv;
@@ -67,7 +68,7 @@ static int guidedMutation;
 // PREDICCIÓN
 
 int num_ind_pred;
-int 	PchunkSize;
+int PchunkSize;
 
 // METODO COMPUTACIONAL: 0:NO ARMO TABLAS, 1: ARMO NUEVAS  2: AGREGO EN TABLA EXISTENTE
 int armarTabla;
@@ -82,20 +83,13 @@ int CalibrateAdjustments;
 int nFuels;
 int pending;
 
-// struct Resource {
-//  int Cores;
-// };
-// typedef struct Resource resource;
-
-struct Popu_Element
-{
+struct Popu_Element {
     INDVTYPE_FARSITE * Ind;
     struct Popu_Element * Next;
 };
 typedef struct Popu_Element element;
 
-struct Classified_Population
-{
+struct Classified_Population {
     element * Classes;
 };
 typedef struct Classified_Population ClassPopu;
@@ -105,16 +99,14 @@ ClassPopu * Classified;
 // determino como se repartira la poblacion entre los workers
 /********************************************************************/
 
-int defineBlockSize()
-{
+int defineBlockSize() {
 
-    if (chunkSize == 0)
-    {
+    if (chunkSize == 0) {
         chunkSize = (int)(numind / (ntasks - 1));
         cantGrupos = (ntasks - 1);
-    }
-    else
+    } else {
         cantGrupos = (int)(numind / chunkSize);
+    }
 
     rest = numind % (ntasks - 1);
 
@@ -122,16 +114,14 @@ int defineBlockSize()
 
 }
 
-int definePredBlockSize(int numIndsPred)
-{
+int definePredBlockSize(int numIndsPred) {
 
-    if (PchunkSize == 0)
-    {
+    if (PchunkSize == 0) {
         PchunkSize = (int)(numIndsPred / (ntasks - 1));
         cantGrupos = (ntasks - 1);
-    }
-    else
+    } else {
         cantGrupos = (int)(numIndsPred / PchunkSize);
+    }
 
     rest = numIndsPred % (ntasks - 1);
 
@@ -142,8 +132,7 @@ int definePredBlockSize(int numIndsPred)
 /********************************************************************/
 // MASTER MAIN FUNCTION
 /********************************************************************/
-int master(char * datosIni, int ntareas, int JobID, double Start)
-{
+int master(char * datosIni, int ntareas, int JobID, double Start) {
     char gen_str[3];
     char new_gen_str[3];
     char *pob_str;
@@ -174,8 +163,7 @@ int master(char * datosIni, int ntareas, int JobID, double Start)
     // char *TraceBuffer = (char*)malloc(sizeof(char)*100*numGenerations);
     // sprintf(TraceBuffer,"");
     init_population(&p, popusizeM,nFuels);
-    while(numgen < numGenerations)
-    {
+    while(numgen < numGenerations) {
         printf("Master -Elitism:%d\n",elitism);
         t1 = MPI_Wtime();
         sprintf(gen_str,"%d",numgen);
@@ -189,19 +177,17 @@ int master(char * datosIni, int ntareas, int JobID, double Start)
         printf("Before genetic\n");
         print_population_farsite(p);
 
-        if (ClassBasedSched)
-        {
-            ti=MPI_Wtime();
+        if (ClassBasedSched) {
+            ti = MPI_Wtime();
             NewClassifyPopulationFARSITE(&p,numgen);
-            te2=MPI_Wtime();
+            te2 = MPI_Wtime();
             //sprintf(TraceBuffer,"%sMaster %1.2f %1.2f %d %d %d C\n",TraceBuffer,ti-Start,te2-Start,0,8,0);
-            ti=MPI_Wtime();
+            ti = MPI_Wtime();
             repartirPoblacionFarsite_Classes(&p, nworkers);
-            te=MPI_Wtime();
+            te = MPI_Wtime();
             //sprintf(TraceBuffer,"%sMaster %1.2f %1.2f %d %d %d D\n",TraceBuffer,ti-Start,te-Start,0,8,0);
         }
-        if (!ClassBasedSched)
-        {
+        if (!ClassBasedSched) {
             NewClassifyPopulationFARSITE_FAKE(&p,numgen);
             repartirPoblacionFarsite_Classes(&p, nworkers);
         }
@@ -215,16 +201,13 @@ int master(char * datosIni, int ntareas, int JobID, double Start)
 
         t2 = MPI_Wtime();
 
-        if (!(RecyclePopulations))
-        {
-            if(GENETIC_Init_Farsite(elitism,pCrossover,pMutation,range_file,bests_indv,1,0,crossMethod,nFuels)<1)
-            {
+        if (!(RecyclePopulations)) {
+            if(GENETIC_Init_Farsite(elitism,pCrossover,pMutation,range_file,bests_indv,1,0,crossMethod,nFuels)<1) {
                 printf("\nERROR Initializing Genetic Algorithm! Exiting...\n");
                 return -1;
             }
 
-            if(GENETIC_Algorithm_Farsite(&p, new_pob_str,nFuels,pending)<1)
-            {
+            if(GENETIC_Algorithm_Farsite(&p, new_pob_str,nFuels,pending)<1) {
                 printf("\nERROR Running Genetic Algorithm! Exiting...\n");
                 return -1;
             }
