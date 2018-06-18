@@ -14,34 +14,15 @@
 
 #define MASTER_ID 0
 
-//Carlos B.
-//NOTE: Define your own simulator ID and custom functions & structs
-
-//Carlos B.
-//argv[1] --> Archivo de parámetros de la simulación
-
-//int simID=0;
-
-
-
-
-
-//Carlos B.
+/**
+ * Carlos B.
+ * NOTE: Define your own simulator ID and custom functions & structs
+ * argv[1] --> Archivo de parámetros de la simulación
+ * int simID=0;
+ */
 int main(int argc,char *argv[])
 {
-    /*
-        char       dataIniFile[500];
-        int  	myID, ntasks;
-        int  	namelen;
-    ///    char 	processor_name[MPI_MAX_PROCESSOR_NAME];
-    	 double t1,t2;
-    	 time_t start, end;
-    	 double duration = 0;
-        int JobID;
-        int cpu;
-        int FuelsN=0;
-    */
-    //double origin = MPI_Wtime();
+
     int provided;
     int         myID, ntasks;
     MPI_Init_thread(&argc,&argv, MPI_THREAD_SINGLE, &provided);
@@ -49,30 +30,21 @@ int main(int argc,char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD,&myID);
 
     char      * dataIniFile;
-    //int         myID, ntasks;
     int         namelen;
-///    char     processor_name[MPI_MAX_PROCESSOR_NAME];
     double t1,t2;
     time_t start, end;
     double duration = 0;
     int JobID;
     int FuelsN=0;
-//    MPI_Init(&argc,&argv);
     printf("Start!\n");
     time(&start);
-    //MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
-    //MPI_Comm_rank(MPI_COMM_WORLD,&myID);
-    //char hostname[2048];
     struct utsname userinfo;
     int cpu;
 
     double origin = MPI_Wtime();
     JobID = atoi(argv[1]);
     dataIniFile = argv[2];
-    //strcpy(dataIniFile,argv[2]);
     t1 = MPI_Wtime();
-    //printf("EXECUTION STARTS!:%d\n",myID);
-    //return 1;
     if(myID == MASTER_ID)
     {
         if(uname(&userinfo)>=0)
@@ -99,7 +71,6 @@ int main(int argc,char *argv[])
                 printf("MPI_THREAD_MULTIPLE\n");
                 break;
             }
-            //double origin = MPI_Wtime();
             master(dataIniFile, ntasks,JobID,origin);
         }
         else
@@ -109,7 +80,6 @@ int main(int argc,char *argv[])
     }
     else // worker
     {
-//		printf("Soy el worker %d\n", myID);
         if(uname(&userinfo)>=0)
         {
             cpu = sched_getcpu();
@@ -121,8 +91,6 @@ int main(int argc,char *argv[])
         }
         worker(myID, dataIniFile,JobID,origin);
     }
-    //t2 = MPI_Wtime();
-    // printf("*************SPIF total time: %1.2f**************\n",t2-t1);
     printf("MPI thread %d waits and end.\n",myID);
     MPI_Barrier(MPI_COMM_WORLD);
     sleep(2);
