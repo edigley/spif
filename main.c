@@ -50,7 +50,9 @@ int main(int argc,char *argv[])
         if(uname(&userinfo)>=0)
         {
             cpu = sched_getcpu();
-            printf("\n***** Master System Details ******\nSystem Name    : %s\nSystem Node    : %s\nSystem Release : %s\nSystem Version : %s\nSystem Machine : %s\nCPU:%d\n",userinfo.sysname,userinfo.nodename,userinfo.release,userinfo.version,userinfo.machine,cpu);
+            printf("\n***** Master System Details ******\nSystem Name    : %s\nSystem Node    : %s\nSystem Release : %s\nSystem Version : %s\nSystem Machine : %s\nCPU:%d\n",
+                userinfo.sysname, userinfo.nodename, userinfo.release, userinfo.version, userinfo.machine, cpu
+            );
         }
         else
             printf("\nSystem details fetch failed..\n");
