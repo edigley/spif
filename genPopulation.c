@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "population.h"
 
+/*
+ * - l: lower value
+ * - u: upper value
+ */
 double randim(double l, double u) {
     return (drand48()* (u-l) + l);
 }
@@ -19,7 +23,7 @@ main(int argv, char * argc[]) {
     INDVTYPE min, max;
 
     if (argv != 4) {
-        printf("Use generate populationSize rangeIn fileOut\n");
+        printf("ERROR: GenPopulation.main -> Use generate populationSize rangeIn fileOut\n");
         return -1;
     }
 
@@ -30,14 +34,14 @@ main(int argv, char * argc[]) {
     srand48((unsigned)time(NULL));
 
     if ((f = fopen(name, "w")) == NULL) {
-        printf("No se pudo abrir el fichero %s \n", name);
-        return -1;
+        printf("ERROR: GenPopulation.main -> Couldn't open the output file %s \n", name);
+        return -2;
     }
 
     // leo los limites inferior y superior en min y max
     if ((fRange = fopen(nameRange, "r")) == NULL) {
-        printf("No se pudo abrir el fichero de rangos  %s \n", nameRange);
-        return -1;
+        printf("ERROR: GenPopulation.main -> Couldn't open the range file %s \n", nameRange);
+        return -3;
     }
 
     fscanf(fRange, "%d ", &min.n);
@@ -51,7 +55,7 @@ main(int argv, char * argc[]) {
         fscanf(fRange, "%f ", &max.p[i]);
     }
 
-    printf("Rangos leidos correctamente desde %s %d \n", nameRange, max.n);
+    printf("INFO: GenPopulation.main -> Successfully read range from %s %d \n", nameRange, max.n);
     fclose(fRange);
 
     // genero cada uno de los individuos de la poblacion
@@ -65,7 +69,7 @@ main(int argv, char * argc[]) {
         fprintf(f,"\n");
     }
 
-    printf("Poblacion generada correctamente en \"%s\" \n", name);
+    printf("INFO: GenPopulation.main -> Population successfully Poblacion generada correctamente en \"%s\" \n", name);
     fclose(f);
     return 0;
 
