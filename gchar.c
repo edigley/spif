@@ -5,8 +5,7 @@
 
 int submitPopulation(POPULATIONTYPE p, int pob, int gen);
 
-int main (int argc, char** argv)
-{
+int main (int argc, char** argv) {
     int num_individuals = 10;
     int i,n,srows,scols,rrows=0,rcols=0,mode=-1;
     double *mapaReal, *mapaSim, fitness, error;
@@ -14,7 +13,6 @@ int main (int argc, char** argv)
     POPULATIONTYPE p;
     char cmd[300],tmp[32];
     FILE *fd;
-
 
     mode=atoi(argv[1]);
 
@@ -40,8 +38,7 @@ int main (int argc, char** argv)
 
 }
 
-int submitPopulation(POPULATIONTYPE p, int pob, int gen)
-{
+int submitPopulation(POPULATIONTYPE p, int pob, int gen) {
 
     int i;
     char command[300];
