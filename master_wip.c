@@ -284,34 +284,33 @@ int initMaster(char * filename, int nworkers)
 
     // fichero y size de individuos (conj de parametros)
     CalibrateAdjustments = iniparser_getint(datos,"main:CalibrateAdjusments",1);
-    FuelsToCalibrateFileName	= iniparser_getstr(datos,"main:FuelsToCalibrate");
-    pobini              = iniparser_getstr(datos, "main:initial_population");
-    population_error    = iniparser_getstr(datos, "main:population_error");
-    range_file          = iniparser_getstr(datos, "main:range_file");
-    final_popu          = iniparser_getstr(datos, "main:final_population");
-    bests_indv          = iniparser_getstr(datos, "main:bests_indv");
-    simulator           = iniparser_getstr(datos, "main:simulator");
-    chunkSize           = iniparser_getint(datos, "main:chunkSize",1);
-    numind              = iniparser_getint(datos, "main:numind",1);
-    GenAlErroPath              = iniparser_getstr(datos, "main:GenAlErroPath");
-    TrainingDataBasePath	= iniparser_getstr(datos, "main:TrainingDataBasePath");
-    WekaPath			= iniparser_getstr(datos, "main:WekaPath");
-    ClassifyPATH		= iniparser_getstr(datos, "main:ClassifyPATH");
+    FuelsToCalibrateFileName = iniparser_getstr(datos,"main:FuelsToCalibrate");
+    pobini               = iniparser_getstr(datos, "main:initial_population");
+    population_error     = iniparser_getstr(datos, "main:population_error");
+    range_file           = iniparser_getstr(datos, "main:range_file");
+    final_popu           = iniparser_getstr(datos, "main:final_population");
+    bests_indv           = iniparser_getstr(datos, "main:bests_indv");
+    simulator            = iniparser_getstr(datos, "main:simulator");
+    chunkSize            = iniparser_getint(datos, "main:chunkSize",1);
+    numind               = iniparser_getint(datos, "main:numind",1);
+    GenAlErroPath        = iniparser_getstr(datos, "main:GenAlErroPath");
+    TrainingDataBasePath = iniparser_getstr(datos, "main:TrainingDataBasePath");
+    WekaPath			 = iniparser_getstr(datos, "main:WekaPath");
+    ClassifyPATH		 = iniparser_getstr(datos, "main:ClassifyPATH");
 
     elitism         = iniparser_getint(datos, "genetic:elitism",1);
     pMutation       = iniparser_getdouble(datos, "genetic:pMutation",1.0);
     pCrossover      = iniparser_getdouble(datos, "genetic:pCrossover",1.0);
     numGenerations  = iniparser_getint(datos, "genetic:numGenerations", 1);
-    crossMethod 	  = iniparser_getint(datos, "genetic:crossover_method", 1);
+    crossMethod     = iniparser_getint(datos, "genetic:crossover_method", 1);
     RecyclePopulations = iniparser_getint(datos, "main:RecyclePopulations",1);
-    ClassBasedSched		= iniparser_getint(datos, "main:ClassBasedSched",1);
-    ClassesFile		= 	iniparser_getstr(datos, "main:ClassesFile");
-    CoresXMPIThread		= iniparser_getint(datos, "main:CoresXMPIThread",1);
-    TracePathFiles              = iniparser_getstr(datos, "main:TracePathFiles");
-    ClassToReplace		= 	iniparser_getstr(datos, "main:ClassToReplace");
+    ClassBasedSched	= iniparser_getint(datos, "main:ClassBasedSched",1);
+    ClassesFile	    = iniparser_getstr(datos, "main:ClassesFile");
+    CoresXMPIThread	= iniparser_getint(datos, "main:CoresXMPIThread",1);
+    TracePathFiles  = iniparser_getstr(datos, "main:TracePathFiles");
+    ClassToReplace	= iniparser_getstr(datos, "main:ClassToReplace");
 
-    if (ClassBasedSched)
-    {
+    if (ClassBasedSched) {
         chunkSize = 1;
     }
 
@@ -333,19 +332,14 @@ int initMaster(char * filename, int nworkers)
 
     // number of iterations (to evolve the population)
     alg     = iniparser_getstr(datos, "main:algorithm");
-    if (ClassBasedSched)
-    {
+    if (ClassBasedSched) {
         //resource * Resources = (resource *)malloc(sizeof(resource)*nworkers);
-        if ( (ClassF=fopen(ClassesFile,"r")) == NULL )
-        {
+        if ( (ClassF=fopen(ClassesFile,"r")) == NULL ) {
             printf("Error loading Classes file %s.\n",ClassesFile);
             exit(0);
-        }
-        else
-        {
+        } else {
             fscanf(ClassF,"NumClasses:%d\n",&nClasses);
-            if ((nClasses < 0 || nClasses > 100))
-            {
+            if ((nClasses < 0 || nClasses > 100)) {
                 printf("Invalid classes file.\n");
                 exit(0);
             }

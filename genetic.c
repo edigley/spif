@@ -240,8 +240,9 @@ double GENETIC_CalcularMaxError(POPULATIONTYPE * p) {
     // recorro todos los individuos de la poblacion y me guardo el maximo error
     for (i=0; i < p->popuSize; i++) {
         if(p->popu[i].executed == 1 ) {
-            if (p->popu[i].error > maxE)
-            maxE = p->popu[i].error;
+            if (p->popu[i].error > maxE) {
+                maxE = p->popu[i].error;
+            }
         }
     }
     return maxE;
@@ -378,8 +379,6 @@ int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels) {
     newPopu.currentGen = p->currentGen + 1;
 
     // printf("despues de las operaciones, escribo en generacion.txt: i por pantalla generacion: %d (esto es newPopu) \n", newPopu.currentGen);
-    // print_populationScreen(newPopu);
-    // print_populationScreen(newPopu);
 
     return 1;
 }
@@ -389,20 +388,16 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
     double sumFit, maxError, sumErrorc;
     POPULATIONTYPE newPopu;
     int lastInd = (p->popuSize) - 1;
-    //printf("lastInd=%d\n",lastInd);
+
     for (i=0; i<p->popuSize; i++) {
         if(p->popu_fs[i].executed==1) {
             maxError = p->popu_fs[i].error;
         }
     }
-    //printf("maxError: %1.4f\n", p->maxError);
 
     init_population(&newPopu, p->popuSize,nFuels);
     newPopu.popuSize = p->popuSize;
 
-    //printf("Antes Elitismo:\n");
-    // print_population_farsite((*p));
-    //printf("Despues Elitismo:\n");
     // ELITISMO
     // si numElite > 0 elijo esa cantidad de individuos para la nueva poblacion
     if (elitism) {
@@ -415,14 +410,6 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
     else {
         i = 0;
     }
-    //printf("Despues Elitismo:\n");
-    //print_population_farsite(newPopu);
-
-    //printf("POB ORIG.\n");
-    //print_population_farsite(*p);
-
-    //printf("NEWPOPU despues elitismo\n");
-    //print_population_farsite(newPopu);
 
     GENETIC_CalcularErrorCFarsite(p, maxError);
 
@@ -434,8 +421,6 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
 
         p1 = GENETIC_Select_Farsite(*p, sumErrorc);         // antes enviaba sumFit
         p2 = GENETIC_Select_Farsite(*p, sumErrorc);
-
-        //printf("GENETIC p1:%d p2:%d \n", p1, p2);
 
         GENETIC_Crossover_Farsite(p->popu_fs[p1], p->popu_fs[p2], &newPopu.popu_fs[i], &newPopu.popu_fs[i+1]);
 
@@ -450,13 +435,9 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
         newPopu.popu_fs[i+1].generation=p->currentGen + 1;
         newPopu.popu_fs[i+1].oldid=i;
 
-        //GENETIC_ControlarValoresValidos(&newPopu.popu[i], min, max);
-        //GENETIC_ControlarValoresValidos(&newPopu.popu[i+1], min, max);
         // proximos 2 hijos
         i += 2;
     }
-    //printf("NEWPOPU despues crossover\n");
-    //print_population_farsite(newPopu);
 
     // esto es por si elitism es impar, la ultima vuelta me quedo con 1 solo individuo
     // entonces, selecciono 1 padre no hago crossover pero si lo muto.
@@ -469,7 +450,7 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
         newPopu.popu_fs[i].generation=p->currentGen + 1;
         newPopu.popu_fs[i].oldid=i;
 
-        printf("Posicion %d impar executed a 0\n",i);
+        printf("INFO: Genetic.GENETIC_Algorithm_Farsite -> Posicion %d impar executed a 0\n",i);
         i++;
     }
     while (i<p->popuSize) {
@@ -477,20 +458,11 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
         i++;
     }
 
-    //printf("Despues Genetico:\n");
-    //print_population_farsite(newPopu);
-    //printf("NEWPOPU despues mutacion\n");
-    //print_population_farsite(newPopu);
-
-    /*for (i=0;i<p->popuSize;i++)
-    {
-      GENETIC_ControlarValoresValidos(&newPopu.popu[i], min, max);
-    }*/
     newPopu.currentGen = p->currentGen + 1;
     newPopu.nParams = p->nParams;
     newPopu.maxparams = p->maxparams;
     newPopu.nparams_farsite = p->nparams_farsite;
-    printf("Params: %d %d %d\n",p->nParams, p->maxparams,p->nparams_farsite);
+    printf("INF: Genetic.GENETIC_Algorithm_Farsite -> Params: %d %d %d\n", p->nParams, p->maxparams, p->nparams_farsite);
     save_population_farsite(newPopu, outputFilename);
     return 1;
 }
@@ -642,8 +614,7 @@ int GENETIC_Crossover_Farsite(INDVTYPE_FARSITE pin1, INDVTYPE_FARSITE pin2, INDV
     } else {
         // no hay crossover, copio los individuos igual a los padres.
         //  for (i = 0; i < pin1.n; i++)
-        for (i = 0; i < nParams; i++)
-        {
+        for (i = 0; i < nParams; i++) {
             h1[i] = p1[i];
             h2[i] = p2[i];
         }

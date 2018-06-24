@@ -110,7 +110,7 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
  * - argv[2] file path: population file
  * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
  */
-int main(int argc, char *argv[]) {
+int main2(int argc, char *argv[]) {
 
     if (argc < 3 ) {
         printf("ERROR: Farsite.main -> number of args invalid. Please inform at least a configuration and a population files. ");
@@ -221,13 +221,13 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
 
     if (err_syscall == 0) {
         char sim_fire_line[5000];
-        sprintf(sim_fire_line,"%s%s.toa", output_path, RasterFileNameNew);
+        sprintf(sim_fire_line, "%s%s.toa", output_path, RasterFileNameNew);
         *adjustmentError = getSimulationError(sim_fire_line, real_fire_map_t1, real_fire_map_tINI, start_time, end_time);
-        sprintf(TraceBuffer,"Worker%d %1.2f %1.2f %d %d %d %d\n",myid,ti-Start,te-Start,myid,individual.threads,proc,1);
+        sprintf(TraceBuffer, "Worker%d %1.2f %1.2f %d %d %d %d\n", myid, ti-Start, te-Start, myid, individual.threads, proc, 1);
     } else {
         //printf( "FARSITE:%d:%d_%d_%d_%f_%f_%d_%s\n",myid,generation,individual.id,individual.threads,(float)AvailTime,(float)AvailTime,myid,perimeterResolution);
         *adjustmentError = ERROR_INFINITY;
-        sprintf(TraceBuffer,"Worker%d %1.2f %1.2f %d %d %d %d\n",myid,ti-Start,te-Start,myid,individual.threads,proc,0);
+        sprintf(TraceBuffer, "Worker%d %1.2f %1.2f %d %d %d %d\n", myid, ti-Start, te-Start, myid, individual.threads, proc, 0);
     }
 
     if (Trace) {
@@ -651,9 +651,9 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
         printf("ERROR: Farsite.getSimulationError -> Unable to open real map file or ignition fire map file\n");
     } else {
         fscanf(fd,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&rrows,name,&rcols);
-        printf("INFO: Farsite.getSimulationError.realFireMap.fd -> name(%7s) val(%f) rrows(%d) rcols(%d)\n",name,val,rrows,rcols);
+        //-> printf("INFO: Farsite.getSimulationError.realFireMap.fd -> name(%7s) val(%f) rrows(%d) rcols(%d)\n",name,val,rrows,rcols);
         fscanf(fd2,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&aux,name,&aux);
-        printf("INFO: Farsite.getSimulationError.ignitionFireMap.fd2 -> name(%7s) val(%f) aux(%d) \n",name,val,aux);
+        //-> printf("INFO: Farsite.getSimulationError.ignitionFireMap.fd2 -> name(%7s) val(%f) aux(%d) \n",name,val,aux);
         realMap=(double *)calloc(rrows*rcols,sizeof(double));
 
         for(i=0; i<rrows*rcols; i++) {
@@ -672,7 +672,7 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
             printf("ERROR: Unable to open simulated map file");
         } else {
             fscanf(fd,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&srows,name,&scols);
-            printf("INFO: Farsite.getSimulationError.simulatedFireMap.fd -> name(%7s) val(%f) srows(%d) scols(%d)\n",name,val,srows,scols);
+            //-> printf("INFO: Farsite.getSimulationError.simulatedFireMap.fd -> name(%7s) val(%f) srows(%d) scols(%d)\n",name,val,srows,scols);
             simulatedMap=(double *)calloc(srows*scols,sizeof(double));
 
             if( (srows!=rrows) || (scols!=rcols) ) {
