@@ -171,7 +171,7 @@ void Worker_SendMPI_IndividualError(INDVTYPE_FARSITE * poblacion, int chunk_size
 
 int Master_ReceiveMPI_IndividualError(int block_count, INDVTYPE_FARSITE * poblacion, int num_individuals, int chunkSize,int * individual,int currentgen, int *pend) {
     int i;
-    printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Comienzo a recibir de un worker\n");
+    //printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Start to receive from a worker. \n");
     MPI_Status  status;
     char  buffer[TAM_BUFFER];
     int flag = 0;
@@ -201,8 +201,8 @@ int Master_ReceiveMPI_IndividualError(int block_count, INDVTYPE_FARSITE * poblac
                 memcpy(individual, &(temp[i].id), sizeof(int));
             } else {
                 *pend = *pend - 1;
-                printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Recibo individiuo pendiente id:%d gen: %d\n", temp[i].id, temp[i].generation);
-                printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Individuals:%d Generation: %d\n", num_individuals, temp[i].generation);
+                printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Recibo individiuo pendiente id: %d gen: %d\n", temp[i].id, temp[i].generation);
+                printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Individuals: %d Generation: %d\n", num_individuals, temp[i].generation);
                 printf("INFO: MPIWrapper.Master_ReceiveMPI_IndividualError -> Pending actualizado: %d\n", *pend);
                 for(indv=0; indv<num_individuals; indv++) {
                     if (poblacion[indv].generation == temp[i].generation && poblacion[indv].oldid == temp[i].id) {

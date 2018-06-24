@@ -2,7 +2,7 @@
 # Collin D. Bevins, October 1996
 
 # The following rules work for UnixWare 2.0.
-CC = /home/edigley/.openmpi/bin/mpicc
+CC = mpicc
 CFLAGS = -fopenmp -g 
 PATH_PROY = ./
 LIBS = -lm
