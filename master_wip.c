@@ -463,8 +463,7 @@ int SearchClassIndex(char let)
     return 1;
 }
 
-int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
-{
+int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers) {
     int ind_counter = 0;
     int * worker_busy = (int*)malloc(nworkers*sizeof(int));
     int pos = 0, i,c;
@@ -514,14 +513,14 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
                 if (poblacion[id_count].executed == 0)
                 {
                     pos = getAvailCore(worker_busy, nworkers,poblacion[id_count].threads);
-                    printf("Master tiene posicion %d para %d individuo con %d threads\n",pos,id_count,poblacion[id_count].threads);
+                    printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Master tiene posicion %d para %d individuo con %d threads\n",pos,id_count,poblacion[id_count].threads);
                     if (pos != -1)
                     {
                         id_count= (it->Ind)->id;
                         //printf("Master id_count:%d\n",id_count);
                         Master_SendMPI_SetOfIndividualTask(pos + 1, chunkSize, id_count, numgen, numind, poblacion);
                         worker_busy[pos] = worker_busy[pos] + poblacion[id_count].threads;
-                        printf("Se envia al Worker %d que ocupa %d cores, %d.\n",pos+1,poblacion[id_count].threads,id_count);
+                        printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Se envia al Worker %d que ocupa %d cores, %d.\n",pos+1,poblacion[id_count].threads,id_count);
                         block_sended++;
                         if (it->Next == NULL)
                         {
@@ -532,7 +531,7 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
                                 if (Classified[SearchClassIndex(ClassesLabel[c])].Classes != NULL)
                                 {
                                     it = Classified[SearchClassIndex(ClassesLabel[c])].Classes;
-                                    printf("Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
+                                    printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
                                     go = 0;
                                 }
                                 else
@@ -555,7 +554,7 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
                 }
                 else
                 {
-                    printf("Master ya ejecutado, paso al siguiente\n");
+                    printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Master ya ejecutado, paso al siguiente\n");
                     if (it->Next == NULL)
                     {
                         go = 1;
@@ -565,7 +564,7 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
                             if (Classified[SearchClassIndex(ClassesLabel[c])].Classes != NULL)
                             {
                                 it = Classified[SearchClassIndex(ClassesLabel[c])].Classes;
-                                printf("Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
+                                printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
                                 go = 0;
                             }
                             else
@@ -592,11 +591,11 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
         }
         while(received && (block_received < block_sended))
         {
-            printf("Master espera resultados  numgen:%d.\n",numgen);
+            printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Master espera resultados  numgen:%d.\n",numgen);
             pos = Master_ReceiveMPI_IndividualError(block_received, p->popu_fs, numind, chunkSize, &individualID);
             worker_busy[pos-1] = worker_busy[pos-1] - poblacion[individualID].threads;
             poblacion[individualID].executed = 1;
-            printf("Se libera de Worker %d %d cores ejecucion individuo %d con error %1.6f .\n",pos,p->popu_fs[individualID].threads,individualID,p->popu_fs[individualID].error);
+            printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> Se libera de Worker %d %d cores ejecucion individuo %d con error %1.6f .\n",pos,p->popu_fs[individualID].threads,individualID,p->popu_fs[individualID].error);
             block_received++;
             goon = 1;
             received = 0;
@@ -606,7 +605,7 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int  nworkers)
     }
     free(worker_busy);
 
-    printf("TERMINO MASTER\n");
+    printf("INFO: Master_wip.repartirPoblacionFarsite_Classes -> TERMINO MASTER\n");
 }
 
 
@@ -683,12 +682,12 @@ int repartirPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
         worker_busy[pos - 1] = 0;
         block_received++;
     }
-    printf("TERMINO MASTER\n");
+    printf("INFO: Master_wip.repartirPoblacionFarsite -> TERMINO MASTER\n");
 }
 
 int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
 {
-    printf("EMPIEZO PREDICCIÓN...\n");
+    printf("INFO: Master_wip.prediccionPoblacionFarsite -> EMPIEZO PREDICCIÓN...\n");
     int ind_counter = 0;
     int * worker_busy = (int*)malloc(nworkers*sizeof(int));
     int pos = 0, i,c;
@@ -718,7 +717,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
     }
 
     c=nClasses-1;
-    printf("Classe mas pesada:%c\n",ClassesLabel[c]);
+    printf("INFO: Master_wip.prediccionPoblacionFarsite -> Classe mas pesada:%c\n",ClassesLabel[c]);
     c=nClasses-1;
     while ((c>=0) && go)
     {
@@ -744,14 +743,14 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
                 if (poblacion[id_count].executed == 0)
                 {
                     pos = getAvailCore(worker_busy, nworkers,poblacion[id_count].threads);
-                    printf("Master tiene posicion %d para %d individuo con %d threads\n",pos,id_count,poblacion[id_count].threads);
+                    printf("INFO: Master_wip.prediccionPoblacionFarsite -> Master tiene posicion %d para %d individuo con %d threads\n",pos,id_count,poblacion[id_count].threads);
                     if (pos != -1)
                     {
                         id_count= (it->Ind)->id;
                         //printf("Master id_count:%d\n",id_count);
                         Master_SendMPI_SetOfIndividualTask(pos + 1, chunkSize, id_count, numgen, numind, poblacion);
                         worker_busy[pos] = worker_busy[pos] + poblacion[id_count].threads;
-                        printf("Se envia al Worker %d que ocupa %d cores, %d.\n",pos+1,poblacion[id_count].threads,id_count);
+                        printf("INFO: Master_wip.prediccionPoblacionFarsite -> Se envia al Worker %d que ocupa %d cores, %d.\n",pos+1,poblacion[id_count].threads,id_count);
                         block_sended++;
                         if (it->Next == NULL)
                         {
@@ -762,7 +761,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
                                 if (Classified[SearchClassIndex(ClassesLabel[c])].Classes != NULL)
                                 {
                                     it = Classified[SearchClassIndex(ClassesLabel[c])].Classes;
-                                    printf("Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
+                                    printf("INFO: Master_wip.prediccionPoblacionFarsite -> Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
                                     go = 0;
                                 }
                                 else
@@ -785,7 +784,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
                 }
                 else
                 {
-                    printf("Master ya ejecutado, paso al siguiente\n");
+                    printf("INFO: Master_wip.prediccionPoblacionFarsite -> Master ya ejecutado, paso al siguiente\n");
                     if (it->Next == NULL)
                     {
                         go = 1;
@@ -795,7 +794,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
                             if (Classified[SearchClassIndex(ClassesLabel[c])].Classes != NULL)
                             {
                                 it = Classified[SearchClassIndex(ClassesLabel[c])].Classes;
-                                printf("Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
+                                printf("INFO: Master_wip.prediccionPoblacionFarsite -> Pasamos a clase:%c c=%d SearchCI:%d\n",ClassesLabel[c],c,SearchClassIndex(ClassesLabel[c]));
                                 go = 0;
                             }
                             else
@@ -821,11 +820,11 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
         }
         while(received && (block_received < block_sended))
         {
-            printf("Master espera resultados  numgen:%d.\n",numgen);
+            printf("INFO: Master_wip.prediccionPoblacionFarsite -> Master espera resultados  numgen:%d.\n",numgen);
             pos = Master_ReceiveMPI_IndividualError(block_received, p->popu_fs, num_ind_pred, chunkSize, &individualID);
             worker_busy[pos-1] = worker_busy[pos-1] - poblacion[individualID].threads;
             poblacion[individualID].executed = 1;
-            printf("Se libera de Worker %d %d cores ejecucion individuo %d con error %1.6f .\n",pos,p->popu_fs[individualID].threads,individualID,p->popu_fs[individualID].error);
+            printf("INFO: Master_wip.prediccionPoblacionFarsite -> Se libera de Worker %d %d cores ejecucion individuo %d con error %1.6f .\n",pos,p->popu_fs[individualID].threads,individualID,p->popu_fs[individualID].error);
             block_received++;
             goon = 1;
             received = 0;
@@ -834,8 +833,8 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers)
 
     free(worker_busy);
 
-    printf("TERMINO MASTER\n");
-    printf("ACABO PREDICCIÓN...\n");
+    printf("INFO: Master_wip.prediccionPoblacionFarsite -> TERMINO MASTER\n");
+    printf("INFO: Master_wip.prediccionPoblacionFarsite -> ACABO PREDICCIÓN...\n");
 
     return 0;
 }
@@ -923,7 +922,7 @@ int apply_EVOLUTE(POPULATIONTYPE * P)
 
     if (strcmp(alg, "GA") == 0)
     {
-        printf("Aplicando GENETICO\n");
+        printf("INFO: Master_wip.apply_EVOLUTE -> Aplicando GENETICO\n");
         //GENETIC_Algorithm(&p);
     }
 }
@@ -989,7 +988,7 @@ int NewClassifyPopulationFARSITE_FAKE(POPULATIONTYPE * pobla, int numgen)
     //FILE * temp;
     //FILE * cagonto;
     //char * tempName = (char*)malloc(sizeof(char) * 500);
-    printf("BEGIN:Classify population_WARNIIING:MODIFIED-All 1 threads!\n");
+    printf("INFO: Master_wip.NewClassifyPopulationFARSITE_FAKE -> BEGIN:Classify population_WARNIIING:MODIFIED-All 1 threads!\n");
     /*Establecer la ruta de las clases de Weka*/
     /*printf("export CLASSPATH=\"%s:%s:$CLASSPATH\"\n",WekaPath,ClassifyPATH);
     sprintf(nt,"");

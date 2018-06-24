@@ -139,11 +139,11 @@ int save_population_farsite(POPULATIONTYPE pobla, char * nombreSet) {
     int i,j, x, cantParams;
 
     if (!(fichero = fopen(nombreSet, "w+"))) {
-        printf("(print_population)-> Population file can't be found or opened! (%s)", nombreSet);
+        printf("INFO: Population.save_population_farsite -> Population file can't be found or opened! (%s)", nombreSet);
         return -1;
     }
     cantParams = 9;
-    printf("(print_population)-> Writing population in: %s \n", nombreSet);
+    printf("INFO: Population.save_population_farsite -> Writing population in: %s \n", nombreSet);
     // first line: number of individuals in the population
     fprintf(fichero, "%d %d %d\n", pobla.popuSize, pobla.currentGen, pobla.nParams);
 

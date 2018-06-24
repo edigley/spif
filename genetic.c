@@ -112,7 +112,7 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
     doComputacional = doCompu;
     int nparams = FarsiteFixVariables + nFuels;
     int tmp;
-    printf("naparams:%d\n",nparams);
+    printf("INFO: Genetic.GENETIC_Init_Farsite -> params: %d\n", nparams);
 
     // mutacion y elitismo guiado
     gMutation = guidedMutation;
@@ -122,7 +122,7 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
     // leo del fichero de rangos los rangos validso para cada parametro
     // los guardo en 2 individuos: max y min
     if ((fichero9 = fopen(fRange, "r")) == NULL) {
-        printf("GENETIC: no se puede abrir fichero de rangos %s \n", fRange);
+        printf("INFO: Genetic.GENETIC_Init_Farsite -> no se puede abrir fichero de rangos %s \n", fRange);
         return -1;
     }
 
@@ -169,7 +169,7 @@ int GENETIC_InitComputacional(double wndDirComp, double wndSpdComp, double valor
     velVtoComp = wndSpdComp;
     valorDireccion = valorD;
     valorVelocidad = valorV;
-    printf("Computacional:: dirVtoIdeal:%f velVtoIdeal:%f sumaDire:%f sumaVel:%f \n", dirVtoComp, velVtoComp, valorDireccion, valorVelocidad);
+    printf("INFO: Genetic.GENETIC_InitComputacional -> Computacional:: dirVtoIdeal:%f velVtoIdeal:%f sumaDire:%f sumaVel:%f \n", dirVtoComp, velVtoComp, valorDireccion, valorVelocidad);
 }
 
 // copia el individuo pa (parent) en ch (child)
@@ -732,7 +732,7 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child) {
     int limit = child->nparams_farsite;
     //GENETIC_Init_Farsite(1, 1, 1, "range.txt", "fbests", 0, 0, 0);
     //mutationP = 1;
-    printf("Se muta a individuo %d limit %d\n",child->id,limit);
+    printf("INFO: Genetic.GENETIC_Mutation_Farsite -> Se muta a individuo %d limit %d\n", child->id, limit);
     float *h1 = (float*) malloc(sizeof(float) * limit);
     float *minrange = (float*) malloc(sizeof(float) * maxFS.nparams_farsite);
     float *maxrange = (float*) malloc(sizeof(float) * maxFS.nparams_farsite);
