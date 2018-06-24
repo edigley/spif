@@ -523,7 +523,7 @@ int repartirPoblacionFarsite_Classes(POPULATIONTYPE *p, int nworkers) {
             } else {
                 pos = Master_ReceiveMPI_IndividualError(block_received, p->popu_fs, numind, chunkSize, &individualID, numgen,&pending);
                 if (pos != -1) {
-                    printf("INFO: Master.repartirPoblacionFarsite_Classes -> Generation Time: %f\n", MPI_Wtime() - StartingTime );
+                    printf("INFO: Master.repartirPoblacionFarsite_Classes -> Generation Time: %d %f\n", numgen, MPI_Wtime() - StartingTime );
                     //SI RECIBO INDIVIDUO EJECUTADO
                     //---->SI RECIBO DEBO MIRAR SI NO PERTENECEN A LA EJECUCION DE ESTA GENERACION, SI NO ES ASI DEBO GUARDAR EN OTRA POBLACION Y JUNTAR LAS DOS POBLACIONES
                     //AL FINAL DE LA EJECUCION DE ESTA FUNCION
