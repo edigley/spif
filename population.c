@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "population.h"
 
-void init_population(POPULATIONTYPE *p, int popuSize,int nFuels) {
+void init_population(POPULATIONTYPE *p, int popuSize, int nFuels) {
 
     p->currentGen = 0;
     p->maxGen = 0;

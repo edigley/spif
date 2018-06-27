@@ -4,26 +4,25 @@
 #include "time.h"
 
 /****************************************************************************/
-/* EVOLUTE: 								    */
+/* EVOLUTE:                                                                 */
 /* operaciones correspondientes al algoritmo evoolutivo                     */
 /****************************************************************************/
 #define PRINTRANGES 0
 
-
-static int elitism;  // number of individuals that are selected by elitism
+static int elitism;            // number of individuals that are selected by elitism
 static double crossoverP;
 static double mutationP;
-static INDVTYPE min;		// individuos con los limites minimos
-static INDVTYPE max;		// y maximos de cada parametro
-static INDVTYPE_FARSITE minFS;		// individuos con los limites minimos
-static INDVTYPE_FARSITE maxFS;		// y maximos de cada parametro
-static int gMutation;		// 1 si hay que guiar la mutacion 0 cc
-static int gEllitism;		// 1 si hay que guiar el elitismo 0 cc
-static int doComputacional;	// 1 si hay que guiar la mutacion con metodo computacional
-static double dirVtoComp;	// direccion del viento propuesta por el metodo computacional
-static double velVtoComp;	// velocidad del viento propuesta por el metodo computacional
-static double valorDireccion;	// valor que se hara +/- a dirVtoComp para guiar la mutacion con el metodo computacional (datos.ini)
-static double valorVelocidad;	// valor que se hara +/- a velVtoComp para guiar la mutacion con el metodo computacional (datos.ini)
+static INDVTYPE min;           // individuos con los limites minimos
+static INDVTYPE max;           // y maximos de cada parametro
+static INDVTYPE_FARSITE minFS; // individuos con los limites minimos
+static INDVTYPE_FARSITE maxFS; // y maximos de cada parametro
+static int gMutation;          // 1 si hay que guiar la mutacion 0 cc
+static int gEllitism;          // 1 si hay que guiar el elitismo 0 cc
+static int doComputacional;    // 1 si hay que guiar la mutacion con metodo computacional
+static double dirVtoComp;      // direccion del viento propuesta por el metodo computacional
+static double velVtoComp;      // velocidad del viento propuesta por el metodo computacional
+static double valorDireccion;  // valor que se hara +/- a dirVtoComp para guiar la mutacion con el metodo computacional (datos.ini)
+static double valorVelocidad;  // valor que se hara +/- a velVtoComp para guiar la mutacion con el metodo computacional (datos.ini)
 
 char * bests;
 
@@ -44,6 +43,7 @@ void GENETIC_ControlarValoresValidos(INDVTYPE_FARSITE * c);
 int GENETIC_InsertKnowledge(INDVTYPE * indv);
 
 int GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBests, int guidedMutation, int guidedEllitism, int doCompu) {
+    printf("TRACE: Genetic.GENETIC_Init -> starting...\n");
     int i;
     FILE * fichero9;
 
@@ -60,17 +60,17 @@ int GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBe
     // leo del fichero de rangos los rangos validso para cada parametro
     // los guardo en 2 individuos: max y min
     if ((fichero9 = fopen(fRange, "r")) == NULL) {
-        printf("GENETIC: no se puede abrir fichero de rangos %s \n", fRange);
+        printf("ERROR: Genetic.GENETIC_Init -> no se puede abrir fichero de rangos %s \n", fRange);
         return -1;
     }
 
-    // leo min
+    // leo min - the first number of the first line is the number of limits for min
     fscanf(fichero9, "%d ", &min.n);
     for (i = 0; i < min.n; i++) {
         fscanf(fichero9, "%f ", &min.p[i]);
     }
 
-    // leo max
+    // leo max - the first number of the first line is the number of limits for max
     fscanf(fichero9, "%d ", &max.n);
     for (i = 0; i < max.n; i++) {
         fscanf(fichero9, "%f ", &max.p[i]);
@@ -80,17 +80,16 @@ int GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBe
     max.fit = min.fit = 0.0;
     max.dist = min.dist = 0.0;
     max.dir = min.dir = 0.0;
-    max.vel= min.vel = 0.0;
-    max.error= min.error = 0.0;
+    max.vel = min.vel = 0.0;
+    max.error = min.error = 0.0;
 
     bests = fBests; // nombre del fichero donde se guardaran el mejor indv de cada poblacion
 
     #if PRINTRANGES
-    printf("GENETIC: init, min:  \n");
-    print_indv(min);
-
-    printf("GENETIC: init, max:  \n");
-    print_indv(max);
+    printf("INFO: Genetic.GENETIC_Init -> init, min:  \n");
+    print_indv_default(min);
+    printf("INFO: Genetic.GENETIC_Init -> init, max:  \n");
+    print_indv_default(max);
     #endif
 
     // random init
@@ -103,6 +102,7 @@ int GENETIC_Init(int eli, double crossP, double mutaP, char * fRange, char * fBe
 }
 
 int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, char * fBests, int guidedMutation, int guidedEllitism, int doCompu, int nFuels) {
+    printf("TRACE: Genetic.GENETIC_Init_Farsite.\n");
     int i;
     FILE * fichero9;
 
@@ -119,7 +119,7 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
     gEllitism = guidedEllitism;
     // velVtoComp = wndSpdComp;
 
-    // leo del fichero de rangos los rangos validso para cada parametro
+    // leo del fichero de rangos los rangos validos para cada parametro
     // los guardo en 2 individuos: max y min
     if ((fichero9 = fopen(fRange, "r")) == NULL) {
         printf("INFO: Genetic.GENETIC_Init_Farsite -> no se puede abrir fichero de rangos %s \n", fRange);
@@ -135,18 +135,14 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
         fscanf(fichero9, "%d ", &tmp);
         minrange[i]=(float)tmp;
     }
-    //fscanf(fichero9, "%d ", &tmp);
-    // fscanf(fichero9, "%d ", &tmp);
-    //fscanf(fichero9,"%d",&tmp);
+
     // leo max
     fscanf(fichero9, "%d ", &tmp);
     for (i = 0; i < ((nparams)); i++) {
         fscanf(fichero9, "%d ", &tmp);
         maxrange[i]=(float)tmp;
     }
-    //fscanf(fichero9, "%d ", &tmp);
-    //fscanf(fichero9, "%d ", &tmp);
-    //fscanf(fichero9,"%d",&tmp);
+
     minFS.nparams_farsite=nparams-2;
     maxFS.nparams_farsite=nparams-2;
     arrayToIndFarsite (minrange, &minFS);
@@ -165,6 +161,7 @@ int GENETIC_Init_Farsite(int eli, double crossP, double mutaP, char * fRange, ch
 
 // setea los valores del viento para el metodo computacional (es llamado sii doComputacional == 1)
 int GENETIC_InitComputacional(double wndDirComp, double wndSpdComp, double valorD, double valorV) {
+    printf("TRACE: Genetic.GENETIC_InitComputacional -> starting...\n");
     dirVtoComp = wndDirComp;
     velVtoComp = wndSpdComp;
     valorDireccion = valorD;
@@ -181,24 +178,15 @@ int GENETIC_ElitismCopy(INDVTYPE pa, INDVTYPE * ch, int guidedE) {
     ch->executed = pa.executed;
     ch->error = pa.error;
     ch->errorc = pa.errorc;
+
     // copio los parametros
-    for(i = 0; i < pa.n; i ++)
+    for(i = 0; i < pa.n; i ++) {
         ch->p[i] = pa.p[i];
+    }
+
     // pongo los atributos en 0.0
     ch->fit = ch->dist = ch->dir = ch->vel = 0.;
 
-    // si hay que guiar, pongo los valores de dir i vel del wind (metodo ANALITICO))
-    // if (guidedE)
-    // {     // si no es graduada, threshold es == 1 por lo que guio si o si!!!
-    //     double ran = (double)(rand() % 10) / 10.;
-    //   printf("THRESHOLD: %f ran: %f ran < threshold --> muto! ()", threshold, ran);
-    // if (ran < threshold)
-    // {
-    //  ch->p[8] = pa.wndvel;
-    // ch->p[9] = pa.wnddir;
-    // }
-    // }
-    //printf("\nControl Elitism\n");
     return 1;
 
 }
@@ -298,14 +286,15 @@ double GENETIC_GetSumErrorCFarsite(POPULATIONTYPE * p) {
 // seleccion de los mejores individuos
 // numElite dice cuantos individuos elijo de la poblacion
 // anterior y los pongo en la nueva
-int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels) {
-    int i, p1,p2; //p1 y p2 son los padres
+int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename, int nFuels) {
+    printf("TRACE: Genetic.GENETIC_Algorithm.\n");
+    int i, p1, p2; //p1 y p2 son los padres
     double sumFit, maxError, sumErrorc;
     POPULATIONTYPE newPopu;
 
     maxError = GENETIC_CalcularMaxError(p);
 
-    GENETIC_CalcularErrorC(p,maxError);
+    GENETIC_CalcularErrorC(p, maxError);
 
     // ordeno para realizar la seleccion de mayor a menor fitness
     // sortPopulationByFitness(p);
@@ -313,9 +302,8 @@ int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels) {
     // ordeno para realizar la seleccion de mayor a menor errorc
     sortPopulationByErrorC(p);
 
-    init_population(&newPopu, p->popuSize,nFuels);
+    init_population(&newPopu, p->popuSize, nFuels);
     newPopu.popuSize = p->popuSize;
-
 
     //printf("generacion: %d poblacion Ordenada pero no evolucionada \n", p->currentGen);
     //print_populationScreen(*p);
@@ -341,7 +329,6 @@ int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels) {
     // EVOLUTION
     // evoluciono la poblacion: selection, crossover, mutation
     while ((i < p->popuSize) && (i != p->popuSize - 1)) {
-
         p1 = GENETIC_Select(*p, sumErrorc);         // antes enviaba sumFit
         p2 = GENETIC_Select(*p, sumErrorc);
 
@@ -383,7 +370,8 @@ int GENETIC_Algorithm(POPULATIONTYPE * p, char* outputFilename,int nFuels) {
     return 1;
 }
 
-int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuels,int pend) {
+int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename, int nFuels, int pend) {
+    printf("TRACE: Genetic.GENETIC_Algorithm_Farsite.\n");
     int i, p1,p2; //p1 y p2 son los padres
     double sumFit, maxError, sumErrorc;
     POPULATIONTYPE newPopu;
@@ -395,7 +383,7 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
         }
     }
 
-    init_population(&newPopu, p->popuSize,nFuels);
+    init_population(&newPopu, p->popuSize, nFuels);
     newPopu.popuSize = p->popuSize;
 
     // ELITISMO
@@ -462,7 +450,7 @@ int GENETIC_Algorithm_Farsite(POPULATIONTYPE * p, char* outputFilename,int nFuel
     newPopu.nParams = p->nParams;
     newPopu.maxparams = p->maxparams;
     newPopu.nparams_farsite = p->nparams_farsite;
-    printf("INF: Genetic.GENETIC_Algorithm_Farsite -> Params: %d %d %d\n", p->nParams, p->maxparams, p->nparams_farsite);
+    printf("INFO: Genetic.GENETIC_Algorithm_Farsite -> Params: nParams(%d) maxParams(%d) nParamsFarsite(%d)\n", p->nParams, p->maxparams, p->nparams_farsite);
     save_population_farsite(newPopu, outputFilename);
     return 1;
 }
@@ -472,8 +460,9 @@ double GENETIC_GetSumFitness(POPULATIONTYPE p) {
     double total = 0.0;
     int i;
 
-    for (i = 0; i < p.popuSize; i++)
+    for (i = 0; i < p.popuSize; i++) {
         total += p.popu[i].fit;
+    }
 
     return total;
 
@@ -519,6 +508,7 @@ int GENETIC_Select_Farsite(POPULATIONTYPE p, double sumErrorc) {
     //printf("Valor random: %1.4f, sumErrorc: %1.4f, individuo seleccionado:%d\n", random, sumErrorc, i);
     return i;
 }
+
 // CROSSOVER: the crossover operation is made between pin1 and pin2
 // c1 and c2 are obtained from this operation
 int GENETIC_Crossover(INDVTYPE pin1, INDVTYPE pin2, INDVTYPE * c1, INDVTYPE * c2) {
@@ -531,27 +521,23 @@ int GENETIC_Crossover(INDVTYPE pin1, INDVTYPE pin2, INDVTYPE * c1, INDVTYPE * c2
 
     // printf("crossover antes de todo:: pin1.n:%d pin2.n:%d \n", pin1.n, pin2.n);
     // si supero la probabilidad realizo crossover sobre el individuo
-
     r = (rand() % 10) / 10.;
     if (r <= crossoverP) { // se realiza la operacion
         // elijo random el crosspoint
         crossPoint = (int) rand() % pin1.n;
 
-    // baker arma una de las partes como el promedio de los parametros!!
+        // baker arma una de las partes como el promedio de los parametros!!
         for (i = 0; i < crossPoint; i++) {
             c1->p[i] = pin1.p[i];
-            //  c2->p[i] = pin2.p[i];
             c2->p[i] = (pin1.p[i] + pin2.p[i]) / 2;
         }
 
         for (i = crossPoint; i < pin1.n; i++) {
             c1->p[i] = (pin2.p[i] + pin1.p[i]) / 2;
-            //     c1->p[i] = pin2.p[i];  //ORIGINAL
             c2->p[i] = pin1.p[i];
         }
     }
     else {// no hay crossover, copio los individuos igual a los padres.
-        //  for (i = 0; i < pin1.n; i++)
         for (i = 0; i < pin1.n; i++) {
             c1->p[i] = pin1.p[i];
             c2->p[i] = pin2.p[i];
@@ -589,31 +575,22 @@ int GENETIC_Crossover_Farsite(INDVTYPE_FARSITE pin1, INDVTYPE_FARSITE pin2, INDV
     double r,x;
 
     // si supero la probabilidad realizo crossover sobre el individuo
-
     r = (rand() % 10) / 10.;
     if (r <= crossoverP)  {// se realiza la operacion
         // elijo random el crosspoint
         crossPoint = (int) rand() % nParams;
-        // printf("Crosspoint = %d\n", crossPoint);
-
-    // baker arma una de las partes como el promedio de los parametros!!
-
+        // baker arma una de las partes como el promedio de los parametros!!
         for (i = 0; i < crossPoint; i++) {
             h1[i] = p1[i];
             h2[i] = p2[i];  //ORIGINAL
-            //c2->p[i] = (pin1.p[i] + pin2.p[i]) / 2;
         }
 
         for (i = crossPoint; i < nParams; i++) {
-            //c1->p[i] = (pin2.p[i] + pin1.p[i]) / 2;
             h1[i] = p2[i];  //ORIGINAL
             h2[i] = p1[i];
         }
-        //for(i=0;i<nParams;i++)
-        // printf("%f\t%f\n", h1[i], h2[i]);
     } else {
         // no hay crossover, copio los individuos igual a los padres.
-        //  for (i = 0; i < pin1.n; i++)
         for (i = 0; i < nParams; i++) {
             h1[i] = p1[i];
             h2[i] = p2[i];
@@ -639,8 +616,7 @@ int GENETIC_Mutation(INDVTYPE * child, int guidedMutaFlag, double wnddir, double
 
     if (doComputacional) {
         limit = 8;
-    }
-    else {
+    } else {
         limit = child->n;
     }
 
@@ -651,75 +627,58 @@ int GENETIC_Mutation(INDVTYPE * child, int guidedMutaFlag, double wnddir, double
         }
     }
 
-
-    /*
-       // METODO ANALITICO si debo guiar la mutacion, asigno a winddir y windspeed los valores calculados para el individuo
-       if (guidedMutaFlag)
-       {
-          // si no es graduada, threshold es == 1 por lo que guio si o si!!!
-           double ran = (double)(rand() % 10) / 10.;
-    //       printf("THRESHOLD: %f ran: %f ran < threshold --> muto! () \n", threshold, ran);
-           if (ran < threshold)
-           {
-             child->p[8] = wndvel;
-             child->p[9] = wnddir;
-           }
-       }
-    */
     // mutacion guiada con METODO COMPUTACIONAL
     if (doComputacional) {
 
         // si no es graduada, threshold es == 1 por lo que guio si o si!!!
         // only guide mutation if probability says so. do not guide always. do not depend on gradual guide or threshold
-
-        // double ran = (double)(rand() % 10) / 10.;
-        // printf("random number: %f \n ", ran);
-        // if (ran < threshold) {
         mut = randLim(0,1);
 
         if (mut < mutationP) {
 
-            //   printf("THRESHOLD GUIO: %f ran: %f ran < threshold --> muto! () \n ", threshold, ran);
+            // printf("THRESHOLD GUIO: %f ran: %f ran < threshold --> muto! () \n ", threshold, ran);
             // acoto los rangos por donde pueden variar velicidad y direccion del viento
             double limiteSupDir, limiteInfDir, limiteSupVel, limiteInfVel;
 
             limiteSupDir = dirVtoComp + valorDireccion;
-            if (limiteSupDir > max.p[9])
+            if (limiteSupDir > max.p[9]) {
                 limiteSupDir = max.p[9];
+            }
 
             limiteInfDir = dirVtoComp - valorDireccion;
-            if (limiteInfDir < min.p[9])
+            if (limiteInfDir < min.p[9]) {
                 limiteInfDir = min.p[9];
+            }
 
             limiteSupVel = velVtoComp + valorVelocidad;
-            if (limiteSupVel > max.p[8])
+            if (limiteSupVel > max.p[8]) {
                 limiteSupVel = max.p[8];
+            }
 
             limiteInfVel = velVtoComp - valorVelocidad;
-            if (limiteSupVel < min.p[8])
+            if (limiteSupVel < min.p[8]) {
                 limiteSupVel = min.p[8];
-
+            }
 
             child->p[9] = randLim(limiteInfDir, limiteSupDir); //min.p[i], max.p[i]);
             child->p[8] = randLim(limiteInfVel, limiteSupVel); //min.p[i], max.p[i]);
 
-            //printf("guide i %d value %f\n", i, child->p[8]);
-            //printf("guide i %d value %f\n", i, child->p[9]);
-            //printf("\n");
-
             // vuelvo a controlar los 2 valores correctos...
-            if (child->p[9] > max.p[9])
+            if (child->p[9] > max.p[9]) {
                 child->p[9] = max.p[9];
+            }
 
-            if (child->p[9] < min.p[9])
+            if (child->p[9] < min.p[9]) {
                 child->p[9] = min.p[9];
+            }
 
-            if (child->p[8] > max.p[8])
+            if (child->p[8] > max.p[8]){
                 child->p[8] = max.p[8];
+            }
 
-            if (child->p[8] < min.p[8])
+            if (child->p[8] < min.p[8]) {
                 child->p[8] = min.p[8];
-            // }
+            }
         }
     }
 
@@ -731,7 +690,6 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child) {
     double mut;
     int limit = child->nparams_farsite;
     //GENETIC_Init_Farsite(1, 1, 1, "range.txt", "fbests", 0, 0, 0);
-    //mutationP = 1;
     printf("INFO: Genetic.GENETIC_Mutation_Farsite -> Se muta a individuo %d limit %d\n", child->id, limit);
     float *h1 = (float*) malloc(sizeof(float) * limit);
     float *minrange = (float*) malloc(sizeof(float) * maxFS.nparams_farsite);
@@ -748,8 +706,6 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child) {
     }
 
     arrayToIndFarsite (h1, child);
-    //print_indv_farsite(minFS);
-    //print_indv_farsite(maxFS);
 
     // atributos en 0.0 para los individuos nuevos
     child->error = 0.0;
@@ -760,6 +716,7 @@ int GENETIC_Mutation_Farsite(INDVTYPE_FARSITE * child) {
 
 // used to insert knowledge in individual, e.g. when initialising population
 int GENETIC_InsertKnowledge(INDVTYPE * child) {
+    printf("TRACE: Genetic.GENETIC_InsertKnowledge\n");
     if (doComputacional) {
         int i;
         double limiteSupDir, limiteInfDir, limiteSupVel, limiteInfVel;
@@ -785,17 +742,21 @@ int GENETIC_InsertKnowledge(INDVTYPE * child) {
         child->p[8] = randLim(limiteInfVel, limiteSupVel); //min.p[i], max.p[i]);
 
         // vuelvo a controlar los 2 valores correctos...
-        if (child->p[9] > max.p[9])
+        if (child->p[9] > max.p[9]) {
             child->p[9] = max.p[9];
+        }
 
-        if (child->p[9] < min.p[9])
+        if (child->p[9] < min.p[9]) {
             child->p[9] = min.p[9];
+        }
 
-        if (child->p[8] > max.p[8])
+        if (child->p[8] > max.p[8]) {
             child->p[8] = max.p[8];
+        }
 
-        if (child->p[8] < min.p[8])
+        if (child->p[8] < min.p[8]) {
             child->p[8] = min.p[8];
+        }
 
         return 1;
     }
@@ -803,16 +764,14 @@ int GENETIC_InsertKnowledge(INDVTYPE * child) {
 
 //pongo los valores de los parametros dentro de los rangos validos
 void GENETIC_ControlarValoresValidos(INDVTYPE_FARSITE * c) {
+    printf("TRACE: Genetic.GENETIC_ControlarValoresValidos\n");
     int i;
-
-    //float *minrange = (float*) malloc(sizeof(float) * maxFS.nparams_farsite);
-    //float *maxrange = (float*) malloc(sizeof(float) * maxFS.nparams_farsite);
-
     for (i = 0; i < c->nparams_farsite; i++) {
-        if (c->parameters[i] > maxFS.parameters[i])
+        if (c->parameters[i] > maxFS.parameters[i]) {
             c->parameters[i] = maxFS.parameters[i];
-
-        if (c->parameters[i] < minFS.parameters[i])
+        }
+        if (c->parameters[i] < minFS.parameters[i]) {
             c->parameters[i] = minFS.parameters[i];
+        }
     }
 }

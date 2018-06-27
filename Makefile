@@ -19,6 +19,9 @@ all:
 farsite:
 	mpicc -g -pg -DNDEBUG farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o farsite -lm
 
+gchar:
+	mpicc -g -pg -DNDEBUG gchar.c   strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o gchar   -lm
+
 clean:
 	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)farsiteWraper
 # End of makefile
@@ -38,3 +41,13 @@ clean:
 #
 # make farsite
 # ./farsite scenario.ini pob_0_1.txt 0
+# ./farsite ../fire-scenarios/jonquera/scenario_template.ini ../fire-scenarios/jonquera/input/pob_0.txt 3
+#
+# mkdir input output trace
+# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/landscape/ .
+# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/perimetres/ .
+# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/aux_files/ .
+# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/bases/ .
+#
+# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif/genetic 99 scenario_template.ini > scenario_jonquera.txt
+# 

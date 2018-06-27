@@ -669,7 +669,7 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
         fclose(fd2);
 
         if((fd=fopen(simulatedFireMap,"r")) == NULL) {
-            printf("ERROR: Unable to open simulated map file");
+            printf("ERROR: Unable to open simulated map file %s \n", simulatedFireMap);
         } else {
             fscanf(fd,"%7s%f\n%7s%f\n%7s%f\n%7s%f\n%7s%d\n%7s%d\n",name,&val,name,&val,name,&val,name,&val,name,&srows,name,&scols);
             //-> printf("INFO: Farsite.getSimulationError.simulatedFireMap.fd -> name(%7s) val(%f) srows(%d) scols(%d)\n",name,val,srows,scols);

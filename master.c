@@ -163,7 +163,7 @@ int master(char * datosIni, int ntareas, int JobID, double Start) {
     char *ErrorBuffer = (char*)malloc(sizeof(char)*100*numGenerations);
     sprintf(ErrorBuffer,"");
        
-    init_population(&p, popusizeM,nFuels);
+    init_population(&p, popusizeM, nFuels);
     while(numgen < numGenerations) {
         printf("INFO: Master.master -> Master - Elitism: %d\n", elitism);
         t1 = MPI_Wtime();
@@ -329,7 +329,7 @@ int initMaster(char * filename, int nworkers) {
         if ((FuelsToCalibrateFILE = fopen(FuelsToCalibrateFileName,"r"))==NULL) {
             printf("ERROR: Master.initMaster -> Opening fuels used file.\n");
         } else {
-            while((fscanf(FuelsToCalibrateFILE,"%d",&nFuel)!=EOF) || (nFuels==257)) {
+            while((fscanf(FuelsToCalibrateFILE, "%d", &nFuel)!=EOF) || (nFuels==257)) {
                 nFuels++;
             }
         }
