@@ -612,7 +612,7 @@ int repartirPoblacionFarsite(POPULATIONTYPE *p, int  nworkers) {
 }
 
 int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers) {
-    printf("INFO: Master.prediccionPoblacionFarsite -> EMPIEZO PREDICCIÓN...\n");
+    printf("INFO: Master.prediccionPoblacionFarsite -> Gonna start the prediction phase...\n");
     int ind_counter = 0;
     //int * worker_busy = (int*)malloc(nworkers*sizeof(int));
     int worker_busy[nworkers];
@@ -642,7 +642,7 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers) {
     }
 
     c=nClasses-1;
-    printf("INFO: Master.prediccionPoblacionFarsite -> Classe mas pesada:%c\n",ClassesLabel[c]);
+    printf("INFO: Master.prediccionPoblacionFarsite -> Heaviest class: %c\n", ClassesLabel[c]);
     c=nClasses-1;
     while ((c>=0) && go) {
         if (Classified[SearchClassIndex(ClassesLabel[c])].Classes != NULL) {
@@ -732,8 +732,8 @@ int prediccionPoblacionFarsite(POPULATIONTYPE *p, int  nworkers) {
 
     // free(worker_busy);
 
-    printf("INFO: Master.prediccionPoblacionFarsite -> TERMINO MASTER\n");
-    printf("INFO: Master.prediccionPoblacionFarsite -> ACABO PREDICCIÓN...\n");
+    printf("INFO: Master.prediccionPoblacionFarsite -> Master has finished.\n");
+    printf("INFO: Master.prediccionPoblacionFarsite -> Prediction phase has ended.\n");
 
     return 0;
 }

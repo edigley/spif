@@ -42,11 +42,11 @@ void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile, int
 void createSettingsFile(char * settingsFile, int individualId, int generation, int perimeterResolution);
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
-void individualToString(INDVTYPE_FARSITE individual, char * pszIndividual, int buffersize) {
+void individualToString(int generation, INDVTYPE_FARSITE individual, char * pszIndividual, int buffersize) {
     if (!pszIndividual || buffersize<1) {
         *pszIndividual = '\0'; // return an 'empty' string 
     } else {
-        sprintf(pszIndividual, "%d %d %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f", 
+        sprintf(pszIndividual, "%d %d %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f", 
             generation, individual.id, 
             individual.parameters[0], individual.parameters[1], individual.parameters[2], individual.parameters[3],
             individual.parameters[4],
@@ -105,66 +105,6 @@ int readPopulation(POPULATIONTYPE * population, char * populationFileName) {
     return 0;
 }
 
-/**
- * - argv[1] file path: spif configuration file
- * - argv[2] file path: population file
- * - argv[3] int: identifier of the individual to be simulated. It should range between 0 to (population_size - 1).
- */
-int main2(int argc, char *argv[]) {
-
-    if (argc < 3 ) {
-        printf("ERROR: Farsite.main -> number of args invalid. Please inform at least a configuration and a population files. ");
-        printf("You can optionally inform the individual to be executed.\n");
-    }
-
-    POPULATIONTYPE population;
-    readPopulation(&population, argv[2]);
-    //print_population_farsite(population);
-    //print_individuo(0,population.popu_fs[0]);
-
-    double adjustmentError;
-    char * configurationFile = argv[1];
-    char * atmPath;
-    int generation = 0;
-    int individuoId;
-    int begin, end;
-    char individualAsString[256]; // 256 bytes allocated here on the stack.
-    char * adjustmentErrorsFileName = "output_individuals_adjustment_result.txt";
-    FILE * adjustmentErrors;
-
-    if (argc == 4 ) {
-        individuoId = atoi(argv[3]);
-        begin = individuoId;
-        end = individuoId + 1;
-    } else {
-        begin = 0;
-        end = population.popuSize;
-    }
-
-    if ((adjustmentErrors = fopen(adjustmentErrorsFileName, "w")) == NULL) {
-        printf("ERROR: Farsite.main -> Error opening output adjustment errors file 'w' %s\n", adjustmentErrorsFileName);
-    } else {
-        int i;
-        for (i=begin; i < end; i++) {
-            printf("INFO: Farsite.main -> Going to start for individual (%d,%d)...\n", generation, i);
-
-            individualToString(population.popu_fs[i], individualAsString, sizeof(individualAsString));
-            printf("INFO: Farsite.main -> %s\n", individualAsString); // prints "Mar"
-
-            runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
-
-            printf("INFO: Farsite.main -> Finished for individual (%d,%d).\n", generation, i);
-
-            printf("INFO: Farsite.main -> adjustmentError: (%d,%d): %f\n", generation, i, adjustmentError);
-            printf("INFO: Farsite.main -> &adjustmentError: (%d,%d): %f\n", generation, i, &adjustmentError);
-
-            fprintf(adjustmentErrors,"%s %f\n", individualAsString, adjustmentError);
-        }   
-        fclose(adjustmentErrors);
-    }
-
-}
-
 int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
     printf("INFO: Farsite.runSimFarsite -> Going to run farsite for individual (%d,%d) \n", generation, individual.id);
     //Init variables
@@ -172,6 +112,7 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
         atmPath = atm;
     }
     char settings_filename[2000];
+    char timedOutputFileName[256];
     char syscall[5000];
     double ti,te;
     double execuTime = 0.0f;
@@ -179,6 +120,7 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
     sprintf(TraceBuffer,"");
     char TraceFileName[3000];
     FILE * TraceFile;
+    FILE * timedOutputFile;
     sprintf(TraceFileName,"%sWorkerTrace_%d_%d_%d.dat",TracePathFiles,myid,JobID,executed);
     initFarsiteVariables(configurationFile, generation);
     sprintf(settings_filename,"%ssettings_%d_%d.txt",output_path,generation,individual.id);
@@ -196,7 +138,7 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
             resolution=100;
             break;
     }
-    if (generation==10) {
+    if (generation == 10) {
         AvailTime=3600.0;
         resolution=30;
         individual.threads=8;
@@ -207,10 +149,12 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
         AvailTime=1.0;
     };
 
+    sprintf(timedOutputFileName, "timed_output_%d_%d.txt", generation, individual.id );
+
     char * individualAsString[256];
-    individualToString(individual, individualAsString, sizeof(individual));
-    sprintf(syscall,"/usr/bin/time --format \"%s %%e %%M %%O %%P %%c %%x\" -a --output=time_output.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",
-        individualAsString,
+    individualToString(generation, individual, individualAsString, sizeof(individual));
+    sprintf(syscall,"/usr/bin/time --format \"%s %%e %%M %%O %%P %%c %%x\" --output=timed_output_%d_%d.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",
+        individualAsString, generation, individual.id,
         AvailTime, farsite_path, settings_filename, individual.threads, generation, individual.id, myid, resolution
     );
 
@@ -229,6 +173,14 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
         //printf( "FARSITE:%d:%d_%d_%d_%f_%f_%d_%s\n",myid,generation,individual.id,individual.threads,(float)AvailTime,(float)AvailTime,myid,perimeterResolution);
         *adjustmentError = ERROR_INFINITY;
         sprintf(TraceBuffer, "Worker%d %1.2f %1.2f %d %d %d %d\n", myid, ti-Start, te-Start, myid, individual.threads, proc, 0);
+    }
+
+    //gonna append adjustment error to individual 
+    if (( timedOutputFile = fopen(timedOutputFileName, "a")) == NULL) {
+        printf("ERROR: Farsite.runSimFarsite -> Error opening timed output file 'w' %s\n", timedOutputFileName);
+    } else {
+        fprintf(timedOutputFile, " %f \n", *adjustmentError);
+        fclose(timedOutputFile);
     }
 
     if (Trace) {
@@ -505,7 +457,7 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
     if ( (settings = fopen(settingsFile, "w")) == NULL ) {
         printf("ERROR: Farsite.createSettingsFile -> Unable to open settings file");
     } else {
-        sprintf(tmp,"%d",generation);
+        sprintf(tmp, "%d", generation);
         shapefileNew = str_replace(shapefile, "$1", tmp);
         RasterFileNameNew = str_replace(RasterFileName,"$1", tmp);
         VectorFileNameNew = str_replace(VectorFileName,"$1", tmp);
@@ -600,7 +552,7 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
         fprintf(settings,"StartHour = %s\n", StartHour);
         fprintf(settings,"StartMin = %s\n", StartMin);
         fprintf(settings,"EndMonth = %s\n", EndMonth);
-        if (generation==10) {
+        if (generation == 10) {
             fprintf(settings,"EndDay = %d\n", atoi(StartDay)+1);
         } else {
             fprintf(settings,"EndDay = %s\n", EndDay);
@@ -648,7 +600,7 @@ double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ig
     char name[20];
     int i, n, j, srows, scols, rrows=0, rcols=0, aux;
     double *realMap, *simulatedMap;
-    double error=ERROR_INFINITY, fitness, doubleValue, val;
+    double error = ERROR_INFINITY, fitness, doubleValue, val;
 
     if(((fd = fopen(realFireMap, "r")) == NULL) || ((fd2 = fopen(ignitionFireMap, "r")) == NULL) ) {
         printf("ERROR: Farsite.getSimulationError -> Unable to open real map file or ignition fire map file\n");

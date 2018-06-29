@@ -8,22 +8,22 @@ PATH_PROY = ./
 LIBS = -lm
 FILES = $(PATH_PROY)main.c $(PATH_PROY)master.c $(PATH_PROY)worker.c $(PATH_PROY)dictionary.c $(PATH_PROY)iniparser.c $(PATH_PROY)strlib.c $(PATH_PROY)population.c $(PATH_PROY)farsite.c $(PATH_PROY)MPIWrapper.c $(PATH_PROY)fitness.c $(PATH_PROY)myutils.c $(PATH_PROY)windninja.c $(PATH_PROY)genetic.c
 
-normal:
+genetic:
 	$(CC) $(CFLAGS) $(FILES) -o genetic $(LIBS)
 
 all:
 	$(CC) $(CFLAGS) $(FILES) -o genetic $(LIBS)
 	$(CC) $(CFLAGS) $(FILES) -o genPopulation $(LIBS)
-	$(CC) $(CFLAGS) $(FILES) -o farsiteWraper $(LIBS)
+	$(CC) $(CFLAGS) $(FILES) -o fireSimulator $(LIBS)
 
-farsite:
-	mpicc -g -pg -DNDEBUG farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o farsite -lm
+fire:
+	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator -lm
 
 gchar:
 	mpicc -g -pg -DNDEBUG gchar.c   strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o gchar   -lm
 
 clean:
-	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)farsiteWraper
+	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)gchar $(PATH_PROY)fireSimulator
 # End of makefile
 
 # Vai começar...
@@ -39,10 +39,12 @@ clean:
 # error: 0.994937
 # &error: 0.994937
 #
-# make farsite
-# ./farsite scenario.ini pob_0_1.txt 0
-# ./farsite ../fire-scenarios/jonquera/scenario_template.ini ../fire-scenarios/jonquera/input/pob_0.txt 3
-#
+# make fire
+# ./fireSimulator scenario.ini pob_0_1.txt 0
+# ./fireSimulator ../fire-scenarios/jonquera/scenario_template.ini ../fire-scenarios/jonquera/input/pob_0.txt 3
+# cd test
+# ../fireSimulator ../fireSimulator scenario_arkadia.ini input/pob_0.txt 3
+# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
 test:
 	mkdir test
 	cd test
@@ -54,8 +56,9 @@ test:
 	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/scripts/ test/
 	cp ~/doutorado_uab/git/fire-scenarios/arkadia/scenario_template.ini test/scenario_arkadia.ini
 	cp ~/doutorado_uab/git/fire-scenarios/arkadia/input/pob_0.txt test/input/
-# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif/genetic 99 scenario_arkadia.ini > scenario_arkadia.txt
-# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
+
+test-run:
+	cd test && sh scripts/clean_input_outputs.sh && time mpirun -np 2 ../genetic 99 scenario_arkadia.ini > scenario_arkadia.txt && (cat timed_output_*_*.txt | paste -d "" - - | sort > timed_output.txt)
 
 test-clean:
 	rm -rf test
