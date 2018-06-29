@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
 
     POPULATIONTYPE population;
     readPopulation(&population, argv[2]);
-    //print_population_farsite(population);
-    //print_individuo(0,population.popu_fs[0]);
+    print_population_farsite(population);
+    print_individuo(0, population.popu_fs[0]);
 
     double adjustmentError;
     char * configurationFile = argv[1];
@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
         for (i=begin; i < end; i++) {
             printf("INFO: FireSimulator.main -> Going to start for individual (%d,%d)...\n", generation, i);
 
-            //individualToString(generation, population.popu_fs[i], individualAsString, sizeof(individualAsString));
-            //printf("INFO: FireSimulator.main -> %s\n", individualAsString); 
+            individualToString(generation, population.popu_fs[i], individualAsString, sizeof(individualAsString));
+            printf("INFO: FireSimulator.main -> %s\n", individualAsString); 
 
             runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1,24,3600);
 

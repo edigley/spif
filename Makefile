@@ -24,27 +24,7 @@ gchar:
 
 clean:
 	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)gchar $(PATH_PROY)fireSimulator
-# End of makefile
 
-# Vai começar...
-#FARSITE: vai executar...
-# ---> getSimulationError.simulatedMap /home/edigley/doutorado_uab/so_oh_leite/two_stage_prediction_framework/jonquera/output/raster_1_85.toa
-# ---> getSimulationError.real_fire_map_t1 /home/edigley/doutorado_uab/so_oh_leite/two_stage_prediction_framework/jonquera/perimetres/per2.asc
-# ---> getSimulationError.real_fire_map_tINI /home/edigley/doutorado_uab/so_oh_leite/two_stage_prediction_framework/jonquera/perimetres/per1.asc
-# ---> getSimulationError.real_fire_map_t1.fd name(xllcorn) val(0.000000) rrows(0) rcols(0)
-# ---> getSimulationError.real_fire_map_tINI.fd2 name(xllcorn) val(0.000000) aux(-680573732)
-# ---> getSimulationError.simulatedMap /home/edigley/doutorado_uab/so_oh_leite/two_stage_prediction_framework/jonquera/output/raster_1_85.toa
-# ---> getSimulationError.simulatedMap.fd name(  cols:) val(0.000000) srows(1125) scols(1612)
-#FARSITE: Execução concluída.
-# error: 0.994937
-# &error: 0.994937
-#
-# make fire
-# ./fireSimulator scenario.ini pob_0_1.txt 0
-# ./fireSimulator ../fire-scenarios/jonquera/scenario_template.ini ../fire-scenarios/jonquera/input/pob_0.txt 3
-# cd test
-# ../fireSimulator ../fireSimulator scenario_arkadia.ini input/pob_0.txt 3
-# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
 test:
 	mkdir test
 	cd test
@@ -58,7 +38,12 @@ test:
 	cp ~/doutorado_uab/git/fire-scenarios/arkadia/input/pob_0.txt test/input/
 
 test-run:
-	cd test && sh scripts/clean_input_outputs.sh && time mpirun -np 2 ../genetic 99 scenario_arkadia.ini > scenario_arkadia.txt && (cat timed_output_*_*.txt | paste -d "" - - | sort > timed_output.txt)
+	cd test && sh scripts/clean_input_outputs.sh && time mpirun -np 2 ../genetic 99 scenario_arkadia.ini > scenario_arkadia.txt ; (cat timed_output_*_*.txt | paste -d "" - - | sort > timed_output.txt)
 
 test-clean:
 	rm -rf test
+
+# make clean && make fire && cd test && ../fireSimulator scenario_arkadia.ini input/pob_0.txt 3
+# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
+
+# End of makefile

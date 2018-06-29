@@ -54,7 +54,8 @@ struct populationtype {
 };
 typedef struct populationtype POPULATIONTYPE;
 
-
+void individualToString(int generation, INDVTYPE_FARSITE individual, char * pszIndividual, int buffersize);
+int readPopulation(POPULATIONTYPE * population, char * populationFileName);
 void print_indv_default(INDVTYPE indv);
 void print_indv_farsite(INDVTYPE_FARSITE indv);
 int get_population_farsite(POPULATIONTYPE * pobla, char * nombreInitSet);
