@@ -43,11 +43,19 @@ clean:
 # ./farsite scenario.ini pob_0_1.txt 0
 # ./farsite ../fire-scenarios/jonquera/scenario_template.ini ../fire-scenarios/jonquera/input/pob_0.txt 3
 #
-# mkdir input output trace
-# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/landscape/ .
-# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/perimetres/ .
-# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/aux_files/ .
-# ln -s ~/doutorado_uab/git/fire-scenarios/jonquera/bases/ .
-#
-# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif/genetic 99 scenario_template.ini > scenario_jonquera.txt
-# 
+test:
+	mkdir test
+	cd test
+	mkdir test/input test/output test/trace
+	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/landscape/ test/
+	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/perimetres/ test/
+	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/aux_files/ test/
+	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/bases/ test/
+	ln -s ~/doutorado_uab/git/fire-scenarios/arkadia/scripts/ test/
+	cp ~/doutorado_uab/git/fire-scenarios/arkadia/scenario_template.ini test/scenario_arkadia.ini
+	cp ~/doutorado_uab/git/fire-scenarios/arkadia/input/pob_0.txt test/input/
+# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif/genetic 99 scenario_arkadia.ini > scenario_arkadia.txt
+# time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
+
+test-clean:
+	rm -rf test

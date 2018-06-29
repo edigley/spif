@@ -38,7 +38,7 @@ int TotalFuels;
 
 int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc, int Trace, int Fuels, int * FuelsU,double AvailTime);
 void initFarsiteVariables(char * filename, int generation);
-void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile);
+void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile, int generation);
 void createSettingsFile(char * settingsFile, int individualId, int generation, int perimeterResolution);
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
@@ -166,6 +166,7 @@ int main2(int argc, char *argv[]) {
 }
 
 int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
+    printf("INFO: Farsite.runSimFarsite -> Going to run farsite for individual (%d,%d) \n", generation, individual.id);
     //Init variables
     if(doWindFields == 1) {
         atmPath = atm;
@@ -182,7 +183,7 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
     initFarsiteVariables(configurationFile, generation);
     sprintf(settings_filename,"%ssettings_%d_%d.txt",output_path,generation,individual.id);
 
-    createInputFiles(individual, configurationFile);
+    createInputFiles(individual, configurationFile, generation);
     int resolution=100;
     switch(individual.class_ind) {
         case 'E':
@@ -272,6 +273,7 @@ void initFarsiteVariables(char * configurationFile, int generation) {
     doRaster         = iniparser_getstr(configuration, "farsite:doRaster");
     doShape          = iniparser_getstr(configuration, "farsite:doShape");
     doVector         = iniparser_getstr(configuration, "farsite:doVector");
+
     if (generation == numGenerations) {
         ignitionFile        = iniparser_getstr(configuration, "prediction:PignitionFile");
         ignitionFileType    = iniparser_getstr(configuration, "prediction:PignitionFileType");
@@ -342,7 +344,8 @@ void initFarsiteVariables(char * configurationFile, int generation) {
  * - individual
  * - configurationFile
  */
-void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile) {
+void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile, int generation) {
+    printf("INFO: Farsite.createInputFiles -> Going to create input files for individual (%d,%d) \n", generation, individual.id);
     char * line = (char*)malloc(sizeof(char) * 200);
     char * newline = (char*)malloc(sizeof(char) * 200);
     char * buffer = (char*)malloc(sizeof(char) * 200);
@@ -356,8 +359,8 @@ void createInputFiles(INDVTYPE_FARSITE individual, char * configurationFile) {
     }
     FILE * fFMS, *fWND, *fWTR, *fADJ, *fFMSnew, *fWNDnew, *fWTRnew,*fADJnew;
     char * tmp = (char*)malloc(sizeof(char) * 400);
-    // Create corresponding fms,wnd & wtr filename for each individual
-    sprintf(tmp,"%d",generation);
+    // Create corresponding fms, wnd & wtr filename for each individual
+    sprintf(tmp, "%d", generation);
 
     fmsFileNew = str_replace(fmsFile, "$1", tmp);
 
