@@ -23,3 +23,25 @@
      0        1        2        3          4         5          6         7          8        9       10       11       12      13        14      15        16      17    18  19  20
     1h      10h      100h     herb                  ws         wd        th         hh                                                 runtime  maxRSS    error   errorC   x oId gen
 
+
+http://www.fire.org/downloads/farsite/WebHelp/referenceguide/pop_ups/pu_initial_fuel_moistures.htm
+Initial Fuel Moistures File (.FMS)
+    The Initial Fuel Moistures (.FMS) File is a ASCII text file required for any FARSITE simulation.
+    The fuel moistures at the beginning of the simulation must be set for each fuel type. 
+    These fuel moistures are required to begin the process of calculating site specific fuel moistures at each time step throughout the simulation. 
+    The following ASCII integer space-delimited format is used;
+        FuelMod 1Hour 10Hour 100Hour LiveH LiveW
+    Fuel Model (1-50) corresponds to a fuel model specified
+        on the landscape if no conversions are used, or
+        in the Fuel Conversion (.FMS) File if conversions are used. 
+            Fuel models 1-13 must relate to the Fire Behavior 13 standard fuel models (Anderson 1982). 
+            Fuel models numbered from 14 to 50 are for custom models as described in the Custom Fuel Model (.FMD) File.
+            Fuel moistures for each category are in percent (integers), and may exceed 100. 
+            LiveH and LiveW indicate "live woody" and "live herbaceous" fuels, just like BehavePlus. 
+            Unlike dead fuels, live fuel moistures remain constant throughout the simulation unless you manually change them.
+    NOTE: If custom models are used, they too must have initial fuel moistures specified in this file.
+    Example from SPIF: A file with 256 lines, each one with the same content
+        256 6  9 12 78 100
+        256 5  8 13 70 100
+        256 4 10 12 33 100
+        256 2  6 11 68 100

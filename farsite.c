@@ -91,6 +91,17 @@ int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adj
 
     char * individualAsString[256];
     individualToString(generation, individual, individualAsString, sizeof(individual));
+    /*
+              e/E    Elapsed real (wall clock) time used by the process, in seconds/[hours:]minutes:seconds.
+              M      Maximum resident set size of the process during its lifetime, in Kilobytes.
+              O      Number of file system outputs by the process.
+              P      Percentage of the CPU that this job got.  This is just user + system times divided by the total running time.  It also prints a percentage sign.
+              c      Number of times the process was context-switched involuntarily (because the time slice expired).
+              x      Exit status of the command.
+              K      Average total (data+stack+text) memory use of the process, in Kilobytes.
+    */
+    //                          %e     %M       %O          %P              %c          %x
+    //generation individuo runtime maxRSS nFSOutputs percentageCPU nContextSwitchs exitStatus
     sprintf(syscall,"/usr/bin/time --format \"%s %%e %%M %%O %%P %%c %%x\" --output=timed_output_%d_%d.txt timeout --signal=SIGXCPU %.0f %sfarsite4P -i %s -f %d -t 1 -g %d -n %d -w %d -p %dm",
         individualAsString, generation, individual.id,
         AvailTime, farsite_path, settings_filename, individual.threads, generation, individual.id, myid, resolution
