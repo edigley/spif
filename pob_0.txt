@@ -23,6 +23,35 @@
      0        1        2        3          4         5          6         7          8        9       10       11       12      13        14      15        16      17    18  19  20
     1h      10h      100h     herb                  ws         wd        th         hh                                                 runtime  maxRSS    error   errorC   x oId gen
 
+#header: 100 0 18
+individuals <- data.frame( 
+	p0 = runif(12000, min=2, max=6),
+	p1 = runif(12000, min=6, max=10),
+    p2 = runif(12000, min=10, max=15),
+	p3 = runif(12000, min=15, max=80),
+	p4 = runif(12000, min=80, max=100),
+    p5 = rnorm(12000, mean=12.83, sd=6.25),
+	p6 = rnorm(12000, mean=56.60, sd=13.04),
+	p7 = runif(12000, min=30, max=50),
+    p8 = runif(12000, min=30, max=100),
+	p9 = 0,
+	p10 = 0,
+    p11 = 0,
+	p12 = 0,
+	p13 = 0,
+    p14 = 0,
+	p15 = 0,
+	p16 = 0,
+    p17 = 0,
+	p18 = 0,
+	p19 = 0,
+    p20 = 0
+)
+
+write.table(format(individuals, format="d", digits=6), "/tmp/farsite_individuals.txt", col.names=F, row.names=F, quote=F)
+
+
+
 
 http://www.fire.org/downloads/farsite/WebHelp/referenceguide/pop_ups/pu_initial_fuel_moistures.htm
 Initial Fuel Moistures File (.FMS)
@@ -30,7 +59,9 @@ Initial Fuel Moistures File (.FMS)
     The fuel moistures at the beginning of the simulation must be set for each fuel type. 
     These fuel moistures are required to begin the process of calculating site specific fuel moistures at each time step throughout the simulation. 
     The following ASCII integer space-delimited format is used;
+
         FuelMod 1Hour 10Hour 100Hour LiveH LiveW
+
     Fuel Model (1-50) corresponds to a fuel model specified
         on the landscape if no conversions are used, or
         in the Fuel Conversion (.FMS) File if conversions are used. 
@@ -39,9 +70,33 @@ Initial Fuel Moistures File (.FMS)
             Fuel moistures for each category are in percent (integers), and may exceed 100. 
             LiveH and LiveW indicate "live woody" and "live herbaceous" fuels, just like BehavePlus. 
             Unlike dead fuels, live fuel moistures remain constant throughout the simulation unless you manually change them.
+
     NOTE: If custom models are used, they too must have initial fuel moistures specified in this file.
+
     Example from SPIF: A file with 256 lines, each one with the same content
         256 6  9 12 78 100
         256 5  8 13 70 100
         256 4 10 12 33 100
         256 2  6 11 68 100
+
+http://www.fire.org/downloads/farsite/WebHelp/referenceguide/pop_ups/pu_wind_file.htm
+Month Day Hour Speed Direction CloudCover
+
+    Hour is specified as 0-2400, to the nearest minute (integer).
+
+    Speed is either the 20ft windspeed specified in miles per hour or the 10m windspeed in kilometers per hour (integer)
+
+    Direction is specified in degrees, clockwise from north (0-360), (integer). A "-1" in the direction field indicates the winds to be up slope, similarly downslope winds can be specified with a "-2".
+
+    CloudCover is specified as a percentage, 0 to 100 (integer).
+
+
+
+INFO: Farsite.runSimFarsite -> Going to run farsite for individual (0,1010)
+INFO: Farsite.createInputFiles -> Going to create input files for individual (0,1010)
+ERROR: Farsite.createInputFiles -> Unable to create ADJ temp file
+Falha de segmentação (imagem do núcleo gravada)
+
+real    213m30.928s
+user    212m21.770s
+sys     0m48.388s
