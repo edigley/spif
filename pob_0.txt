@@ -23,7 +23,7 @@
      0        1        2        3          4         5          6         7          8        9       10       11       12      13        14      15        16      17    18  19  20
     1h      10h      100h     herb                  ws         wd        th         hh                                                 runtime  maxRSS    error   errorC   x oId gen
 
-#header: 100 0 18
+#header: 12000 0 18
 individuals <- data.frame( 
 	p0 = runif(12000, min=2, max=6),
 	p1 = runif(12000, min=6, max=10),
@@ -50,6 +50,8 @@ individuals <- data.frame(
 
 write.table(format(individuals, format="d", digits=6), "/tmp/farsite_individuals.txt", col.names=F, row.names=F, quote=F)
 
+
+(cat timed_output_*_*.txt | paste -d "" - - | sort -g -k 1 -k 2  > timed_output.txt)
 
 
 
