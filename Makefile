@@ -126,10 +126,6 @@ test-analysis-jonquera:
 	cp ../test-arkadia/farsite_individuals.txt .
 	/home/edigley/doutorado_uab/git/spif/fireSimulator scenario_jonquera.ini farsite_individuals.txt run 1
 	for i in `seq 1 1000`; do time /home/edigley/doutorado_uab/git/spif/fireSimulator scenario_jonquera.ini farsite_individuals.txt run $i ; done
-
-
-
-
 test-checar:
 	individuals <- read.table("/home/edigley/doutorado_uab/git/spif/test/farsite_individuals.txt", skip=1)
 	names(individuals) <- c("p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10", "p11", "p12", "p13", "p14", "p15", "p16", "p17", "p18", "p19", "p20")
@@ -160,12 +156,6 @@ generate-central-point-from-landscape:
 	/home/edigley/doutorado_uab/git/fire-scenarios/arkadia
 	/home/edigley/doutorado_uab/Forest-Fire-Cases/JRC_UAB_TAV/zip_file_full/TOPTEN/Data/Resultados/CASE_2/METEO
 
-
-
-
-
-
-
 test-top-ten-scenario-set-up:
 	playpen="top-ten"
 	case=5
@@ -192,6 +182,7 @@ test-top-ten-scenario-set-up:
 	#/home/edigley/Dropbox/doutorado_uab/scripts/shell/generate_random_individuals.sh ${nOfIndividuals} ${individuals}
 	#/home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_box_plot.sh ${individuals} ${individualsBoxPlot}
 	#eog ${individualsBoxPlot}
+
 test-top-ten-scenario-run:
 	cd /home/edigley/doutorado_uab/git/spif/${playpen}/
 	cp ~/dropbox/farsite-scenarios-results/${individuals} .
@@ -200,6 +191,7 @@ test-top-ten-scenario-run:
 	/home/edigley/Dropbox/doutorado_uab/scripts/shell/concatenate_all_individuals_results.sh . ${runtimeOutput}
 	/home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_histogram.sh ${runtimeOutput} ${runtimeHistogram}
 	eog ${runtimeHistogram} &
+
 test-top-ten-scenario-clean-up:
 	cp ${individuals}        ~/dropbox/farsite-scenarios-results/
 	cp ${individualsBoxPlot} ~/dropbox/farsite-scenarios-results/
@@ -220,6 +212,5 @@ test-top-ten-scenario-clean-up:
 	#for i in `seq 1 1000`; do pkill -kill fireSimulator; done
 	#/home/edigley/doutorado_uab/git/spif/top-ten/landscape
 	#~/dropbox/farsite-scenarios-results/
-
 
 # time /home/edigley/Dropbox/doutorado_uab/scripts/shell/run-all-cases-in-range.sh 6 10
