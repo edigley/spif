@@ -43,7 +43,7 @@ void createSettingsFile(char * settingsFile, int individualId, int generation, i
 double getSimulationError(char * simulatedFireMap, char * realFireMap, char * ignitionFireMap, int start_time, int end_time);
 
 
-int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid,double Start,char * TracePathFiles, int JobID,int executed,int proc,int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
+int runSimFarsite(INDVTYPE_FARSITE individual, char * simulationID, double * adjustmentError, int generation, char * atm, char * configurationFile, int myid, double Start, char * TracePathFiles, int JobID, int executed, int proc, int Trace, int FuelsN, int * FuelsLoaded, double AvailTime) {
     printf("INFO: Farsite.runSimFarsite -> Going to run farsite for individual (%d,%d) \n", generation, individual.id);
     //Init variables
     if(doWindFields == 1) {

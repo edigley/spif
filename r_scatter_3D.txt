@@ -1,0 +1,68 @@
+* DONE (manipulateWidget)
+* installing *source* package ‘rgl’ ...
+** package ‘rgl’ successfully unpacked and MD5 sums checked
+checking for gcc... gcc -std=gnu99
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc -std=gnu99 accepts -g... yes
+checking for gcc -std=gnu99 option to accept ISO C89... none needed
+checking how to run the C preprocessor... gcc -std=gnu99 -E
+checking for gcc... (cached) gcc -std=gnu99
+checking whether we are using the GNU C compiler... (cached) yes
+checking whether gcc -std=gnu99 accepts -g... (cached) yes
+checking for gcc -std=gnu99 option to accept ISO C89... (cached) none needed
+checking for libpng-config... yes
+configure: using libpng-config
+configure: using libpng dynamic linkage
+checking for X... no
+configure: error: X11 not found but required, configure aborted.
+ERROR: configuration failed for package ‘rgl’
+* removing ‘/home/edigley/R/x86_64-pc-linux-gnu-library/3.2/rgl’
+
+The downloaded source packages are in
+	‘/tmp/RtmpwJKw7e/downloaded_packages’
+Warning message:
+In install.packages("rgl") :
+  installation of package ‘rgl’ had non-zero exit status
+> plot
+plot                 plotdev              plot.new             plot.stepfun         plot.xy
+plot.default         plot.ecdf            plot.spec.coherency  plot.ts              plot3D::
+plot.design          plot.function        plot.spec.phase      plot.window          
+> library(rgl)
+Error in library(rgl) : there is no package called ‘rgl’
+> library(plot3Drgl)
+Error in library(plot3Drgl) : there is no package called ‘plot3Drgl’
+> library("plot3Drgl")
+Error in library("plot3Drgl") : there is no package called ‘plot3Drgl’
+> 
+plot(unlist(x[1,3:11]))
+plot(unlist(x[1,3:11]))
+plot(unlist(x[1:10,3:11]))
+plot(unlist(x[1:10,3:11]), type="l")
+plot(unlist(x[1,3:11]), type="l")
+plot(unlist(x[1:10,3:11]), type="l")
+plot(unlist(x[1,3:11]), type="l")
+install.packages("plot3D")
+library(plot3D)
+scatter3D(x[,3:11])
+scatter3D(x=1:9,y=x$individual,z=unlist(x[,3:11]))
+size(x$individual)
+length(x$)
+scatter3D(1:9,y=1:9,1:9)
+scatter3D(1,y=1:9,1:9)
+scatter3D(rep(1,9),y=1:9,1:9)
+scatter3D(1:9,rep(1,9),1:9)
+scatter3D(x=1:9,y=rep(1,9),z=1:9)
+scatter3D(x=1:9,y=rep(0,9),z=1:9)
+rep(0,9)
+install.packages("rgl")
+library(rgl)
+library(plot3Drgl)
+library("plot3Drgl")
+history
+history()
+

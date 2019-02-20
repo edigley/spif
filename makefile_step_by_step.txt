@@ -1,0 +1,213 @@
+time ../fireSimulator scenario_arkadia.ini farsite_individuals.txt run 1235
+time /home/sgeadmin/tspf/farsite/farsite4P -i output/settings_0_1235.txt -f 1 -t 1 -g 0 -n 1235 -w 99 -p 100m
+time /home/sgeadmin/tspf/farsite/farsite4P -i output/settings_0_${individual}.txt -f 1 -t 1 -g 0 -n ${individual} -w 99 -p 100m
+time mpirun -np 2 /home/edigley/doutorado_uab/git/spif-original/genetic 99 scenario_arkadia.ini > scenario_arkadia_spif-original.txt
+
+sed -i "s/shapeMake = false/shapeMake = true \nshapefile = output\/raster_0_1950.shp/g" output/settings_0_1950.txt
+sed -i "s/shapeMake = false/shapeMake = true \nshapefile = output\/raster_0_1235.shp/g" output/settings_0_1235.txt
+
+individual=841
+sed -i "s/shapeMake = false/shapeMake = true \nshapefile = output\/raster_0_${individual}.shp/g" output/settings_0_${individual}.txt
+sed -i "s/output/output2/g" output/settings_0_${individual}.txt
+grep -rni "shapeMake = true" output/settings_0_*.txt
+
+Em 2019-01-30
+runtime
+cat output.txt | awk '{ print $24 }'
+error
+cat output.txt | awk '{ print $29 }'
+
+Encontrar os long running individuals
+    cat output.txt | sort -g -k 24 | tail
+
+Encontrar os individuos que falharam
+    COL=29; cat output.txt | sort -g -k ${COL} | tail
+    COL=29; cat output.txt | sort -g -k ${COL} | tail | egrep -v "(0 9999.|exit error)" | wc -l
+    awk '$29 == "124"' output.txt | egrep -v "generation"
+    awk '$29 != "0"' output.txt | egrep -v "generation"
+    awk '$29 != "0"' output.txt | egrep -v "generation" | cut -d' ' -f1-12,24,25,29
+    echo 11.73454 | xargs printf "%.*f\n" 0
+
+column -s, -t < output.txt | awk '$29 == "124"'
+
+Ordenar por runtime
+    COL=24; cat output.txt | sort -g -k ${COL} | tail
+
+
+
+
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FINAL_FILE} | awk -v col1=${COL} '$col1 != 0' | wc -l
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FINAL_FILE} | awk -v col1=${COL} '$col1 != 0' | wc -l
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FINAL_FILE} | awk -v col1=${COL} '$col1 != 0'
+    /home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_histogram.sh ${RUNTIME_FINAL_FILE} ${RUNTIME_HISTOGRAM_FINAL_FILE}
+    eog ${RUNTIME_HISTOGRAM_FINAL_FILE} &
+
+
+
+for i in `seq 1 10`; do
+	cat test_case_${i}/output.txt | sort -g -k 29 | egrep -v "(0 9999.|exit error)" | wc -l
+done;
+
+
+
+
+
+/home/edigley/doutorado_uab/git/spif/fireSimulator scenario_arkadia.ini farsite_individuals.txt run 1
+head -n1 input/gen_0_ind_1.fms | tail -n 1 && head -n2 input/gen_0_ind_1.wnd | tail -n 1 && head -n2 input/gen_0_ind_1.wtr | tail -n 1 && head -n1 input/gen_0_ind_1.adj | tail -n 1
+
+i=1 && head -n1 input/gen_0_ind_${i}.fms | tail -n 1 && head -n2 input/gen_0_ind_${i}.wnd | tail -n 1 && head -n2 input/gen_0_ind_${i}.wtr | tail -n 1 && head -n7 input/gen_0_ind_${i}.adj | tail -n 1
+
+egrep  "(landscapeFile|FUELMOISTUREFILE|fuelmodelfile|windFile0|adjustmentFile|weatherFile0|shapefile|ignitionFile|RasterFileName)" settings_0_841.txt
+egrep  "(output|perimetres|input|landscape|aux_files)" settings_0_841.txt
+
+for i in `seq 0 1`; do /home/edigley/doutorado_uab/git/spif/fireSimulator scenario_arkadia.ini farsite_individuals.txt run ${i}; done
+
+egrep  "(landscapeFile|FUELMOISTUREFILE|fuelmodelfile|windFile0|adjustmentFile|weatherFile0|shapefile|ignitionFile|RasterFileName)" settings_0_841.txt
+egrep -w "(landscapeFile|ignitionFile|CustomFuelFile|fuelmodelfile|windFile0|adjustmentFile|baseWndFile|baseWtrFile|baseFmsFile|baseWndFile|baseWtrFile|baseFmsFile|baseAdjFile|wndFile|wtrFile|fmsFile|adjFile)" scenario_arkadia.ini
+
+generation individual p_1h p_10h p_100h p_herb p_1000h p_ws p_wd p_th p_hh p_adj1   p_adj2   p_adj3   p_adj4   p_adj5   p_adj6   p_adj7 p_a dj8   p_adj9  p_adj10  p_adj11  p_adj12 runtime maxRSS outputs cpu csw exit error
+0 7573 11.043454 4.578551 10.522600 41.614201 99.026100 14.648236 308.431366 48.303299 32.044998 1.367012 0.000000 0.000000 0.000000 0.000000 0.000000 0.00000 0 0.000000 0.000000 0.000000 0.000000 0.000000 61.26 15856 208 99% 7085 124 9999.990234
+
+    /*
+              e/E    Elapsed real (wall clock) time used by the process, in seconds/[hours:]minutes:seconds.
+              M      Maximum resident set size of the process during its lifetime, in Kilobytes.
+              O      Number of file system outputs by the process.
+              P      Percentage of the CPU that this job got.  This is just user + system times divided by the total running time.  It also prints a percentage sign.
+              c      Number of times the process was context-switched involuntarily (because the time slice expired).
+              x      Exit status of the command.
+              K      Average total (data+stack+text) memory use of the process, in Kilobytes.
+    */
+    //                          %e     %M       %O          %P              %c          %x
+    //generation individuo runtime maxRSS nFSOutputs percentageCPU nContextSwitchs exitStatus
+                                24     25         26            27              28         29
+
+
+	case=5
+	scenario="case_${case}"
+	scenarioFile="scenario_${scenario}.ini"
+	outputFile="scenario_${scenario}.out"
+	nOfIndividuals=1000
+	individuals=farsite_individuals_${nOfIndividuals}.txt
+	individualsBoxPlot=farsite_individuals_${nOfIndividuals}_bloxplot.png
+	runtimeOutput=farsite_individuals_runtime_${scenario}_${nOfIndividuals}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+	cd /home/edigley/doutorado_uab/git/spif
+	mkdir -p ${playpen}/input
+	mkdir ${playpen}/input ${playpen}/output ${playpen}/trace
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/landscape/  ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/perimetres/ ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/qgis/${scenario}_central_point* ${playpen}/perimetres/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/aux_files/  ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/bases/      ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/scripts/    ${playpen}/
+	cp ~/doutorado_uab/git/fire-scenarios/${scenario}/scenario_template_for_histogram.ini ${playpen}/${scenarioFile}
+	cp ~/doutorado_uab/git/fire-scenarios/${scenario}/input/pob_0.txt ${playpen}/input/
+	cd ${playpen}
+
+	case=5
+	scenario="case_${case}"
+	scenarioFile="scenario_${scenario}.ini"
+	outputFile="scenario_${scenario}.out"
+	nOfIndividuals=1000
+	individuals=farsite_individuals_${nOfIndividuals}.txt
+	individualsBoxPlot=farsite_individuals_${nOfIndividuals}_bloxplot.png
+	runtimeOutput=farsite_individuals_runtime_${scenario}_${nOfIndividuals}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+	cd /home/edigley/doutorado_uab/git/spif
+	mkdir -p ${playpen}/input
+	mkdir ${playpen}/input ${playpen}/output ${playpen}/trace
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/landscape/  ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/perimetres/ ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/qgis/${scenario}_central_point* ${playpen}/perimetres/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/aux_files/  ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/bases/      ${playpen}/
+	ln -s ~/doutorado_uab/git/fire-scenarios/${scenario}/scripts/    ${playpen}/
+	cp ~/doutorado_uab/git/fire-scenarios/${scenario}/scenario_template_for_histogram.ini ${playpen}/${scenarioFile}
+	cp ~/doutorado_uab/git/fire-scenarios/${scenario}/input/pob_0.txt ${playpen}/input/
+	cd ${playpen}
+
+
+COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=29 ' != 0' | sort -g -k 2 | cut -d' ' -f2-2 | head | xargs -n1 -t -P1 echo
+
+cat args.txt | xargs -n17 -t -P0 java -Xms500M -Xmx1500M -XX:-UseGCOverheadLimit -jar spotsim.jar
+
+
+
+
+ 
+ 	playpen="top-ten"
+	case=1
+	scenario="case_${case}"
+	scenarioFile="scenario_${scenario}.ini"
+	outputFile="scenario_${scenario}.out"
+	nOfIndividuals=1000
+	individuals=farsite_individuals_${nOfIndividuals}.txt
+	individualsBoxPlot=farsite_individuals_${nOfIndividuals}_bloxplot.png
+	runtimeOutput=farsite_individuals_runtime_${scenario}_${nOfIndividuals}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+	cd /home/edigley/doutorado_uab/git/spif
+    playpen=${scenario}
+    cd /home/edigley/doutorado_uab/git/spif/${playpen}
+    cp ~/dropbox/farsite-scenarios-results/${individuals} .
+
+
+
+
+
+
+# Set up of all variables regarding the case
+	case=1
+	scenario="case_${case}"
+	scenarioFile="scenario_${scenario}.ini"
+	outputFile="scenario_${scenario}.out"
+	nOfIndividuals=1000
+	individuals=farsite_individuals_${nOfIndividuals}.txt
+	individualsBoxPlot=farsite_individuals_${nOfIndividuals}_bloxplot.png
+	runtimeOutput=farsite_individuals_runtime_${scenario}_${nOfIndividuals}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+	cd /home/edigley/doutorado_uab/git/spif
+    playpen=${scenario}
+    cd /home/edigley/doutorado_uab/git/spif/${playpen}
+    cp ~/dropbox/farsite-scenarios-results/${individuals} .
+    cp ~/dropbox/farsite-scenarios-results/${runtimeOutput} .
+
+# How to identify all individuals whose execution has failed (lines excluding headers whose status is different than 0 (zero))?
+
+# Define variables for the merging activities
+    COL_RUNTIME=24
+    COL_EXIT_STATUS=29
+    RUNTIME_FILE=farsite_individuals_runtime_case_${case}_${nOfIndividuals}.txt
+    RERUNTIME_FILE=farsite_individuals_runtime_case_${case}_${nOfIndividuals}_rerun.txt
+    RERUNTIME_HISTOGRAM_FILE=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+    RUNTIME_FINAL_FILE=farsite_individuals_runtime_case_${case}_${nOfIndividuals}_final.txt
+    RUNTIME_HISTOGRAM_FINAL_FILE=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram_final.png
+
+# How many individuals finished succesfully?
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 == 0' | wc -l
+
+# How many individuals do not finished succesfully?
+    COL=${COL_EXIT_STATUS}; cat ${RUNTIME_FILE} | sort -g -k ${COL} | egrep -v "(0 9999.|exit error)" | wc -l
+    COL=${COL_EXIT_STATUS}; cat ${RUNTIME_FILE} | sort -g -k ${COL} | awk -v col1=${COL} '$col1 == 124' | wc -l
+    COL=${COL_EXIT_STATUS}; cat ${RUNTIME_FILE} | sort -g -k ${COL} | awk -v col1=${COL} '$col1 != 0' | wc -l
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | wc -l
+
+# What was the error codes in the failing individuasl?
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | awk -v col1=${COL} '{print $col1}' | sort -u
+
+# Which individuals did not finish succesfully?
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | cut -d' ' -f1-12,24,25,29
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | cut -d' ' -f1-12,24,25,29 | sort -g -k 2
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f3-23
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f1,2,24,25,29
+
+# How to run again all individuals that failed?
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f2-2 | xargs -n1 -t -P1 time /home/edigley/doutorado_uab/git/spif/fireSimulator3600 ${scenarioFile} ${individuals} run
+    /home/edigley/Dropbox/doutorado_uab/scripts/shell/concatenate_all_individuals_results.sh . ${RERUNTIME_FILE}
+	/home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_histogram.sh ${RERUNTIME_FILE} ${RERUNTIME_HISTOGRAM_FILE}
+	eog ${RERUNTIME_HISTOGRAM_FILE} &
+
+# How to merge all the succesfull running individuals?
+    cat ${RERUNTIME_FILE} > ${RUNTIME_FINAL_FILE}
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 == 0' | sort -g -k 2 >> ${RUNTIME_FINAL_FILE}
+    /home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_histogram.sh ${RUNTIME_FINAL_FILE} ${RUNTIME_HISTOGRAM_FINAL_FILE}
+    eog ${RUNTIME_HISTOGRAM_FINAL_FILE} &

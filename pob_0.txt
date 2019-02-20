@@ -21,8 +21,8 @@
 4.865588 7.000158 12.372364 27.468633 86.184210 33.517023  29.422250 22.652297 79.956589 1.931928 0.990046 1.959003 1.962761 1.784674 310.8500 150300.0 0.000000 0.000000  0  19   0
 [---------------FMS-----------------]           [---------WND------] [--------WTR------] [-------------------ADJ--------------------] [---------------------------------] []  []  []
      0        1        2        3          4         5          6         7          8        9       10       11       12      13        14      15        16      17    18  19  20
-    1h      10h      100h     herb                  ws         wd        th         hh                                                 runtime  maxRSS    error   errorC   x oId gen
-
+    1h      10h      100h     herb       1000h      ws         wd        th         hh                                                 runtime  maxRSS    error   errorC   x oId gen
+     3        4        5        6          7         8          9        10         11       12       13       14       15      16
 #header: 12000 0 18
 individuals <- data.frame( 
 	p0 = runif(12000, min=2, max=6),
@@ -30,8 +30,8 @@ individuals <- data.frame(
     p2 = runif(12000, min=10, max=15),
 	p3 = runif(12000, min=15, max=80),
 	p4 = runif(12000, min=80, max=100),
-    p5 = rnorm(12000, mean=12.83, sd=6.25),
-	p6 = rnorm(12000, mean=56.60, sd=13.04),
+    p5 = rtnorm(12000, mean=12.83, sd=6.25, 0, 150),
+	p6 = rtnorm(12000, mean=56.60, sd=13.04),
 	p7 = runif(12000, min=30, max=50),
     p8 = runif(12000, min=30, max=100),
 	p9 = 0,
@@ -48,7 +48,7 @@ individuals <- data.frame(
     p20 = 0
 )
 
-write.table(format(individuals, format="d", digits=6), "/tmp/farsite_individuals.txt", col.names=F, row.names=F, quote=F)
+write.table(format(individuals, format="d", digits=6), "/home/edigley/doutorado_uab/git/spif/test/farsite_individuals.txt", col.names=F, row.names=F, quote=F)
 
 
 (cat timed_output_*_*.txt | paste -d "" - - | sort -g -k 1 -k 2  > timed_output.txt)
@@ -102,3 +102,5 @@ Falha de segmentação (imagem do núcleo gravada)
 real    213m30.928s
 user    212m21.770s
 sys     0m48.388s
+
+for i in `seq 2603 12000`; do time ../fireSimulator scenario_arkadia.ini /tmp/farsite_individuals.txt run $i ; done
