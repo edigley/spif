@@ -1,0 +1,28 @@
+How to obtain DEM (Digital Elevation Maps)
+
+How to create LCP maps to simulate wildfire in FARSITE.
+
+Chapter 1: How to obtain elevation maps (DEM)
+Chapter 2: How to download projection files
+Chapter 3: How to use gdal commands to manipulate the obtained maps to 
+    Generate a LCP file
+    Merge multiple maps
+    Re-project maps
+    Trim layers and 
+    Generate elevation, slope and aspect files in ASCII format
+Chapter 4: Create LCP files
+
+Chapter 1: DEM (Digital Elevation Map)
+    ASTER Satelite
+    High resolution images used to detect changes, calibration, validation or studies of Earth surface terrains.
+    Earth Explorer Tool provides USGS (United States Geological Survey)
+        http://earthexplorer.usgs.gov/
+    Pointing and click in four points in the map defines the area to be selected
+    Once we have defined the area, we can click on "Data Sets", select "Digital Elevation" and then "ASTER GLOBAL DEM".
+
+
+
+
+
+
+
