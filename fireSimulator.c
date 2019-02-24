@@ -306,7 +306,7 @@ int main(int argc, char *argv[]) {
                 createFarsiteInputFiles(population.popu_fs[i], generation);
             } else if (strcmp(argv[3], "run") == 0) {
                 printf("INFO: FireSimulator.main -> Gonna run farsite.\n");
-                runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 3600);//61);//300);//3600);
+                runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 300);//61);//300);//3600);
                 printf("INFO: FireSimulator.main -> Finished for individual (%d,%d).\n", generation, i);
                 printf("INFO: FireSimulator.main -> adjustmentError: (%d,%d): %f\n", generation, i, adjustmentError);
                 printf("INFO: FireSimulator.main -> &adjustmentError: (%d,%d): %f\n", generation, i, &adjustmentError);
