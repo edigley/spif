@@ -9,7 +9,7 @@ LIBS = -lm
 FILES = $(PATH_PROY)main.c $(PATH_PROY)master.c $(PATH_PROY)worker.c $(PATH_PROY)dictionary.c $(PATH_PROY)iniparser.c $(PATH_PROY)strlib.c $(PATH_PROY)population.c $(PATH_PROY)farsite.c $(PATH_PROY)MPIWrapper.c $(PATH_PROY)fitness.c $(PATH_PROY)myutils.c $(PATH_PROY)windninja.c $(PATH_PROY)genetic.c
 
 # Business default variable's values
-SCENARIO=arkadia # arkadia | jonquera | ashley | 
+SCENARIO=arkadia # arkadia | jonquera | ashley 
 PLAYPEN=test
 
 genetic:
@@ -22,6 +22,8 @@ all:
 
 fire: #61 seconds timeout
 	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator -lm
+fire300: #300 seconds timeout (5m)
+	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator300 -lm
 fire3600: #3600 seconds timeout (1h)
 	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator3600 -lm
 
@@ -38,6 +40,7 @@ clean-and-compile:
 	make fire3600
 
 set-up-scenario:
+	cd /home/edigley/doutorado_uab/git/spif/
 	scenario=${SCENARIO}
 	playpen=${PLAYPEN}
 	mkdir -p ${playpen}/input ${playpen}/output ${playpen}/trace
@@ -74,21 +77,48 @@ set-up-scenario-top-ten:
 	cd /home/edigley/doutorado_uab/git/spif/
 	mv test test_case_${scenario}
 
-test-run:
+test-run-genetic:
 	cd ${playpen} && sh scripts/clean_input_outputs.sh && time mpirun -np 2 ../genetic 99 scenario_arkadia.ini > scenario_arkadia.txt ; (cat timed_output_*_*.txt | paste -d "" - - | sort > timed_output.txt)
 
 test-clean:
 	rm -rf test
 
-
-
 test-analysis-jonquera:
+	# Input Files: individuals.txt, ignition_area.*, landscape.lcp
 	cd /home/edigley/doutorado_uab/git/spif
-	make test-arkadia
-	make clean
-	make fire
-	cd test
-	cp ../test-arkadia/farsite_individuals.txt .
+	scenario=jonquera
+	scenarioFile=scenario_${scenario}.ini
+	nOfIndividuals=1000
+	individuals=farsite_individuals_${nOfIndividuals}.txt
+	individualsBoxPlot=farsite_individuals_${nOfIndividuals}_bloxplot.png
+	runtimeOutput=farsite_individuals_runtime_${scenario}_${nOfIndividuals}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_${nOfIndividuals}_histogram.png
+	mkdir ${scenario}
+	cd ${scenario}
+	#/home/edigley/Dropbox/doutorado_uab/scripts/shell/generate_random_individuals.sh ${nOfIndividuals} ${individuals}
+	#/home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_box_plot.sh ${individuals} ${individualsBoxPlot}
+	#eog ${individualsBoxPlot}
+	cp ${aggregationDir}/${individuals} .
+	for i in `seq 1 ${nOfIndividuals}`; do time /home/edigley/doutorado_uab/git/spif/fireSimulator300 ${scenarioFile} ${individuals} run ${i} ; done
+	/home/edigley/Dropbox/doutorado_uab/scripts/shell/concatenate_all_individuals_results.sh . ${runtimeOutput}
+	/home/edigley/Dropbox/doutorado_uab/scripts/shell/random_individuals_histogram.sh ${runtimeOutput} ${runtimeHistogram}
+	eog ${runtimeHistogram} &
+	cp ${individuals}        ~/dropbox/farsite-scenarios-results/
+	cp ${individualsBoxPlot} ~/dropbox/farsite-scenarios-results/
+	cp ${runtimeOutput}      ~/dropbox/farsite-scenarios-results/
+	cp ${runtimeHistogram}   ~/dropbox/farsite-scenarios-results/
+	rm output/raster_0_*
+	rm output/shape_0_*
+	rm output/settings_0_*
+	rm input/gen_0_ind_*.fms
+	rm input/gen_0_ind_*.wnd
+	rm input/gen_0_ind_*.wtr
+	rm input/gen_0_ind_*.adj
+	sh /home/edigley/Dropbox/doutorado_uab/scripts/shell/histogram_all_cases.sh
+	/home/edigley/doutorado_uab/git/spif/fireSimulator scenario_arkadia.ini farsite_individuals_${nOfIndividuals}.txt gen 1
+	/home/edigley/doutorado_uab/git/spif/fireSimulator scenario_arkadia.ini farsite_individuals_${nOfIndividuals}.txt run 1
+	/usr/bin/time --format "%e %M %O %P %c %x" --output=timed_output_manual.txt timeout --signal=SIGXCPU 30.0 /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 1 -t 1 -g 1 -n 0 -w 0 -p 100
+	/home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 	/home/edigley/doutorado_uab/git/spif/fireSimulator scenario_jonquera.ini farsite_individuals.txt run 1
 	for i in `seq 1 1000`; do time /home/edigley/doutorado_uab/git/spif/fireSimulator scenario_jonquera.ini farsite_individuals.txt run $i ; done
 test-top-ten-scenario-set-up:
@@ -217,4 +247,10 @@ test-analysis-arkadia:
 	/usr/bin/time --format "%e %M %O %P %c %x" --output=timed_output_manual.txt timeout --signal=SIGXCPU 30.0 /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 1 -t 1 -g 1 -n 0 -w 0 -p 100
 	/home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 
+
+# time /home/edigley/Dropbox/doutorado_uab/scripts/shell/run-all-cases-in-range.sh 6 10
+# /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
+# edigley@cariri:~/doutorado_uab/git/spif/jonquera$ /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
+# Update File GEN_0_IND_2.FMS before continuing   Fuel Model 1 Has No Initial Fuel Moisture
+# edigley@cariri:~/doutorado_uab/git/spif/jonquera$ 
 
