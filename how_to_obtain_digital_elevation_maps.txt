@@ -17,12 +17,41 @@ Chapter 1: DEM (Digital Elevation Map)
     High resolution images used to detect changes, calibration, validation or studies of Earth surface terrains.
     Earth Explorer Tool provides USGS (United States Geological Survey)
         http://earthexplorer.usgs.gov/
-    Pointing and click in four points in the map defines the area to be selected
+    In order to be able to download the maps, you need to create an account and fill out all the dozens mandatory fields.
+    Pointing and clicking in four points in the map defines the area to be selected
     Once we have defined the area, we can click on "Data Sets", select "Digital Elevation" and then "ASTER GLOBAL DEM".
+    Click in the "Results" tab, then select the desired maps and click "Download" icon.
+    It might be the case that you need to download more than one map in order to cover the entire selected region.
 
+Chapter 2: How to download projection files
+    Projection files (.prj) are used by any GIS program to define the used projection. 
+    When creating the LCP file, it's necessary to have all the maps in the same projection.
+    Those files are needed every time we need to change the maps projection.
+    You can donwload projection files from the "Spatial Reference" page:
+        http://spatialreference.org/
+    You need to inform the desired projection in the search field and click in the ".PRJ File".
+    Most important than what projection to use, it is to use the same projection in all the maps.
+    If you want to know what projection you're working on, you can use gdal tool:
+        gdalinfo path/to/map
+        gdalinfo ASTGTM2_N42E003_dem.tif
+            In this case, the image ASTGTM2_N42E003_dem.tif is defined in the "ESPG:4326" projection
+    If you want to change the a projection you will need source and target projection files:
+        gdalwarp -t_srs targe-projection-file.prj -s_srs source-projection-file.prj path/IMATGE.tif -overwrite path/IMATGE_projected.tif
 
-
-
-
-
-
+Chapter 3: How to use gdal commands to manipulate the obtained maps to 
+    Remember to have all the maps in the same projection
+    Extract general info from the image:
+        gdalinfo path/to/image
+    Merge images
+        gdal_merge.py -of GTiff -o ImatgeSortide.tif Imatge Merge path/Merge 1.tif path/Merge 2.tif
+        gdal_merge.py -of GTiff -o result-image.tif image-to-merge-01.tif image-to-merge-02.tif
+    Crop an image
+        gdal translate -of GTiff -projwin LatMin LongMax LatMax LongMin path/IMATGE entrada.tif path/IMATGE retallada.tif
+        gdal_translate -of GTiff -projwin LatMin LongMax LatMax LongMin original-image.tif cropped-image.tif
+    To create elevation maps
+        The first you need to do is to re-project the originl tif image and define the cells size
+        gdalwarp -tr mida -mida -overwrite -of Gtiff -t_srt le1.Prj -s_srs le2.prj ImatgeEntrada.tif ImatgeSortida.tif
+        gdalwarp -tr 100.00 -100.00 -overwrite -of GTiff -t srs ../../PRJ_files/3035.prj -s srs ../../PRJ_files/4326.prj ASTGTM2 N41E002 dem.tif Elevation proj.tif
+        In case you only want to change the cell's size in the file
+        gdalwarp -tr mida -mida -overwrite -of GTiff ImatgeEntrada.tif Elevation_proj.tif
+        We're going to use Elevation_proj.tif to create the elevation and aspect map
