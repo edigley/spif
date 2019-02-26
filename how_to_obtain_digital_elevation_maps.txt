@@ -55,3 +55,28 @@ Chapter 3: How to use gdal commands to manipulate the obtained maps to
         In case you only want to change the cell's size in the file
         gdalwarp -tr mida -mida -overwrite -of GTiff ImatgeEntrada.tif Elevation_proj.tif
         We're going to use Elevation_proj.tif to create the elevation and aspect map
+    To extract elevation map
+        gdal translate -a nodata -9999 -of AAIGrid path/IMATGE.tif Elevation.asc
+        Once the command has finished, you will get two files:
+            Elevation.asc: It contains the terrain elevation data
+            Elevation.prj: Defines the projection for the Elevation.asc file
+    To extract slope map
+        gdaldem slope -of GTiff -compute_edges Elevation_proj.tif Slope_temp.tif
+        gdal translate -a_nodata -9999 -of AAIGrid Slope_temp.tif Slope.asc
+        Once the command has finished, you will get two files:
+            Slope.asc: It contains the terrain elevation data
+            Slope.prj: Defines the projection for the Slope.asc file
+    To extract Aspect map
+        gdaldem aspect -of GTiff -compute_edges Elevation_proj.tif Aspect_temp.tif
+        gdal translate -a_nodata -9999 -of AAIGrid Aspect_temp.tif Aspect.asc
+        Once the command has finished, you will get two files:
+            Aspect.asc: It contains the terrain aspect data
+            Aspect.prj: Defines the projection for the Aspect.asc file
+    Vegetation Map
+        We will use Copernicus page to download the vegetation map
+            https://land.copernicus.eu/
+        Once again, you will need to register in order to download the data.
+        It's important to notice that it's only possible to download the data of entire Europe
+        Click on "Pan-European" option and choose "CORNINE Land Cover"
+        Search for the projection "EPSG: 4326"
+        We gonna see different 
