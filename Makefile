@@ -248,9 +248,26 @@ test-analysis-arkadia:
 	/home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 
 
-# time /home/edigley/Dropbox/doutorado_uab/scripts/shell/run-all-cases-in-range.sh 6 10
-# /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
-# edigley@cariri:~/doutorado_uab/git/spif/jonquera$ /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
-# Update File GEN_0_IND_2.FMS before continuing   Fuel Model 1 Has No Initial Fuel Moisture
-# edigley@cariri:~/doutorado_uab/git/spif/jonquera$ 
 
+
+test-nao-pode-ser-1:
+	# time /home/edigley/Dropbox/doutorado_uab/scripts/shell/run-all-cases-in-range.sh 6 10
+	# /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
+	# edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
+	# Update File GEN_0_IND_2.FMS before continuing   Fuel Model 1 Has No Initial Fuel Moisture
+	# edigley@cariri:~/doutorado_uab/git/spif/jonquera$ 
+	# /home/edigley/doutorado_uab/git/spif/playpen/jonquera/input/gen_0_ind_2.fms
+
+# para formatar os individuals depois de já gerado o arquivo
+	header <- paste("p",0:20,sep="")
+	inputFile <- "/home/edigley/dropbox/farsite-scenarios-results/farsite_individuals_1000.txt"
+	formattedIndividualsFile <- "/home/edigley/dropbox/farsite-scenarios-results/farsite_individuals_1000_formatted.txt"
+	individuals <- read.table(inputFile, skip=1, col.names=header)
+	individuals <- within(individuals, p0 <- ifelse(p0 < 2, 2, p0))
+	individuals <- within(individuals, p1 <- ifelse(p1 < 2, 2, p1))
+	integerValues <- format(subset(individuals, select=paste("p",  0:8, sep="")), format="d", digits=0, scientific = FALSE)
+	decimalValues <- format(subset(individuals, select=paste("p", 9:20, sep="")), format="d", digits=2, scientific = FALSE)
+	formattedIndividuals <- cbind(integerValues, decimalValues)
+	#formattedIndividuals <- within(formattedIndividuals, p0 <- ifelse(p0 < 2, 2, p0))
+	#formattedIndividuals <- within(formattedIndividuals, p1 <- ifelse(p1 < 2, 2, p1))
+	write.table(formattedIndividuals, formattedIndividualsFile, col.names=F, row.names=F, quote=F)

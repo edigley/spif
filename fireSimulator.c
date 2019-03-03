@@ -205,6 +205,26 @@ void createAdjustmentFile(char *baseAdjFile, char *adjFileNew, INDVTYPE_FARSITE 
     fclose(fADJ);
 }
 
+void genFarsiteInputFiles(char * configurationFile, INDVTYPE_FARSITE individual) {
+    printf("INFO: FireSimulator.genFarsiteInputFiles -> Gonna generate all farsite input files.\n"); 
+    initFarsiteVariables(configurationFile, individual.generation);
+    createFarsiteInputFiles(individual, individual.generation);
+    printf("INFO: FireSimulator.genFarsiteInputFiles -> All farsite input files generated into \"input\" folder.\n"); 
+}
+
+void runIndividual(char * configurationFile, INDVTYPE_FARSITE individual) {
+    char individualAsString[256]; // 256 bytes allocated here on the stack.
+    double adjustmentError;
+    char * atmPath;
+    individualToString(individual.generation, individual, individualAsString, sizeof(individualAsString));
+    printf("INFO: FireSimulator.runIndividual -> Gonna run farsite for individual:\n");
+    printf("INFO: FireSimulator.runIndividual -> %s\n", individualAsString);
+    runSimFarsite(individual, "FARSITE", &adjustmentError, individual.generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 300);//61);//300);//3600);
+    printf("INFO: FireSimulator.runIndividual -> Finished for individual (%d,%d).\n", individual.generation, individual.id);
+    printf("INFO: FireSimulator.runIndividual -> adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, adjustmentError);
+    printf("INFO: FireSimulator.runIndividual -> &adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, &adjustmentError);
+}
+
 /**
  * Create input files to be used in farsite simulation (fms, adj, wnd, wtr).
  * - individual
@@ -259,7 +279,9 @@ int main(int argc, char *argv[]) {
     }
 
     POPULATIONTYPE population;
-    readPopulation(&population, argv[2]);
+    if  (argc <= 5) {
+        readPopulation(&population, argv[2]);
+    }
     //print_population_farsite(population);
     //print_individuo(0, population.popu_fs[0]);
 
@@ -268,54 +290,67 @@ int main(int argc, char *argv[]) {
     char * atmPath;
     int generation = 0;
     int individuoId;
+    INDVTYPE_FARSITE * individual;
     int begin, end;
     char individualAsString[256]; // 256 bytes allocated here on the stack.
     char * adjustmentErrorsFileName = "output_individuals_adjustment_result.txt";
     FILE * adjustmentErrors;
 
-    if (argc == 5) { //run only the specified individual
+    if  (argc > 5) { //specify the individual directly 
+        printf("INFO: FireSimulator.main -> Gonna run farsite for individual specified directly: %s\n", argv[2]);
+        printf("INFO: FireSimulator.main -> argc: %d\n", argc);
+        individual = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE));
+        individual->generation = atoi(argv[3]);
+        individual->id = atoi(argv[4]);
+        printf("INFO: FireSimulator.main -> Gonna read all the individual params...\n");
+        int i;
+        //for the main parameters
+        for (i=0; i < 9; i++) {
+            individual->parameters[i] = atof(argv[i+5]);
+        }
+        //for the adjustment factors
+        for (i=9; i < 21; i++) {
+            individual->parameters[i] = (i+5 < argc) ? atof(argv[i+5]) : 1.0;
+        }
+        printf("INFO: FireSimulator.main -> Gonna call runIndividual funtion...\n");
+        runIndividual(configurationFile, *individual);
+    } else if (argc == 5) { //run only the specified individual
         individuoId = atoi(argv[4]);
         begin = individuoId;
         end = individuoId + 1;
-    } else if (argc == 4){ //run all individuals
+    } else if (argc == 4) { //run all individuals
         begin = 0;
         end = population.popuSize;
     } else {
         printf("ERROR: FireSimulator.main -> Provide the right arguments to the program \n");
         printf(" * - argv[1] file path: spif configuration file \n");
         printf(" * - argv[2] file path: population file \n");
-        printf(" * - argv[3] string [ run | generateFarsiteInputFiles ]: \"run\" if should run farsite or \"generateFarsiteInputFiles\" if should only generate farsite input files \n");
+        printf(" * - argv[3] string [ run | gen ]: \"run\" if should run farsite or \"gen\" if should only generate farsite input files \n");
         printf(" * - argv[4] int [optional]: identifier of the individual to be simulated. It should range between 0 to (population_size - 1) \n");
+        // ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini run 0 0 2 2 3 48 96 45 141 30 76 0.061901
+        // ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini farsite_individuals_1000_formatted.txt run 0
+        // cd ~/doutorado_uab/git/spif && make fire && cd playpen/2019/case_1 && ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini run 0 99 2 2 3 48 96 45 141 30 76 0.061901
         return;
     }
 
-    if ((adjustmentErrors = fopen(adjustmentErrorsFileName, "w")) == NULL) {
-        printf("ERROR: FireSimulator.main -> Error opening output adjustment errors file 'w' %s\n", adjustmentErrorsFileName);
+    if ((adjustmentErrors = fopen(adjustmentErrorsFileName, "w")) == NULL) { 
+        printf("ERROR: FireSimulator.main -> Error opening output adjustment errors file 'w' %s.\n", adjustmentErrorsFileName);
         return;
     } else {
         int i;
         for (i=begin; i < end; i++) {
-            printf("INFO: FireSimulator.main -> Going to start for individual (%d,%d)...\n", generation, i);
 
+            printf("INFO: FireSimulator.main -> Going to start for individual (%d,%d)...\n", generation, i);
             individualToString(generation, population.popu_fs[i], individualAsString, sizeof(individualAsString));
             printf("INFO: FireSimulator.main -> %s\n", individualAsString); 
 
-            if (strcmp(argv[3], "gen") == 0) {
-                printf("INFO: FireSimulator.main -> Gonna generate all farsite input files.\n"); 
-                initFarsiteVariables(configurationFile, generation);
-                createFarsiteInputFiles(population.popu_fs[i], generation);
-            } else if (strcmp(argv[3], "run") == 0) {
-                printf("INFO: FireSimulator.main -> Gonna run farsite.\n");
-                runSimFarsite(population.popu_fs[i], "FARSITE", &adjustmentError, generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 300);//61);//300);//3600);
-                printf("INFO: FireSimulator.main -> Finished for individual (%d,%d).\n", generation, i);
-                printf("INFO: FireSimulator.main -> adjustmentError: (%d,%d): %f\n", generation, i, adjustmentError);
-                printf("INFO: FireSimulator.main -> &adjustmentError: (%d,%d): %f\n", generation, i, &adjustmentError);
-                fprintf(adjustmentErrors, "%s %f\n", individualAsString, adjustmentError);
+            if (strcmp(argv[3], "gen") == 0) { // only generate farsite input files
+                genFarsiteInputFiles(configurationFile, population.popu_fs[i]);
+            } else if (strcmp(argv[3], "run") == 0) { // run farsite generating input files
+                runIndividual(configurationFile, population.popu_fs[i]);
             } else {
-                printf("ERROR: FireSimulator.main -> %s is not a valid action. Please specify what to do: [ run | generateFarsiteInputFiles ] \n", argv[3]);
-                return;
+                printf("ERROR: FireSimulator.main -> %s is not a valid action. Please specify what to do: [ run | gen ] \n", argv[3]);
             }
-
         }   
         fclose(adjustmentErrors);
     }
