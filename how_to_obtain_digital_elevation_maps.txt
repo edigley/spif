@@ -17,7 +17,7 @@ Chapter 1: DEM (Digital Elevation Map)
     High resolution images used to detect changes, calibration, validation or studies of Earth surface terrains.
     Earth Explorer Tool provides USGS (United States Geological Survey)
         http://earthexplorer.usgs.gov/
-    Pointing and click in four points in the map defines the area to be selected
+    Pointing and clicking in four points in the map defines the area to be selected
     Once we have defined the area, we can click on "Data Sets", select "Digital Elevation" and then "ASTER GLOBAL DEM".
 
 
