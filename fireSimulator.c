@@ -219,7 +219,7 @@ void runIndividual(char * configurationFile, INDVTYPE_FARSITE individual) {
     individualToString(individual.generation, individual, individualAsString, sizeof(individualAsString));
     printf("INFO: FireSimulator.runIndividual -> Gonna run farsite for individual:\n");
     printf("INFO: FireSimulator.runIndividual -> %s\n", individualAsString);
-    runSimFarsite(individual, "FARSITE", &adjustmentError, individual.generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 300);//61);//300);//3600);
+    runSimFarsite(individual, "FARSITE", &adjustmentError, individual.generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 3600);//61);//300);//3600);
     printf("INFO: FireSimulator.runIndividual -> Finished for individual (%d,%d).\n", individual.generation, individual.id);
     printf("INFO: FireSimulator.runIndividual -> adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, adjustmentError);
     printf("INFO: FireSimulator.runIndividual -> &adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, &adjustmentError);
@@ -273,17 +273,18 @@ void createFarsiteInputFiles(INDVTYPE_FARSITE individual, int generation) {
  */
 int main(int argc, char *argv[]) {
 
-    if (argc < 3 ) {
+    if (argc < 3 ) { //error: number of args invalid
         printf("ERROR: FireSimulator.main -> number of args invalid. Please inform at least a configuration and a population files. ");
         printf("You can optionally inform the individual to be executed.\n");
+        return 1;
     }
 
     POPULATIONTYPE population;
-    if  (argc <= 5) {
+    if  (argc <= 5) { //must read population file
         readPopulation(&population, argv[2]);
+        //print_population_farsite(population);
+        //print_individuo(0, population.popu_fs[0]);
     }
-    //print_population_farsite(population);
-    //print_individuo(0, population.popu_fs[0]);
 
     double adjustmentError;
     char * configurationFile = argv[1];
@@ -314,14 +315,14 @@ int main(int argc, char *argv[]) {
         }
         printf("INFO: FireSimulator.main -> Gonna call runIndividual funtion...\n");
         runIndividual(configurationFile, *individual);
-    } else if (argc == 5) { //run only the specified individual
+    } else if (argc == 5) { //run only the population specified individual
         individuoId = atoi(argv[4]);
         begin = individuoId;
         end = individuoId + 1;
-    } else if (argc == 4) { //run all individuals
+    } else if (argc == 4) { //run all individuals in population
         begin = 0;
         end = population.popuSize;
-    } else {
+    } else { //error
         printf("ERROR: FireSimulator.main -> Provide the right arguments to the program \n");
         printf(" * - argv[1] file path: spif configuration file \n");
         printf(" * - argv[2] file path: population file \n");
@@ -329,7 +330,7 @@ int main(int argc, char *argv[]) {
         printf(" * - argv[4] int [optional]: identifier of the individual to be simulated. It should range between 0 to (population_size - 1) \n");
         // ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini run 0 0 2 2 3 48 96 45 141 30 76 0.061901
         // ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini farsite_individuals_1000_formatted.txt run 0
-        // cd ~/doutorado_uab/git/spif && make fire && cd playpen/2019/case_1 && ~/doutorado_uab/git/spif/fireSimulator scenario_case_1_central_point.ini run 0 99 2 2 3 48 96 45 141 30 76 0.061901
+        // cd ~/doutorado_uab/git/spif && make fire && scenario=jonquera && cd playpen/${scenario} && ~/doutorado_uab/git/spif/fireSimulator scenario_${scenario}.ini run 0 99 2 2 3 48 96 45 141 30 76 0.06
         return;
     }
 
