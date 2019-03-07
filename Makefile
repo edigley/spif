@@ -247,9 +247,6 @@ test-analysis-arkadia:
 	/usr/bin/time --format "%e %M %O %P %c %x" --output=timed_output_manual.txt timeout --signal=SIGXCPU 30.0 /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 1 -t 1 -g 1 -n 0 -w 0 -p 100
 	/home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 
-
-
-
 test-nao-pode-ser-1:
 	# time /home/edigley/Dropbox/doutorado_uab/scripts/shell/run-all-cases-in-range.sh 6 10
 	# /home/edigley/doutorado_uab/git/farsite/farsite4P -i output/settings_0_2.txt -f 1
@@ -271,3 +268,11 @@ test-nao-pode-ser-1:
 	#formattedIndividuals <- within(formattedIndividuals, p0 <- ifelse(p0 < 2, 2, p0))
 	#formattedIndividuals <- within(formattedIndividuals, p1 <- ifelse(p1 < 2, 2, p1))
 	write.table(formattedIndividuals, formattedIndividualsFile, col.names=F, row.names=F, quote=F)
+#   Para fazer o merge no github manualmente
+git-manual-merge:
+	..\..\programs\PortableGit\cmd\git.exe pull
+	..\..\programs\PortableGit\cmd\git.exe merge origin/master
+	..\..\programs\PortableGit\cmd\git.exe checkout master
+	..\..\programs\PortableGit\cmd\git.exe pull
+	..\..\programs\PortableGit\cmd\git.exe merge --no-ff maintenance/home
+	..\..\programs\PortableGit\cmd\git.exe push origin master
