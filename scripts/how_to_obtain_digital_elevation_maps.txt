@@ -81,6 +81,7 @@ Chapter 3: How to use gdal commands to manipulate the obtained maps to
         Search for the projection "EPSG: 4326"
         We gonna see different 
 
+
 Using git portable:
     C:\Users\eypa\Desktop\programs\VSCodePortable.exe
     C:\Users\eypa\Desktop\programs\PortableGit\bin
@@ -92,11 +93,12 @@ Merging via command line
 
 		Step 1: From your project repository, bring in the changes and test.
 
-			git checkout -b maintenance/home origin/maintenance/home
-			git merge master
+			./git.cmd checkout -b maintenance/home origin/maintenance/home
+            ./git.cmd checkout maintenance/home
+            ./git.cmd status
+			./git.cmd merge origin/master
 
-		Step 2: Merge the changes and update on GitHub.</p>
+		Step 2: Merge the changes and update on GitHub.
 		
-			git merge --no-ff maintenance/home
-			git push origin master
-  
+			./git.cmd merge --no-ff maintenance/home
+			./git.cmd push origin master
