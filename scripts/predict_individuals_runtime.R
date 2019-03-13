@@ -1,5 +1,6 @@
 # https://mybinder.org/v2/gh/binder-examples/r/master?filepath=index.ipynb
-library(tidyverse)  
+library(tidyverse)
+set.seed(1984)
 
 params <- c("p_1h", "p_10h", "p_100h", "p_herb", "p_1000h", "p_ws", "p_wd", "p_th", "p_hh", "p_adj")
 
@@ -25,4 +26,5 @@ summary(model)$coefficient
 #confint(model)
 
 # predicts runtime for the last 10 individuals
+tail(individuals, 10)
 predict(model, tail(individuals, 10))
