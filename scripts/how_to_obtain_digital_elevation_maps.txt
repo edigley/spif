@@ -80,3 +80,23 @@ Chapter 3: How to use gdal commands to manipulate the obtained maps to
         Click on "Pan-European" option and choose "CORNINE Land Cover"
         Search for the projection "EPSG: 4326"
         We gonna see different 
+
+Using git portable:
+    C:\Users\eypa\Desktop\programs\VSCodePortable.exe
+    C:\Users\eypa\Desktop\programs\PortableGit\bin
+    ..\..\programs\PortableGit\bin\git.exe status
+
+Merging via command line
+
+        If you do not want to use the merge button or an automatic merge cannot be performed, you can perform a manual merge on the command line.
+
+		Step 1: From your project repository, bring in the changes and test.
+
+			git checkout -b maintenance/home origin/maintenance/home
+			git merge master
+
+		Step 2: Merge the changes and update on GitHub.</p>
+		
+			git merge --no-ff maintenance/home
+			git push origin master
+  
