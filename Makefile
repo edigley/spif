@@ -220,3 +220,27 @@ tempFile=`mktemp`
 sort -g -k2,2 ${runtimeOutput} > ${tempFile} 
 sed -i 's/.000000//g' ${tempFile}
 cp ${tempFile} > ${runtimeOutput}
+
+
+
+grep -w "landscapeFile" scenario_jonquera.ini
+grep -w "ignitionFile" scenario_jonquera.ini
+grep -w "perimeterResolution" scenario_jonquera.ini
+grep -w "distanceResolution" scenario_jonquera.ini
+
+grep -w "StartMonth" scenario_jonquera.ini
+grep -w "StartDay" scenario_jonquera.ini
+grep -w "StartHour" scenario_jonquera.ini
+grep -w "StartMin" scenario_jonquera.ini
+
+grep -w "EndMonth" scenario_jonquera.ini
+grep -w "EndDay" scenario_jonquera.ini
+grep -w "EndHour" scenario_jonquera.ini
+grep -w "EndMin" scenario_jonquera.ini
+
+egrep -w "(StartMonth|StartDay|StartHour|StartMin)" scenario_jonquera.ini
+egrep -w "(EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini
+
+
+# extract all the essential information from scenario.ini file, concatenating in the same line, separated by comma and trimming all the spaces out
+egrep -w "(landscapeFile|ignitionFile|perimeterResolution|distanceResolution|StartMonth|StartDay|StartHour|StartMin|EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini | tr -s " " | tr -d " " | paste -sd ";" -
