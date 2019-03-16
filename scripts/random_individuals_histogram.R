@@ -15,7 +15,7 @@ xLim <- ifelse(!is.na(cmd_args[3]), strtoi(cmd_args[3]), max(ds$runtime)+1)
 png(outputFile, width=16, height=9, units='in', res=300)
 
 ggplot(data=ds, aes(ds$runtime)) +
-    geom_histogram( breaks=seq(0, xLim, by=0.5), col="red", aes(fill=..count..)) +
+    geom_histogram( breaks=seq(0, xLim, by=30), col="red", aes(fill=..count..)) +
     scale_fill_gradient("Count", low = "green", high = "red", labels="") +
     #xlim(0, 40) +
     #ylim(0, 300) + 

@@ -74,11 +74,15 @@ set-up-scenario:
 run-scenario:
 	# Input Files: individuals.txt, ignition_area.*, landscape.lcp
 	cd ~/git/spif/${playpen}/
-	for i in `seq 513 1000`; do time ~/git/spif/fireSimulator ${scenarioFile} ${individuals} run ${i} >> ${outputFile} 2>&1 ; done
+	for i in `seq 0 1000`; do time ~/git/spif/fireSimulator ${scenarioFile} ${individuals} run ${i} >> ${outputFile} 2>&1; rm output/raster_0_$i.toa ; done
 	#~/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 	~/git/spif/scripts/concatenate_all_individuals_results.sh . ${runtimeOutput}
 	~/git/spif/scripts/random_individuals_histogram.sh ${runtimeOutput} ${runtimeHistogram}
 	eog ${runtimeHistogram} &
+	tempFile=`mktemp`
+	~/git/spif/scripts/generate_summary_for_scenario_specification.sh ${scenarioFile} ${tempFile}
+	tail -n +2 ${runtimeOutput} >> ${tempFile}
+	cp ${tempFile} ${runtimeOutput}
 	wc -l ${runtimeOutput}
 	mkdir timed_outputs && mv timed_output_0_* timed_outputs/
 identify-long-running-individuals:
@@ -214,129 +218,78 @@ edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ tail -n +2 farsite_ind
    657  12 12 13 36 61 17 214 50 54 0.843798 0 0 0 0 0 0 0 0 0 0 0
 edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
 
-It seens that when we get the warning 
-
-timeout: the monitored command dumped core
-WARNING: Farsite.readPopulation -> The number of parameters specified in population file is greater than maxparams used in compilation.
-INFO: FireSimulator.main -> Going to start for individual (0,657)...
-INFO: FireSimulator.main -> 0 657 9.000000 2.000000 1.000000 59.000000 81.000000 21.000000 269.000000 36.000000 55.000000 0.981715 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
-INFO: FireSimulator.runIndividual -> Gonna run farsite for individual:
-INFO: FireSimulator.runIndividual -> 0 657 9.000000 2.000000 1.000000 59.000000 81.000000 21.000000 269.000000 36.000000 55.000000 0.981715 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
-INFO: Farsite.runSimFarsite -> Going to run farsite for individual (0,657) 
-INFO: Farsite.createInputFiles -> Going to create input files for individual (0,657) 
-INFO: FireSimulator.runIndividual -> Finished for individual (0,657).
-INFO: FireSimulator.runIndividual -> adjustmentError: (0,657): 9999.990234
-INFO: FireSimulator.runIndividual -> &adjustmentError: (0,657): 9999.990234
-WARNING: Farsite.readPopulation -> The number of parameters specified in population file is greater than maxparams used in compilation.
-INFO: FireSimulator.main -> Going to start for individual (0,658)...
-I
-
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date
-Sáb Mar  9 21:46:49 CET 2019
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 646 665`; do rm output/raster_0_$i.toa; done
-Sáb Mar  9 21:47:17 CET 2019
-rm: não foi possível remover “output/raster_0_657.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 666 712`; do rm output/raster_0_$i.toa; done
-Dom Mar 10 09:12:54 CET 2019
-rm: não foi possível remover “output/raster_0_673.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_675.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_684.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 666 712`; do rm output/raster_0_$i.toa; done
-Dom Mar 10 09:12:54 CET 2019
-rm: não foi possível remover “output/raster_0_673.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_675.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_684.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 713 734`; do rm output/raster_0_$i.toa; done
-Dom Mar 10 15:59:48 CET 2019
-rm: não foi possível remover “output/raster_0_724.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_725.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_728.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 666 712`; do rm output/raster_0_$i.toa; done
-Dom Mar 10 09:12:54 CET 2019
-rm: não foi possível remover “output/raster_0_673.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_675.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_684.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 713 734`; do rm output/raster_0_$i.toa; done
-Dom Mar 10 15:59:48 CET 2019
-rm: não foi possível remover “output/raster_0_724.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_725.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_728.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 742 769`; do rm output/raster_0_$i.toa; done
-Seg Mar 11 02:04:12 CET 2019
-rm: não foi possível remover “output/raster_0_748.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_750.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_760.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$ date && for i in `seq 742 827`; do rm output/raster_0_$i.toa; done
-Seg Mar 11 19:06:46 CET 2019
-rm: não foi possível remover “output/raster_0_742.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_743.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_744.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_745.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_746.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_747.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_748.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_749.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_750.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_751.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_752.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_753.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_754.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_755.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_756.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_757.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_758.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_759.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_760.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_761.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_762.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_763.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_764.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_765.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_766.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_767.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_768.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_769.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_777.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_788.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_789.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_797.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_799.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_806.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_823.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_826.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/doutorado_uab/git/spif/playpen/jonquera$
-edigley@cariri:~/git/spif/playpen/jonquera$ date && for i in `seq 840 899`; do rm output/raster_0_$i.toa; done
-Ter Mar 12 18:25:15 CET 2019
-rm: não foi possível remover “output/raster_0_840.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_853.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_859.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_865.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_891.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/git/spif/playpen/jonquera$ 
-edigley@cariri:~/git/spif/playpen/jonquera$ date && for i in `seq 900 918`; do rm output/raster_0_$i.toa; done
-Ter Mar 12 23:14:30 CET 2019
-rm: não foi possível remover “output/raster_0_904.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/git/spif/playpen/jonquera$ 
-edigley@cariri:~/git/spif/playpen/jonquera$ date && for i in `seq 919 949`; do rm output/raster_0_$i.toa; done
-Qua Mar 13 07:29:21 CET 2019
-rm: não foi possível remover “output/raster_0_920.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_930.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_944.toa”: Arquivo ou diretório não encontrado
-rm: não foi possível remover “output/raster_0_946.toa”: Arquivo ou diretório não encontrado
-edigley@cariri:~/git/spif/playpen/jonquera$ 
-
-
-
-
 head -n 1000 ${runtimeOutput} | sed 's/.000000//g' | sort -g -k3,3 -k4,4 -k5,5 -k6,6 -k7,7 -k 8,8 -k9,9 -k10,10 -k11,11 | head -n 1000 | cut -d' ' -f3-12,24
-
 
 tempFile=`mktemp`
 sort -g -k2,2 ${runtimeOutput} > ${tempFile} 
 sed -i 's/.000000//g' ${tempFile}
 cp ${tempFile} > ${runtimeOutput}
 
+
+
+grep -w "landscapeFile" scenario_jonquera.ini
+grep -w "ignitionFile" scenario_jonquera.ini
+grep -w "perimeterResolution" scenario_jonquera.ini
+grep -w "distanceResolution" scenario_jonquera.ini
+
+grep -w "StartMonth" scenario_jonquera.ini
+grep -w "StartDay" scenario_jonquera.ini
+grep -w "StartHour" scenario_jonquera.ini
+grep -w "StartMin" scenario_jonquera.ini
+
+grep -w "EndMonth" scenario_jonquera.ini
+grep -w "EndDay" scenario_jonquera.ini
+grep -w "EndHour" scenario_jonquera.ini
+grep -w "EndMin" scenario_jonquera.ini
+
+egrep -w "(StartMonth|StartDay|StartHour|StartMin)" scenario_jonquera.ini
+egrep -w "(EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini
+
+
+# extract all the essential information from scenario.ini file, concatenating in the same line, separated by comma and trimming all the spaces out
+egrep -w "(landscapeFile|ignitionFile|perimeterResolution|distanceResolution|StartMonth|StartDay|StartHour|StartMin|EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini | tr -s " " | tr -d " " | paste -sd ";" -
+
+scenarioFile=scenario_jonquera.ini
+
+StartMonth=$(grep -w StartMonth ${scenarioFile} | awk '{print $3}')
+StartDay=$(grep -w StartDay ${scenarioFile} | awk '{print $3}')
+StartHour=$(grep -w StartHour ${scenarioFile} | awk '{print $3}' | cut -c1,2)
+StartMin=$(grep -w StartMin ${scenarioFile} | awk '{print $3}')
+EndMonth=$(grep -w EndMonth ${scenarioFile} | awk '{print $3}')
+EndDay=$(grep -w EndDay ${scenarioFile} | awk '{print $3}')
+EndHour=$(grep -w EndHour ${scenarioFile} | awk '{print $3}' | cut -c1,2)
+EndMin=$(grep -w EndMin ${scenarioFile} | awk '{print $3}')
+
+start=$(printf "2019-%02d-%02d %02d:%02d:00" ${StartMonth} ${StartDay} ${StartHour} ${StartMin})
+end=$(printf "2019-%02d-%02d %02d:%02d:00" ${EndMonth} ${EndDay} ${EndHour} ${EndMin})
+
+hoursOfSimulation=$(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 3600))
+
+echo ${hoursOfSimulation}
+
+echo $start
+echo $end
+
+
+echo $(($(($(date -d "2010-06-01" "+%s") - $(date -d "2010-05-15" "+%s"))) / 86400))
+
+date +'%Y-%m-%d'
+
+date +'%Y-%m-%d %Hh%M'
+
+date +'%Y-%m-%d %Hh%M:%S'
+
+Dia da semana
+date | cut -d " " -f 1
+
+date -d "${start}" +"%Y-%m-%d %H:%M:%S"
+
+date -d "${start}"
+
+numero de dias entre inicio e fim
+echo $(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 86400))
+echo $(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 3600))
+
+ date -d "now + 3 weeks"
+
+ date && for i in `seq 953 1000`; do rm output/raster_0_$i.toa; done
