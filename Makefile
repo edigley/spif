@@ -82,6 +82,7 @@ run-scenario:
 	tempFile=`mktemp`
 	~/git/spif/scripts/generate_summary_for_scenario_specification.sh ${scenarioFile} ${tempFile}
 	tail -n +2 ${runtimeOutput} >> ${tempFile}
+	sed -i 's/.000000//g' ${tempFile}
 	cp ${tempFile} ${runtimeOutput}
 	wc -l ${runtimeOutput}
 	mkdir timed_outputs && mv timed_output_0_* timed_outputs/
