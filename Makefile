@@ -74,11 +74,15 @@ set-up-scenario:
 run-scenario:
 	# Input Files: individuals.txt, ignition_area.*, landscape.lcp
 	cd ~/git/spif/${playpen}/
-	for i in `seq 513 1000`; do time ~/git/spif/fireSimulator ${scenarioFile} ${individuals} run ${i} >> ${outputFile} 2>&1 ; done
+	for i in `seq 0 1000`; do time ~/git/spif/fireSimulator ${scenarioFile} ${individuals} run ${i} >> ${outputFile} 2>&1; rm output/raster_0_$i.toa ; done
 	#~/git/farsite/farsite4P -i output/settings_0_1.txt -f 2
 	~/git/spif/scripts/concatenate_all_individuals_results.sh . ${runtimeOutput}
 	~/git/spif/scripts/random_individuals_histogram.sh ${runtimeOutput} ${runtimeHistogram}
 	eog ${runtimeHistogram} &
+	tempFile=`mktemp`
+	~/git/spif/scripts/generate_summary_for_scenario_specification.sh ${scenarioFile} ${tempFile}
+	tail -n +2 ${runtimeOutput} >> ${tempFile}
+	cp ${tempFile} ${runtimeOutput}
 	wc -l ${runtimeOutput}
 	mkdir timed_outputs && mv timed_output_0_* timed_outputs/
 identify-long-running-individuals:
@@ -244,3 +248,48 @@ egrep -w "(EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini
 
 # extract all the essential information from scenario.ini file, concatenating in the same line, separated by comma and trimming all the spaces out
 egrep -w "(landscapeFile|ignitionFile|perimeterResolution|distanceResolution|StartMonth|StartDay|StartHour|StartMin|EndMonth|EndDay|EndHour|EndMin)" scenario_jonquera.ini | tr -s " " | tr -d " " | paste -sd ";" -
+
+scenarioFile=scenario_jonquera.ini
+
+StartMonth=$(grep -w StartMonth ${scenarioFile} | awk '{print $3}')
+StartDay=$(grep -w StartDay ${scenarioFile} | awk '{print $3}')
+StartHour=$(grep -w StartHour ${scenarioFile} | awk '{print $3}' | cut -c1,2)
+StartMin=$(grep -w StartMin ${scenarioFile} | awk '{print $3}')
+EndMonth=$(grep -w EndMonth ${scenarioFile} | awk '{print $3}')
+EndDay=$(grep -w EndDay ${scenarioFile} | awk '{print $3}')
+EndHour=$(grep -w EndHour ${scenarioFile} | awk '{print $3}' | cut -c1,2)
+EndMin=$(grep -w EndMin ${scenarioFile} | awk '{print $3}')
+
+start=$(printf "2019-%02d-%02d %02d:%02d:00" ${StartMonth} ${StartDay} ${StartHour} ${StartMin})
+end=$(printf "2019-%02d-%02d %02d:%02d:00" ${EndMonth} ${EndDay} ${EndHour} ${EndMin})
+
+hoursOfSimulation=$(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 3600))
+
+echo ${hoursOfSimulation}
+
+echo $start
+echo $end
+
+
+echo $(($(($(date -d "2010-06-01" "+%s") - $(date -d "2010-05-15" "+%s"))) / 86400))
+
+date +'%Y-%m-%d'
+
+date +'%Y-%m-%d %Hh%M'
+
+date +'%Y-%m-%d %Hh%M:%S'
+
+Dia da semana
+date | cut -d " " -f 1
+
+date -d "${start}" +"%Y-%m-%d %H:%M:%S"
+
+date -d "${start}"
+
+numero de dias entre inicio e fim
+echo $(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 86400))
+echo $(($(($(date -d "${end}" "+%s") - $(date -d "${start}" "+%s"))) / 3600))
+
+ date -d "now + 3 weeks"
+
+ date && for i in `seq 953 1000`; do rm output/raster_0_$i.toa; done
