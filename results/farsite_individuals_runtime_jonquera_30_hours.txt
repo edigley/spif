@@ -1,5 +1,5 @@
 # date=2019-03-14;scenarioFile=scenario_jonquera.ini;landscapeFile=landscape/jonquera.lcp;ignitionFile=perimetres/jonquera_central_polygon_2.shp;perimeterResolution=30m;distanceResolution=30m;StartDate=2019-07-22 12:00:00;EndDate=2019-07-23 18:30:00;hoursOfSimulation=30
-generation individual p0 p1  p2        p3        p4        p5        p6        p7        p8       p9      p10      p11      p12      p13      p14      p15   p16      p17      p18      p19      p20 runtime maxRSS outputs cpu csw exit error
+generation individual p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20 runtime maxRSS outputs cpu csw exit error
 0 0 2 3 12 52 91 16 145 33 61 1.718865 0 0 0 0 0 0 0 0 0 0 0 690.34 492372 41640 100% 63440 0 2.466618 
 0 1 15 10 1 66 84 17 155 48 32 0.046063 0 0 0 0 0 0 0 0 0 0 0 1157.20 801428 39272 100% 118474 0 2.571382 
 0 2 10 2 14 33 89 20 17 30 53 0.598361 0 0 0 0 0 0 0 0 0 0 0 1712.82 1006216 39960 99% 169742 0 4.101992 
