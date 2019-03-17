@@ -113,9 +113,10 @@ results30hours$hours <- 30
 results <- rbind(results12hours, results18hours, results30hours)
 head(results)
 
-results <- subset(results, case %in% cases, select=c("case", "id", "runtime"))
-results.long <- gather(results, param, value, runtime, factor_key=TRUE)
+results1 <- subset(results, case %in% cases, select=c("hours", "id", "runtime"))
+results.long <- gather(results1, param, value, runtime, factor_key=TRUE)
 head(results.long)
+
 
 ggplot(results.long, aes(x=value)) + 
     geom_histogram(binwidth=60, color="grey30", fill="white") +
@@ -157,3 +158,11 @@ p <- ggplot(results.long, aes(x = id, y = value))
 p + geom_point(position = position_jitter(0.2)) +
 aes(colour = factor(case)) +
 aes( shape = factor(case)) 
+
+# Coorelation matrix
+require("GGally")
+source("https://raw.githubusercontent.com/briatte/ggcorr/master/ggcorr.R")
+mydata <- mtcars[, c(1,3,4,5,6,7)]
+results2 <- subset(results, select=c(params, "hours", "runtime"))
+head(results2)
+ggcorr(results2, palette = "Set3", label = TRUE)
