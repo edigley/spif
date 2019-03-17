@@ -82,3 +82,33 @@ predictForIndividual(individuals[1000,], runtimeModel)
 
 predictForIndividual(individuals[1000,], maxRSSModel)
 
+# histograms and density function for all cases
+
+library(ggplot2)
+library("tidyr")
+
+cases <- c(12,18,30)
+cases <- paste(cases, "hours", sep="")
+results12hours$case <- "12hours"
+results18hours$case <- "18hours"
+results30hours$case <- "30hours"
+
+results <- rbind(results12hours, results18hours, results30hours)
+head(results)
+
+results <- subset(results, case %in% cases, select=c("case", "individual", "runtime"))
+results.long <- gather(results, param, value, runtime, factor_key=TRUE)
+head(results.long)
+
+ggplot(results.long, aes(x=value)) + 
+    geom_histogram(binwidth=60, color="grey30", fill="white") +
+    facet_grid(case ~ .) + 
+    xlim(0, 3600) +    
+    ylim(0, 200)
+
+ggplot(results.long, aes(x=value, fill=case)) + 
+    geom_density(alpha=0.5) +  
+    xlim(0, 300) + 
+    ylim(0, .15)
+
+
