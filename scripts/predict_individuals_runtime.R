@@ -104,8 +104,11 @@ library("tidyr")
 cases <- c(12,18,30)
 cases <- paste(cases, "hours", sep="")
 results12hours$case <- "12hours"
+results12hours$hours <- 12
 results18hours$case <- "18hours"
+results18hours$hours <- 18
 results30hours$case <- "30hours"
+results30hours$hours <- 30
 
 results <- rbind(results12hours, results18hours, results30hours)
 head(results)
