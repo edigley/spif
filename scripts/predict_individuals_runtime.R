@@ -94,6 +94,18 @@ predictForIndividual(runtimeModel, individuals[1000,])
 
 predictForIndividual(maxRSSModel, individuals[1000,])
 
+# analyses the quality of the prediction
+ds <- individualsResults
+ds$prediction <- predict(runtimeModel, head(individuals, 1001))
+ds$prediction <- ifelse(ds$prediction<1, 1, ds$prediction)
+summary(ds$prediction)
+summary(ds$runtime)
+head(ds)
+plot(ds$prediction, ds$runtime, xlab="predicted", ylab="actual", xlim=c(0,3600), ylim=c(0,3600))
+abline(a=0, b=1)
+
+qqplot(ds$prediction, ds$runtime)
+
 # histograms and density function for all cases
 results12hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_12_hours.txt', header=T)
 results12hours <- subset(results12hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
