@@ -111,4 +111,18 @@ ggplot(results.long, aes(x=value, fill=case)) +
     xlim(0, 300) + 
     ylim(0, .15)
 
+DF <- read.table(text="Rank F1     F2     F3
+1    500    250    50
+2    400    100    30
+3    300    155    100
+4    200    90     10", header=TRUE)
 
+library(reshape2)
+DF1 <- melt(DF, id.var="Rank")
+DF1
+p <- ggplot(DF1, aes(x = Rank, y = value, fill = variable)) +
+  geom_bar(stat = "identity")
+
+filter(results.long, individual >= 0 & individual < 5)
+ggplot(filter(results.long, individual >= 0 & individual < 5), aes(x = individual, y = value, fill = case)) +
+  geom_bar(stat = "identity")
