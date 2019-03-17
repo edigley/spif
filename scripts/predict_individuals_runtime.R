@@ -16,7 +16,7 @@ fmsColor <- "red";
 windColor <- "green";
 weatherColor <- "#e69f00";
 individuals <- gather(individuals, param, value, params, factor_key=TRUE)
-p <- ggplot(individuals, aes(x=param, y=value, fill=param)) + geom_boxplot() #+ geom_jitter()
+p <- ggplot(individuals, aes(x=param, y=value, fill=param)) + geom_violin() # geom_boxplot() + geom_jitter()
 p + scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey"))
 
 
