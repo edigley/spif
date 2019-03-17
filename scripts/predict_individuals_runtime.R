@@ -78,6 +78,7 @@ predictForIndividual <- function(individual, regModel) {
 
 individuals[1000,]
 
-predictRuntime(individuals[1000,], runtimeModel)
-predictRuntime(individuals[1000,], maxRSSModel)
+predictForIndividual(individuals[1000,], runtimeModel)
+
+predictForIndividual(individuals[1000,], maxRSSModel)
 
