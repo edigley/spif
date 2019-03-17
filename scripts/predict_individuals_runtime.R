@@ -137,6 +137,8 @@ DF1
 p <- ggplot(DF1, aes(x = Rank, y = value, fill = variable)) +
   geom_bar(stat = "identity")
 
-filter(results.long, individual >= 0 & individual < 5)
-ggplot(filter(results.long, individual >= 0 & individual < 5), aes(x = individual, y = value, fill = case)) +
+filter(results.long, id >= 0 & id < 5)
+ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = case)) +
   geom_bar(stat = "identity")
+
+ggplot(results.long, aes(value, colour = case)) + stat_ecdf()
