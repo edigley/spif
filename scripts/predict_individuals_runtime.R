@@ -149,3 +149,8 @@ ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = cas
   geom_bar(stat = "identity", position = "stack")
 ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = case)) +
   geom_bar(stat = "identity", position = "fill")
+
+p <- ggplot(results.long, aes(x = id, y = value)) 
+p + geom_point(position = position_jitter(0.2)) +
+aes(colour = factor(case)) +
+aes( shape = factor(case)) 
