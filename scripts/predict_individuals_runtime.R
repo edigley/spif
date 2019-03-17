@@ -193,3 +193,18 @@ ggpairs(results2)
 
 p1 <- ggplot(results, aes(x=p_ws, y=runtime)) + geom_point() + geom_smooth(method = "lm")
 p1
+
+
+# Separate regressions of mpg on weight for each number of cylinders
+## qplot(d$p_ws, d$runtime, data=d, geom=c("point", "smooth"), 
+##   method="lm", formula=runtime~p_ws, 
+##   main="Regression of Runtime on Wind Speed", 
+##   xlab="Wind Speed", ylab="Runtime")
+
+#ggplot(d, aes(x=p_ws, y=runtime)) + geom_point() + geom_smooth(method = "lm")
+
+#plot(runtime ~ p_ws, data = d)
+#abline(runtimeModel)
+
+ggplot(d, aes(x=p_ws, y=runtime)) + geom_point() + 
+stat_function(fun = function(x) predict(runtimeModel, newdata = data.frame(DepDelay=x)))
