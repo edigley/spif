@@ -159,6 +159,25 @@ p + geom_point(position = position_jitter(0.2)) +
 aes(colour = factor(case)) +
 aes( shape = factor(case)) 
 
+
+p <- ggplot(results.long, aes(x = id, y = value)) 
+p + geom_point(position = position_jitter(0.2), alpha=0.7) +
+aes(colour = factor(hours)) +
+aes( shape = factor(hours)) +
+scale_shape_manual(values = c(1,3,5)) +
+scale_size_manual(values = c(.1,.1,.1))
+
+
+p + geom_point(aes(color = hours)) + 
+scale_size_manual(values = c(2.5,2,1.5)) + 
+scale_y_time() +
+ylab("Runtime") + 
+xlab("Individual") + 
+labs(colour = "Hours") + 
+labs(title = "Individuals's Runtime", subtitle = NULL)  
+# + geom_rug()
+# + scale_color_brewer(palette = "Dark2") + theme_minimal()
+
 # Coorelation matrix
 require("GGally")
 source("https://raw.githubusercontent.com/briatte/ggcorr/master/ggcorr.R")
@@ -166,3 +185,11 @@ mydata <- mtcars[, c(1,3,4,5,6,7)]
 results2 <- subset(results, select=c(params, "hours", "runtime"))
 head(results2)
 ggcorr(results2, palette = "Set3", label = TRUE)
+
+
+install.packages("GGally")
+require("GGally")
+ggpairs(results2)
+
+p1 <- ggplot(results, aes(x=p_ws, y=runtime)) + geom_point() + geom_smooth(method = "lm")
+p1
