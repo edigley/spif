@@ -132,10 +132,17 @@ ggplot(results.long, aes(x=value, fill=case)) +
     ylim(0, 200)
 
 # plots a density function overlaying all the cases on the same plot
+# limits x-axis to values less than 5 minutes
+ggplot(results.long, aes(x=value, fill=hours)) + 
+    geom_histogram(binwidth=1, color="grey30", fill="white") +
+    facet_grid(case ~ .) + 
+    xlim(0, 3600) + # xlim(0, 300) 
+    ylim(0, 250) #ylim(0, .15)
+
+# transform x-axis to log 10
 ggplot(results.long, aes(x=value, fill=case)) + 
-    geom_density(alpha=0.5) +  
-    xlim(0, 300) + 
-    ylim(0, .15)
+    geom_density(alpha=0.5) + 
+    scale_x_log10(breaks=c(1,10,100,1000,3600))
 
 DF <- read.table(text="Rank F1     F2     F3
 1    500    250    50
