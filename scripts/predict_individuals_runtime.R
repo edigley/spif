@@ -37,10 +37,11 @@ summary(maxRSSModel)$coefficient
 #summary(maxRSSModel)$coefficient 
 #confint(maxRSSModel)
 
-# predicts runtime for the last 10 individuals
+# predicts maximum memory consumption for the last 10 individuals
 tail(individuals, 10)
 predict(maxRSSModel, tail(individuals, 10))
 
+# basic functions to compute a linear model based on estimates
 predictRuntime <- function(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9) {
     return (1053.9430 - 6.4106*p0 - 28.0236*p1 + 8.2743*p2 - 0.7945*p3 - 0.7570*p4 + 80.7271*p5 + 0.1784*p6 + 5.0583*p7 - 21.2987*p8 - 65.2531*p9)
 }
