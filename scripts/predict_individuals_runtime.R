@@ -142,3 +142,10 @@ ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = cas
   geom_bar(stat = "identity")
 
 ggplot(results.long, aes(value, colour = case)) + stat_ecdf()
+
+ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = case)) +
+  geom_bar(stat = "identity", position = "dodge")
+ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = case)) +
+  geom_bar(stat = "identity", position = "stack")
+ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = case)) +
+  geom_bar(stat = "identity", position = "fill")
