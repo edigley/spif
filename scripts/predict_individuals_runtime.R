@@ -83,6 +83,20 @@ predictForIndividual(individuals[1000,], runtimeModel)
 predictForIndividual(individuals[1000,], maxRSSModel)
 
 # histograms and density function for all cases
+results12hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_12_hours.txt', header=T)
+results12hours <- subset(results12hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
+colnames(results12hours) <- c("id", params, "runtime", "maxRSS")
+head(results12hours)
+
+results18hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_18_hours.txt', header=T)
+results18hours <- subset(results18hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
+colnames(results18hours) <- c("id", params, "runtime", "maxRSS")
+head(results18hours)
+
+results30hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_30_hours.txt', header=T)
+results30hours <- subset(results30hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
+colnames(results30hours) <- c("id", params, "runtime", "maxRSS")
+head(results30hours)
 
 library(ggplot2)
 library("tidyr")
@@ -96,7 +110,7 @@ results30hours$case <- "30hours"
 results <- rbind(results12hours, results18hours, results30hours)
 head(results)
 
-results <- subset(results, case %in% cases, select=c("case", "individual", "runtime"))
+results <- subset(results, case %in% cases, select=c("case", "id", "runtime"))
 results.long <- gather(results, param, value, runtime, factor_key=TRUE)
 head(results.long)
 
