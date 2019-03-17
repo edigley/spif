@@ -120,17 +120,18 @@ results30hours$hours <- 30
 results <- rbind(results12hours, results18hours, results30hours)
 head(results)
 
-results1 <- subset(results, case %in% cases, select=c("hours", "id", "runtime"))
+results1 <- subset(results, case %in% cases, select=c("case", "id", "runtime"))
 results.long <- gather(results1, param, value, runtime, factor_key=TRUE)
 head(results.long)
 
-
-ggplot(results.long, aes(x=value)) + 
+# plots a histogram with three box, one for each case
+ggplot(results.long, aes(x=value, fill=case)) + 
     geom_histogram(binwidth=60, color="grey30", fill="white") +
     facet_grid(case ~ .) + 
     xlim(0, 3600) +    
     ylim(0, 200)
 
+# plots a density function overlaying all the cases on the same plot
 ggplot(results.long, aes(x=value, fill=case)) + 
     geom_density(alpha=0.5) +  
     xlim(0, 300) + 
