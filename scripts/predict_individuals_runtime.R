@@ -12,6 +12,13 @@ individuals <- subset(individuals, select=params)
 individuals <- tibble::rowid_to_column(individuals, "id")
 individuals$id <- (individuals$id - 1)
 head(individuals)
+fmsColor <- "red";
+windColor <- "green";
+weatherColor <- "#e69f00";
+individuals <- gather(individuals, param, value, params, factor_key=TRUE)
+p <- ggplot(individuals, aes(x=param, y=value, fill=param)) + geom_boxplot() #+ geom_jitter()
+p + scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey"))
+
 
 # loads individuals run results data set
 individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
