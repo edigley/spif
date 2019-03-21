@@ -1,4 +1,4 @@
-# spif
+# SPIF (Sistema para Prevenção de Incêndios Florestais)
 Two Stage Data-Driven Framework for Fire Spread Prediction
 
 ## Scenarios to be considered:
@@ -9,7 +9,7 @@ Two Stage Data-Driven Framework for Fire Spread Prediction
 2. Use the same map resolution in all scenarios
 3. Use the entire wind direction search space
 4. Define the wind velocity range
-5. Define the prediction period [8 horas, 30 horas]
+5. Define the prediction period [8, 12, 18, 24, 30] horas
 
 ## Scenarios to be considered:
 
