@@ -32,10 +32,12 @@ Before you estimate the model, you can determine whether a linear relationship b
 In a simple OLS regression, the computation of a0 and b0 is straightforward. The goal is not to show the derivation in this tutorial. You will only write the formula.
 
 You want to estimate: *y = b0 + b1*x + e*
+https://www.guru99.com/images/r_programming/032918_1024_RSimpleMult12.jpg
 
 The goal of the OLS regression is to minimize the following equation:
+https://www.guru99.com/images/r_programming/032918_1024_RSimpleMult13.jpg
 
 where
 
-is the actual value and is the predicted value. 
+y_i is the actual value and ^y_i is the predicted value. 
 
