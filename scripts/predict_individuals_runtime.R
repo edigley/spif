@@ -1,9 +1,10 @@
 # https://mybinder.org/v2/gh/binder-examples/r/master?filepath=index.ipynb
 install.packages("GGally")
+
 library(tidyverse)
 library(ggplot2)
 library(tidyr)
-require(GGally)
+library(GGally)
 
 set.seed(1984)
 
@@ -107,46 +108,57 @@ abline(a=0, b=1)
 qqplot(ds$prediction, ds$runtime)
 
 # histograms and density function for all cases
+metricsOfInterest <- c("runtime") #, "maxRSS")
+columnsOfInterest <- c("id", params, metricsOfInterest)
+
 results12hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_12_hours.txt', header=T)
-results12hours <- subset(results12hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
-colnames(results12hours) <- c("id", params, "runtime", "maxRSS")
+results12hours <- subset(results12hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
+colnames(results12hours) <- columnsOfInterest
 head(results12hours)
 
 results18hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_18_hours.txt', header=T)
-results18hours <- subset(results18hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
-colnames(results18hours) <- c("id", params, "runtime", "maxRSS")
+results18hours <- subset(results18hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
+colnames(results18hours) <- columnsOfInterest
 head(results18hours)
 
+results24hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_24_hours.txt', header=T)
+results24hours <- subset(results24hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
+colnames(results24hours) <- columnsOfInterest
+head(results24hours)
+
 results30hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_30_hours.txt', header=T)
-results30hours <- subset(results30hours, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
-colnames(results30hours) <- c("id", params, "runtime", "maxRSS")
+results30hours <- subset(results30hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
+colnames(results30hours) <- columnsOfInterest
 head(results30hours)
 
-cases <- c(12,18,30)
+cases <- c(12,18,24,30)
 cases <- paste(cases, "hours", sep="")
 results12hours$case <- "12hours"
 results12hours$hours <- 12
 results18hours$case <- "18hours"
 results18hours$hours <- 18
+results24hours$case <- "24hours"
+results24hours$hours <- 24
 results30hours$case <- "30hours"
 results30hours$hours <- 30
 
-results <- rbind(results12hours, results18hours, results30hours)
-#head(results)
+results <- rbind(results12hours, results18hours, results24hours, results30hours)
+head(results)
 
 results1 <- subset(results, case %in% cases, select=c("case", "id", "runtime"))
 results.long <- gather(results1, param, value, runtime, factor_key=TRUE)
 head(results.long)
 
 # plots a histogram with three box, one for each case
+# binwidth = 60 seconds
 ggplot(results.long, aes(x=value, fill=case)) + 
     geom_histogram(binwidth=60, color="grey30", fill="white") +
     facet_grid(case ~ .) + 
     xlim(0, 3600) +    
     ylim(0, 200)
 
-# plots a density function overlaying all the cases on the same plot
-# limits x-axis to values less than 5 minutes
+# plots a histogram with three box, one for each case
+# binwidth = 1 second
 ggplot(results.long, aes(x=value, fill=hours)) + 
     geom_histogram(binwidth=1, color="grey30", fill="white") +
     facet_grid(case ~ .) + 
@@ -159,7 +171,9 @@ ggplot(results.long, aes(x=value, fill=case)) +
     scale_x_log10(breaks=c(1,10,30,60,300,900,1800,3600))
 
 # plots a cumulative distribution for all the cases
-ggplot(results.long, aes(value, colour = case)) + stat_ecdf()
+ggplot(results.long, aes(value, colour = case)) + 
+    stat_ecdf() + 
+    scale_x_log10(breaks=c(1,10,30,60,300,900,1800,3600))
 
 # plots the runtime for all individuals, with different shapes and colors for each case (solid colors)
 p <- ggplot(results.long, aes(x = id, y = value)) 
