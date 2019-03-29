@@ -29,7 +29,9 @@ Before you estimate the model, you can determine whether a linear relationship b
 
 ### Least Squares Estimates
 
-In a simple OLS regression, the computation of a0 and b0 is straightforward. The goal is not to show the derivation in this tutorial. You will only write the formula.
+In a simple OLS regression, the computation of a0 and b0 is straightforward. 
+The goal is not to show the derivation in this tutorial. 
+You will only write the formula.
 
 You want to estimate: *y = b0 + b1*x + e*
 
@@ -39,3 +41,26 @@ where
 
 is the actual value and is the predicted value. 
 
+
+
+
+ds <- read.table(header=TRUE, sep=",", text='
+"","height","weight"
+"1",58,115
+"2",59,117
+"3",60,120
+"4",61,123
+"5",62,126
+"6",63,129
+"7",64,132
+"8",65,135
+"9",66,139
+"10",67,142
+"11",68,146
+"12",69,150
+"13",70,154
+"14",71,159
+"15",72,164
+');
+
+ds

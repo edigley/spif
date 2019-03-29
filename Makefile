@@ -26,12 +26,13 @@ fire300: #300 seconds timeout (5m)
 	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator300 -lm
 fire3600: #3600 seconds timeout (1h)
 	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator3600 -lm
-
+fire86400: #86400 seconds timeout (1d)
+	mpicc -g -pg -DNDEBUG fireSimulator.c farsite.c strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o fireSimulator86400 -lm
 gchar:
 	mpicc -g -pg -DNDEBUG gchar.c   strlib.c dictionary.c population.c fitness.c myutils.c iniparser.c genetic.c -o gchar   -lm
 
 clean:
-	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)gchar $(PATH_PROY)fireSimulator $(PATH_PROY)fireSimulator3600
+	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)gchar $(PATH_PROY)fireSimulator $(PATH_PROY)fireSimulator300 $(PATH_PROY)fireSimulator3600 $(PATH_PROY)fireSimulator86400
 
 clean-and-compile:
 
@@ -115,7 +116,7 @@ filter-out-failed-individuals:
 	awk 'NR==FNR {id[$1]; next}  ($2 in id)' ${IDS_OF_THOSE_KILLED_BY_TIME_OUT_FILE} ${RUNTIME_FILE} > ${RUNTIME_FAILED_FILE}
 re-run-long-running-failed-individuals:
 	# How to run again all individuals that failed?
-    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f2-2 | xargs -n1 -t -P1 time ~/git/spif/fireSimulator3600 ${scenarioFile} ${individuals} run
+    COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f2-2 | xargs -n1 -t -P1 time ~/git/spif/fireSimulator86400 ${scenarioFile} ${individuals} run
     ~/git/spif/scripts/concatenate_all_individuals_results.sh . ${RERUNTIME_FILE}
 	~/git/spif/scripts/random_individuals_histogram.sh ${RERUNTIME_FILE} ${RERUNTIME_HISTOGRAM_FILE}
 	eog ${RERUNTIME_HISTOGRAM_FILE} &
@@ -241,6 +242,7 @@ grep -w "StartMin" scenario_jonquera.ini
 grep -w "EndMonth" scenario_jonquera.ini
 grep -w "EndDay" scenario_jonquera.ini
 grep -w "EndHour" scenario_jonquera.ini
+
 grep -w "EndMin" scenario_jonquera.ini
 
 egrep -w "(StartMonth|StartDay|StartHour|StartMin)" scenario_jonquera.ini
