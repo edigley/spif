@@ -1,6 +1,9 @@
 # SPIF (Sistema para Prevenção de Incêndios Florestais)
 Two Stage Data-Driven Framework for Fire Spread Prediction
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb)
+
+
 ## Scenarios to be considered:
 
 1. Ignition perimeter:
