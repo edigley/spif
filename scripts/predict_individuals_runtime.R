@@ -1,7 +1,4 @@
 # https://mybinder.org/v2/gh/binder-examples/r/master?filepath=index.ipynb
-install.packages("GGally")
-install.packages("tidyverse")
-
 library(tidyverse)
 library(ggplot2)
 library(tidyr)
