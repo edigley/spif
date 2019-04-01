@@ -25,7 +25,7 @@ individuals.long <- gather(individuals, param, value, params, factor_key=TRUE)
 ggplot(individuals.long, aes(x=param, y=value, fill=param)) + 
     geom_violin() + # geom_boxplot() + geom_jitter()
     scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey")) +
-    scale_y_log10(breaks=c(1,10,100,400))
+    coord_cartesian(ylim = c(0, 120)) #scale_y_log10(breaks=c(1,10,100,400))
 
 # loads individuals run results data set
 individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
@@ -375,3 +375,5 @@ Loading repository: edigley/spif/master
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb)
 
 
+https://hub.mybinder.org/user/edigley-spif-t135e6u1/notebooks/notebooks/quality_of_prediction.ipynb
+https://hub.mybinder.org/user/edigley-spif-vcpdreuo/notebooks/notebooks/quality_of_prediction.ipynb
