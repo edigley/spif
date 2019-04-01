@@ -118,22 +118,18 @@ columnsOfInterest <- c("id", params, metricsOfInterest)
 results12hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_12_hours.txt', header=T)
 results12hours <- subset(results12hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
 colnames(results12hours) <- columnsOfInterest
-head(results12hours)
 
 results18hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_18_hours.txt', header=T)
 results18hours <- subset(results18hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
 colnames(results18hours) <- columnsOfInterest
-head(results18hours)
 
 results24hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_24_hours.txt', header=T)
 results24hours <- subset(results24hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
 colnames(results24hours) <- columnsOfInterest
-head(results24hours)
 
 results30hours <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera_30_hours.txt', header=T)
 results30hours <- subset(results30hours, select=c("individual", paste("p", 0:9, sep=""), metricsOfInterest))
 colnames(results30hours) <- columnsOfInterest
-head(results30hours)
 
 cases <- c(12,18,24,30)
 cases <- paste(cases, "hours", sep="")
@@ -149,8 +145,10 @@ results30hours$hours <- 30
 results <- rbind(results12hours, results18hours, results24hours, results30hours)
 head(results)
 
-results1 <- subset(results, case %in% cases, select=c("case", "id", "runtime"))
-results.long <- gather(results1, param, value, runtime, factor_key=TRUE)
+results.long <- gather(
+    subset(results, case %in% cases, select=c("case", "id", "runtime")),
+    param, value, runtime, factor_key=TRUE
+)
 head(results.long)
 
 # plots a histogram with three box, one for each case
@@ -169,7 +167,7 @@ ggplot(results.long, aes(x=value, fill=hours)) +
     xlim(0, 3600) + ## xlim(0, 300) 
     ylim(0, 250) ## ylim(0, .15)
 
-# transform x-axis to log 10
+# density plot (transform x-axis to log 10)
 ggplot(results.long, aes(x=value, fill=case)) + 
     geom_density(alpha=0.5) + 
     scale_x_log10(breaks=c(1,10,30,60,300,900,1800,3600))
@@ -204,9 +202,9 @@ labs(title = "Individuals's Runtime", subtitle = NULL)
 # + geom_rug()
 # + scale_color_brewer(palette = "Dark2") + theme_minimal()
 
-
+# ---------------------------------------------------------------
 # Correlation matrix
-source("https://raw.githubusercontent.com/briatte/ggcorr/master/ggcorr.R")
+#source("https://raw.githubusercontent.com/briatte/ggcorr/master/ggcorr.R")
 mydata <- mtcars[, c(1,3,4,5,6,7)]
 results2 <- subset(results, select=c(params, "hours", "runtime"))
 head(results2)
@@ -215,27 +213,42 @@ ggcorr(results2, palette = "Set3", label = TRUE)
 # An overview with all correlation coeficients
 ggpairs(results2)
 
-
-# Plots a regression line considering only wind speed effect
-ggplot(results, aes(x=p_ws, y=runtime)) + geom_point() + geom_smooth(method = "lm")
-ggplot(results, aes(x=p_ws, y=runtime)) + geom_point() + geom_smooth(method = "lm") + scale_y_log10()
-
-# Plots a regression line considering only wind humidity effect
-ggplot(results, aes(x=p_hh, y=runtime)) + geom_point() + geom_smooth(method = "lm")
-ggplot(results, aes(x=p_hh, y=runtime)) + geom_point() + geom_smooth(method = "lm") + scale_y_log10()
-
-cor(subset(individualsResults, select=c(params,"runtime")), method="pearson") 
+cor(subset(individualsResults, select=c(params,"runtime")), method="pearson")
+# ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
+# Plots a regression line considering only wind speed effect
+ggplot(results, aes(x=p_ws, y=runtime)) + 
+    geom_point() + 
+    geom_smooth(method = "lm")
+ggplot(results, aes(x=p_ws, y=runtime)) + 
+    geom_point() + 
+    geom_smooth(method = "lm") + 
+    scale_y_log10()
+
+# Plots a regression line considering only wind humidity effect
+ggplot(results, aes(x=p_hh, y=runtime)) + 
+    geom_point() + 
+    geom_smooth(method = "lm")
+ggplot(results, aes(x=p_hh, y=runtime)) + 
+    geom_point() + 
+    geom_smooth(method = "lm") + 
+    scale_y_log10()
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+# A multidimensional plot considering th, hh, ws and fms
 results <- individualsResults
-customShape <- function(v){round(v/6)}
 filteredResults <- subset(results, runtime > 5 & runtime < 13600)
+customShape <- function(v){round(v/6)}
 filteredResults$shape <- as.factor(customShape(filteredResults$p_10h)+1)
 ggplot(filteredResults) +
     aes(x=p_ws, y=runtime, color=p_hh) + 
     geom_point(aes(shape=shape, size=p_th)) +
     geom_smooth(method = "lm") + 
     scale_y_log10() 
+# ---------------------------------------------------------------
+
 # ---------------------------------------------------------------
 simplerRuntimeModel <- lm(runtime ~ p_ws + p_wd + p_hh, data=individualsResults)
 coefficients(simplerRuntimeModel)
@@ -271,6 +284,19 @@ qqnorm(rstandard(mlrm4))
 qqline(rstandard(mlrm4))
 abline(a=0, b=1)
 # ---------------------------------------------------------------
+# Polynomial Regression Multipla
+# y ~ polym(x1, x2, degree=2, raw=TRUE)
+#mlrm4 <- lm(runtime ~ p_1h + p_10h + p_100h + p_herb + p_1000h + p_ws + p_wd + p_th + p_hh + p_adj, data=adjustedResults)
+mprm1 <- lm(runtime ~ polym(p_ws, p_hh, degree=20, raw=TRUE), data=adjustedResults)
+mprm2 <- lm(runtime ~ polym(p_ws, p_hh, p_10h, degree=20, raw=TRUE), data=adjustedResults)
+mprm3 <- lm(runtime ~ polym(p_ws, p_hh, p_th, p_10h, degree=20, raw=TRUE), data=adjustedResults)
+rSquared(mprm1)
+rSquared(mprm2)
+rSquared(mprm3)
+qqnorm(rstandard(mprm3))
+qqline(rstandard(mprm3))
+plot(residuals(mprm3))
+# ---------------------------------------------------------------
 ggplot(filteredResults) + 
     aes(x=p_ws, y=p_hh, color=runtime/60) +
     geom_point(aes(size=runtime/60))
@@ -287,7 +313,8 @@ barplot(sort(subset(individualsResults, runtime >= 3600)$p_adj))
 barplot(sort(subset(individualsResults, runtime >= 3600)$p_1h))
 barplot(sort(subset(individualsResults, runtime >= 3600)$p_10h))
 barplot(sort(subset(individualsResults, runtime >= 3600)$p_100h))
-quantile(individualsResults$runtime/60,probs = c(0.1,0.25,0.50,0.75,0.90,0.95,0.955))# ---------------------------------------------------------------
+quantile(individualsResults$runtime/60,probs = c(0.1,0.25,0.50,0.75,0.90,0.95,0.955))
+# ---------------------------------------------------------------
 params
 cor(subset(individualsResults, select=c(params,"runtime")), method="pearson") 
 cases <- c("0a30hours","12a30hours","18a30hours","24a30hours")
@@ -313,19 +340,21 @@ results24a30hours$hours <- 6
 results24a30hours$runtime <- results30hours$runtime - results24hours$runtime
 
 resultsDeltas <- rbind(results0a30hours, results12a30hours, results18a30hours, results24a30hours)
-head(resultsDeltas)
-
-resultsDeltas1 <- subset(resultsDeltas, case %in% cases, select=c("case", "id", "runtime"))
-resultsDeltas.long <- gather(resultsDeltas1, param, value, runtime, factor_key=TRUE)
+cases = c("0a30hours","12a30hours","18a30hours","24a30hours");
+resultsDeltas.long <- gather(
+    subset(resultsDeltas, case %in% cases, select=c("case", "id", "runtime")),
+    param, value, runtime, factor_key=TRUE
+)
 head(resultsDeltas.long)
 
+# histogram for all 4 cases
 ggplot(resultsDeltas.long, aes(x=value, fill=hours)) + 
     geom_histogram(binwidth=1, color="grey30", fill="white") +
     facet_grid(case ~ .) + 
     xlim(0, 3600) + ## xlim(0, 300) 
     ylim(0, 18) ## ylim(0, .15)
 
-# transform x-axis to log 10
+# density plot (transform x-axis to log 10)
 ggplot(resultsDeltas.long, aes(x=value, fill=case)) + 
     geom_density(alpha=0.5) + 
     scale_x_log10(breaks=c(1,10,30,60,300,900,1800,3600))
