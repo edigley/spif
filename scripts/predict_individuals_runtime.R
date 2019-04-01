@@ -16,6 +16,7 @@ individuals <- subset(individuals, select=params)
 individuals <- tibble::rowid_to_column(individuals, "id")
 individuals$id <- (individuals$id - 1)
 #head(individuals)
+setdiff(0:1000, individuals$id)
 
 # plots a violin-like plot showing how gene values are distributed
 fmsColor <- "red";
@@ -32,6 +33,7 @@ individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif
 individualsResults <- subset(individualsResults, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
 colnames(individualsResults) <- c("id", params, "runtime", "maxRSS")
 #head(individualsResults)
+setdiff(0:1000, individualsResults$id)
 
 # generates the multiple linear regression model for runtime based on individuals run results
 runtimeModel <- lm(runtime ~ p_1h + p_10h + p_100h + p_herb + p_1000h + p_ws + p_wd + p_th + p_hh + p_adj, data=individualsResults)
@@ -103,7 +105,7 @@ ds$prediction <- ifelse(ds$prediction<1, 1, ds$prediction)
 summary(ds$prediction)
 summary(ds$runtime)
 head(ds)
-plot(ds$prediction, ds$runtime, xlab="predicted", ylab="actual", xlim=c(0,3600), ylim=c(0,3600))
+plot(ds$prediction, ds$runtime, xlab="predicted", ylab="actual", xlim=c(0,88600), ylim=c(0,88600))
 abline(a=0, b=1)
 
 qqplot(ds$prediction, ds$runtime)
@@ -265,6 +267,9 @@ rSquared(mlrm1)
 rSquared(mlrm2)
 rSquared(mlrm3)
 rSquared(mlrm4)
+qqnorm(rstandard(mlrm4))
+qqline(rstandard(mlrm4))
+abline(a=0, b=1)
 # ---------------------------------------------------------------
 ggplot(filteredResults) + 
     aes(x=p_ws, y=p_hh, color=runtime/60) +

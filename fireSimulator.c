@@ -1,5 +1,6 @@
 #include "mpi.h"
 #include <stdio.h>
+#include <time.h>
 #include "population.h"
 #include <stdlib.h>
 #include "iniparser.h"
@@ -20,6 +21,14 @@ int doMeteoSim;
 float TEMP_VARIATION, HUM_VARIATION;
 
 int FuelsUs[256];
+
+const char * getCurrentTime() {
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    char * currentTime = malloc(20);
+    sprintf(currentTime, "%04d-%02d-%02d %02d:%02d:%02d\0", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    return currentTime;
+}
 
 void readConfiguration(char * configurationFile);
 void createFarsiteInputFiles(INDVTYPE_FARSITE individual, int generation);
@@ -95,7 +104,7 @@ void createWeatherFile(char *baseWtrFile, char * wtrFileNew, INDVTYPE_FARSITE in
 
         fprintf(fWTRnew, "%s", newline);
     }
-    
+
     fclose(fWTR);
     fclose(fWTRnew);
 }
@@ -217,12 +226,12 @@ void runIndividual(char * configurationFile, INDVTYPE_FARSITE individual) {
     double adjustmentError;
     char * atmPath;
     individualToString(individual.generation, individual, individualAsString, sizeof(individualAsString));
-    printf("INFO: FireSimulator.runIndividual -> Gonna run farsite for individual:\n");
-    printf("INFO: FireSimulator.runIndividual -> %s\n", individualAsString);
+    printf("%s - INFO: FireSimulator.runIndividual -> Gonna run farsite for individual:\n", getCurrentTime());
+    printf("%s - INFO: FireSimulator.runIndividual -> %s\n", getCurrentTime(), individualAsString);
     runSimFarsite(individual, "FARSITE", &adjustmentError, individual.generation, atmPath, configurationFile, 99, 1, "/tmp/", 199, 7, 2, 1, 1, 24, 86400);//61);//300);//3600);
-    printf("INFO: FireSimulator.runIndividual -> Finished for individual (%d,%d).\n", individual.generation, individual.id);
-    printf("INFO: FireSimulator.runIndividual -> adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, adjustmentError);
-    printf("INFO: FireSimulator.runIndividual -> &adjustmentError: (%d,%d): %f\n", individual.generation, individual.id, &adjustmentError);
+    printf("%s - INFO: FireSimulator.runIndividual -> Finished for individual (%d,%d).\n", getCurrentTime(), individual.generation, individual.id);
+    printf("%s - INFO: FireSimulator.runIndividual -> adjustmentError: (%d,%d): %f\n", getCurrentTime(), individual.generation, individual.id, adjustmentError);
+    printf("%s - INFO: FireSimulator.runIndividual -> &adjustmentError: (%d,%d): %f\n", getCurrentTime(), individual.generation, individual.id, &adjustmentError);
 }
 
 /**
@@ -258,7 +267,7 @@ void createFarsiteInputFiles(INDVTYPE_FARSITE individual, int generation) {
     wndFileNew = str_replace(wndFile, "$1", generationAsString);
     wndFileNew = str_replace(wndFileNew, "$2", individualIdAsString);
     createWindFile(baseWndFile, wndFileNew, individual);
-    
+
     wtrFileNew = str_replace(wtrFile, "$1", generationAsString);
     wtrFileNew = str_replace(wtrFileNew, "$2", individualIdAsString);
     createWeatherFile(baseWtrFile, wtrFileNew, individual, TEMP_VARIATION, HUM_VARIATION);
@@ -274,7 +283,7 @@ void createFarsiteInputFiles(INDVTYPE_FARSITE individual, int generation) {
 int main(int argc, char *argv[]) {
 
     if (argc < 3 ) { //error: number of args invalid
-        printf("ERROR: FireSimulator.main -> number of args invalid. Please inform at least a configuration and a population files. ");
+        printf("%s - ERROR: FireSimulator.main -> number of args invalid. Please inform at least a configuration and a population files.", getCurrentTime());
         printf("You can optionally inform the individual to be executed.\n");
         return 1;
     }
@@ -298,12 +307,12 @@ int main(int argc, char *argv[]) {
     FILE * adjustmentErrors;
 
     if  (argc > 5) { //specify the individual directly 
-        printf("INFO: FireSimulator.main -> Gonna run farsite for individual specified directly: %s\n", argv[2]);
-        printf("INFO: FireSimulator.main -> argc: %d\n", argc);
+        printf("%s - INFO: FireSimulator.main -> Gonna run farsite for individual specified directly: %s\n", getCurrentTime(), argv[2]);
+        printf("%s - INFO: FireSimulator.main -> argc: %d\n", getCurrentTime(), argc);
         individual = (INDVTYPE_FARSITE *)malloc(sizeof(INDVTYPE_FARSITE));
         individual->generation = atoi(argv[3]);
         individual->id = atoi(argv[4]);
-        printf("INFO: FireSimulator.main -> Gonna read all the individual params...\n");
+        printf("%s - INFO: FireSimulator.main -> Gonna read all the individual params...\n", getCurrentTime());
         int i;
         //for the main parameters
         for (i=0; i < 9; i++) {
@@ -313,7 +322,7 @@ int main(int argc, char *argv[]) {
         for (i=9; i < 21; i++) {
             individual->parameters[i] = (i+5 < argc) ? atof(argv[i+5]) : 1.0;
         }
-        printf("INFO: FireSimulator.main -> Gonna call runIndividual funtion...\n");
+        printf("%s - INFO: FireSimulator.main -> Gonna call runIndividual funtion...\n", getCurrentTime());
         runIndividual(configurationFile, *individual);
     } else if (argc == 5) { //run only the population specified individual
         individuoId = atoi(argv[4]);
@@ -323,7 +332,7 @@ int main(int argc, char *argv[]) {
         begin = 0;
         end = population.popuSize;
     } else { //error
-        printf("ERROR: FireSimulator.main -> Provide the right arguments to the program \n");
+        printf("%s - ERROR: FireSimulator.main -> Provide the right arguments to the program \n", getCurrentTime());
         printf(" * - argv[1] file path: spif configuration file \n");
         printf(" * - argv[2] file path: population file \n");
         printf(" * - argv[3] string [ run | gen ]: \"run\" if should run farsite or \"gen\" if should only generate farsite input files \n");
@@ -335,24 +344,24 @@ int main(int argc, char *argv[]) {
     }
 
     if ((adjustmentErrors = fopen(adjustmentErrorsFileName, "w")) == NULL) { 
-        printf("ERROR: FireSimulator.main -> Error opening output adjustment errors file 'w' %s.\n", adjustmentErrorsFileName);
+        printf("%s - ERROR: FireSimulator.main -> Error opening output adjustment errors file 'w' %s.\n", getCurrentTime(), adjustmentErrorsFileName);
         return;
     } else {
         int i;
         for (i=begin; i < end; i++) {
 
-            printf("INFO: FireSimulator.main -> Going to start for individual (%d,%d)...\n", generation, i);
+            printf("%s - INFO: FireSimulator.main -> Going to start for individual (%d,%d)...\n", getCurrentTime(), generation, i);
             individualToString(generation, population.popu_fs[i], individualAsString, sizeof(individualAsString));
-            printf("INFO: FireSimulator.main -> %s\n", individualAsString); 
+            printf("%s - INFO: FireSimulator.main -> %s\n", getCurrentTime(), individualAsString); 
 
             if (strcmp(argv[3], "gen") == 0) { // only generate farsite input files
                 genFarsiteInputFiles(configurationFile, population.popu_fs[i]);
             } else if (strcmp(argv[3], "run") == 0) { // run farsite generating input files
                 runIndividual(configurationFile, population.popu_fs[i]);
             } else {
-                printf("ERROR: FireSimulator.main -> %s is not a valid action. Please specify what to do: [ run | gen ] \n", argv[3]);
+                printf("%s - ERROR: FireSimulator.main -> %s is not a valid action. Please specify what to do: [ run | gen ] \n", getCurrentTime(), argv[3]);
             }
-        }   
+        }
         fclose(adjustmentErrors);
     }
 

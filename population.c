@@ -80,7 +80,8 @@ void individualToString(int generation, INDVTYPE_FARSITE individual, char * pszI
     if (!pszIndividual || buffersize<1) {
         *pszIndividual = '\0'; // return an 'empty' string 
     } else {
-        sprintf(pszIndividual, "%d %d %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f", 
+        //sprintf(pszIndividual, "%d %d %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f %1.6f", 
+        sprintf(pszIndividual, "%d %d %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.6f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f %1.0f", 
             generation, individual.id, 
             individual.parameters[0], individual.parameters[1], individual.parameters[2], individual.parameters[3],
             individual.parameters[4],

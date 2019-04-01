@@ -35,13 +35,12 @@ clean:
 	rm -rf $(PATH_PROY)*.o $(PATH_PROY)genetic $(PATH_PROY)genPopulation $(PATH_PROY)gchar $(PATH_PROY)fireSimulator $(PATH_PROY)fireSimulator300 $(PATH_PROY)fireSimulator3600 $(PATH_PROY)fireSimulator86400
 
 clean-and-compile:
-
 	make clean
 	make all
 	make fire
 	make fire300
 	make fire3600
-
+	make fire86400
 generate-random-individuals:
 	cd ~/git/spif/
 	nOfIndividuals=1000
@@ -111,6 +110,7 @@ identify-long-running-individuals:
     COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f3-23
     COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f1,2,24,25,29
 	COL=${COL_EXIT_STATUS}; tail -n +3 ${RUNTIME_FILE} | awk -v col1=${COL} '$col1 != 0' | sort -g -k 2 | cut -d' ' -f2 > ${IDS_OF_THOSE_KILLED_BY_TIME_OUT_FILE}
+	tail -n +3 ${RUNTIME_FILE} | sort -g -k 24 | cut -d' ' -f1,2,24,25,29
 filter-out-failed-individuals:
 	awk 'NR==FNR {id[$1]; next} !($2 in id)' ${IDS_OF_THOSE_KILLED_BY_TIME_OUT_FILE} ${RUNTIME_FILE} > ${RUNTIME_SUCCESS_FILE}
 	awk 'NR==FNR {id[$1]; next}  ($2 in id)' ${IDS_OF_THOSE_KILLED_BY_TIME_OUT_FILE} ${RUNTIME_FILE} > ${RUNTIME_FAILED_FILE}
