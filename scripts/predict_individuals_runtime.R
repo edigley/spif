@@ -1,6 +1,4 @@
 # https://mybinder.org/v2/gh/binder-examples/r/master?filepath=index.ipynb
-install.packages("GGally")
-
 library(tidyverse)
 library(ggplot2)
 library(tidyr)
@@ -18,21 +16,24 @@ individuals <- subset(individuals, select=params)
 individuals <- tibble::rowid_to_column(individuals, "id")
 individuals$id <- (individuals$id - 1)
 #head(individuals)
+setdiff(0:1000, individuals$id)
 
 # plots a violin-like plot showing how gene values are distributed
 fmsColor <- "red";
 windColor <- "green";
 weatherColor <- "#e69f00";
 individuals.long <- gather(individuals, param, value, params, factor_key=TRUE)
-p <- ggplot(individuals.long, aes(x=param, y=value, fill=param)) + geom_violin() # geom_boxplot() + geom_jitter()
-p + scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey"))
-
+ggplot(individuals.long, aes(x=param, y=value, fill=param)) + 
+    geom_violin() + # geom_boxplot() + geom_jitter()
+    scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey")) +
+    coord_cartesian(ylim = c(0, 120)) #scale_y_log10(breaks=c(1,10,100,400))
 
 # loads individuals run results data set
 individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
 individualsResults <- subset(individualsResults, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
 colnames(individualsResults) <- c("id", params, "runtime", "maxRSS")
 #head(individualsResults)
+setdiff(0:1000, individualsResults$id)
 
 # generates the multiple linear regression model for runtime based on individuals run results
 runtimeModel <- lm(runtime ~ p_1h + p_10h + p_100h + p_herb + p_1000h + p_ws + p_wd + p_th + p_hh + p_adj, data=individualsResults)
@@ -104,7 +105,7 @@ ds$prediction <- ifelse(ds$prediction<1, 1, ds$prediction)
 summary(ds$prediction)
 summary(ds$runtime)
 head(ds)
-plot(ds$prediction, ds$runtime, xlab="predicted", ylab="actual", xlim=c(0,3600), ylim=c(0,3600))
+plot(ds$prediction, ds$runtime, xlab="predicted", ylab="actual", xlim=c(0,88600), ylim=c(0,88600))
 abline(a=0, b=1)
 
 qqplot(ds$prediction, ds$runtime)
@@ -266,6 +267,9 @@ rSquared(mlrm1)
 rSquared(mlrm2)
 rSquared(mlrm3)
 rSquared(mlrm4)
+qqnorm(rstandard(mlrm4))
+qqline(rstandard(mlrm4))
+abline(a=0, b=1)
 # ---------------------------------------------------------------
 ggplot(filteredResults) + 
     aes(x=p_ws, y=p_hh, color=runtime/60) +
@@ -366,3 +370,15 @@ ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = cas
 
 ggplot(d, aes(x=p_ws, y=runtime)) + geom_point() + 
 stat_function(fun = function(x) predict(runtimeModel, newdata = data.frame(DepDelay=x)))
+
+https://mybinder.org/
+https://github.com/edigley/spif
+master
+notebooks/quality_of_prediction.ipynb
+https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb
+Loading repository: edigley/spif/master
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb)
+
+
+https://hub.mybinder.org/user/edigley-spif-t135e6u1/notebooks/notebooks/quality_of_prediction.ipynb
+https://hub.mybinder.org/user/edigley-spif-vcpdreuo/notebooks/notebooks/quality_of_prediction.ipynb

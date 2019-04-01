@@ -1,0 +1,5 @@
+install.packages("tidyverse")
+install.packages("GGally")
+install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("tidyr")
