@@ -1,5 +1,6 @@
 # https://mybinder.org/v2/gh/binder-examples/r/master?filepath=index.ipynb
 install.packages("GGally")
+install.packages("tidyverse")
 
 library(tidyverse)
 library(ggplot2)
@@ -24,9 +25,10 @@ fmsColor <- "red";
 windColor <- "green";
 weatherColor <- "#e69f00";
 individuals.long <- gather(individuals, param, value, params, factor_key=TRUE)
-p <- ggplot(individuals.long, aes(x=param, y=value, fill=param)) + geom_violin() # geom_boxplot() + geom_jitter()
-p + scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey"))
-
+ggplot(individuals.long, aes(x=param, y=value, fill=param)) + 
+    geom_violin() + # geom_boxplot() + geom_jitter()
+    scale_fill_manual(values=c(fmsColor, fmsColor, fmsColor, fmsColor, "grey", windColor, windColor, weatherColor, weatherColor,"grey")) +
+    scale_y_log10(breaks=c(1,10,100,400))
 
 # loads individuals run results data set
 individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
@@ -366,3 +368,13 @@ ggplot(filter(results.long, id >= 0 & id < 5), aes(x = id, y = value, fill = cas
 
 ggplot(d, aes(x=p_ws, y=runtime)) + geom_point() + 
 stat_function(fun = function(x) predict(runtimeModel, newdata = data.frame(DepDelay=x)))
+
+https://mybinder.org/
+https://github.com/edigley/spif
+master
+notebooks/quality_of_prediction.ipynb
+https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb
+Loading repository: edigley/spif/master
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/edigley/spif/master?filepath=notebooks%2Fquality_of_prediction.ipynb)
+
+
