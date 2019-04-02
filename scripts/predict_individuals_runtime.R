@@ -411,3 +411,8 @@ Loading repository: edigley/spif/master
 
 https://hub.mybinder.org/user/edigley-spif-t135e6u1/notebooks/notebooks/quality_of_prediction.ipynb
 https://hub.mybinder.org/user/edigley-spif-vcpdreuo/notebooks/notebooks/quality_of_prediction.ipynb
+
+
+nThreads
+nFire (#points)
+nPoints
