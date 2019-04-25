@@ -1,6 +1,5 @@
 install.packages("rsample")
 install.packages("earth")
-#install.packages("vip")
 devtools::install_github("koalaverse/vip")
 install.packages("pdp")
 install.packages("AmesHousing")
@@ -11,8 +10,6 @@ library(caret)     # automating the tuning process
 library(vip)       # variable importance
 library(pdp)       # variable relationships
 library("AmesHousing")
-# Create training (70%) and test (30%) sets for the AmesHousing::make_ames() data.
-# Use set.seed for reproducibility
 install.packages("pls")
 install.packages("glmnet")
 install.packages("kableExtra")
@@ -20,25 +17,32 @@ library("pls")
 library("glmnet")
 library("kableExtra")
 
-
 set.seed(123)
 
+params <- c("p_1h", "p_10h", "p_100h", "p_herb", "p_1000h", "p_ws", "p_wd", "p_th", "p_hh", "p_adj")
 
+# loads random individuals data set
+individualHeader <- c(params, paste("p", seq(11,21), sep=""))
+individuals <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals.txt', skip=1, col.names=individualHeader)
+individuals <- subset(individuals, select=params)
+individuals <- tibble::rowid_to_column(individuals, "id")
+individuals$id <- (individuals$id - 1)
 
-head(ds)
+# loads individuals run results data set
+individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
+individualsResults <- subset(individualsResults, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
+colnames(individualsResults) <- c("id", params, "runtime", "maxRSS")
 
-set.seed(123)
-print(params)
+ds <- individualsResults
 ds <- subset(ds, select=c(params, "runtime"))
 head(ds)
 
-
-ames_split <- initial_split(ds, prop = .7, strata = "runtime")
-ames_train <- training(ames_split)
-ames_test  <- testing(ames_split)
+ds_split <- initial_split(ds, prop = .7, strata = "runtime")
+ds_train <- training(ds_split)
+ds_test  <- testing(ds_split)
 mars1 <- earth(
   runtime ~ .,
-  data = ames_train
+  data = ds_train
 )
 print(mars1)
 summary(mars1) %>% .$coefficients %>% head(10)
@@ -47,7 +51,7 @@ plot(mars1, which = 1)
 
 mars2 <- earth(
   runtime ~ .,  
-  data = ames_train,
+  data = ds_train,
   degree = 2
 )
 summary(mars2) %>% .$coefficients %>% head(10)
@@ -65,8 +69,8 @@ set.seed(123)
 
 # cross validated model
 tuned_mars <- train(
-  x = subset(ames_train, select = -runtime),
-  y = ames_train$runtime,
+  x = subset(ds_train, select = -runtime),
+  y = ds_train$runtime,
   method = "earth",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
@@ -85,7 +89,7 @@ ggplot(tuned_mars)
 set.seed(123)
 cv_model1 <- train(
   runtime ~ ., 
-  data = ames_train, 
+  data = ds_train, 
   method = "lm",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
@@ -96,7 +100,7 @@ cv_model1 <- train(
 set.seed(123)
 cv_model2 <- train(
   runtime ~ ., 
-  data = ames_train, 
+  data = ds_train, 
   method = "pcr",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
@@ -108,7 +112,7 @@ cv_model2 <- train(
 set.seed(123)
 cv_model3 <- train(
   runtime ~ ., 
-  data = ames_train, 
+  data = ds_train, 
   method = "pls",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
@@ -120,7 +124,7 @@ cv_model3 <- train(
 set.seed(123)
 cv_model4 <- train(
   runtime ~ ., 
-  data = ames_train,
+  data = ds_train,
   method = "glmnet",
   metric = "RMSE",
   trControl = trainControl(method = "cv", number = 10),
