@@ -1,0 +1,17 @@
+"Do not go gentle into that good night"
+"Não vás tão docilmente nessa noite linda"
+
+Fitting a basic MARS model
+
+We can fit a MARS model with the earth package. 
+By default, earth::earth() will assess all potential knots across all supplied features 
+    and then will prune to the optimal number of knots based on an expected change in R^2 (for the training data) of less than 0.001. 
+This calculation is performed by the Generalized cross-validation procedure (GCV statistic), 
+which is a computational shortcut for linear models that produces an error value that approximates leave-one-out cross-validation (see here for technical details).
+
+
+https://scikit-learn.org/stable/auto_examples/ensemble/plot_partial_dependence.html
+Partial dependence plots with two target features enable us to visualize interactions among them. 
+The two-way partial dependence plot shows the dependence of median house price on joint values of house age and avg. occupants per household. 
+We can clearly see an interaction between the two features: 
+For an avg. occupancy greater than two, the house price is nearly independent of the house age, whereas for values less than two there is a strong dependence on age.
