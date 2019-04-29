@@ -17,23 +17,16 @@ library("pls")
 library("glmnet")
 library("kableExtra")
 
-set.seed(123)
-
-params <- c("p_1h", "p_10h", "p_100h", "p_herb", "p_1000h", "p_ws", "p_wd", "p_th", "p_hh", "p_adj")
-
-# loads random individuals data set
-individualHeader <- c(params, paste("p", seq(11,21), sep=""))
-individuals <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals.txt', skip=1, col.names=individualHeader)
-individuals <- subset(individuals, select=params)
-individuals <- tibble::rowid_to_column(individuals, "id")
-individuals$id <- (individuals$id - 1)
+set.seed(1984)
 
 # loads individuals run results data set
-individualsResults <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
-individualsResults <- subset(individualsResults, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
-colnames(individualsResults) <- c("id", params, "runtime", "maxRSS")
+ds <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
+ds <- subset(ds, select=c("individual", paste("p", 0:9, sep=""), "runtime", "maxRSS"))
 
-ds <- individualsResults
+params <- c("p_1h", "p_10h", "p_100h", "p_herb", "p_1000h", "p_ws", "p_wd", "p_th", "p_hh", "p_adj")
+colnames(ds) <- c("id", params, "runtime", "maxRSS")
+
+# selects only attributes used in MARS model
 ds <- subset(ds, select=c(params, "runtime"))
 head(ds)
 
@@ -46,7 +39,6 @@ mars1 <- earth(
 )
 print(mars1)
 summary(mars1) %>% .$coefficients %>% head(10)
-
 plot(mars1, which = 1)
 
 mars2 <- earth(
@@ -54,7 +46,9 @@ mars2 <- earth(
   data = ds_train,
   degree = 2
 )
+print(mars2)
 summary(mars2) %>% .$coefficients %>% head(10)
+plot(mars2, which = 1)
 
 hyper_grid <- expand.grid(
   degree = 1:3, 
@@ -134,10 +128,10 @@ cv_model4 <- train(
 
 # extract out of sample performance measures
 summary(resamples(list(
-  Multiple_regression = cv_model1, 
+  Multiple_Regression = cv_model1, 
   PCR = cv_model2, 
   PLS = cv_model3,
-  Elastic_net = cv_model4,
+  Elastic_Net = cv_model4,
   MARS = tuned_mars
 )))$statistics$RMSE # %>%
 #   kableExtra::kable() %>%
@@ -156,8 +150,111 @@ p1 <- partial(tuned_mars, pred.var = "p_ws", grid.resolution = 10) %>% autoplot(
 p2 <- partial(tuned_mars, pred.var = "p_hh", grid.resolution = 10) %>% autoplot()
 p3 <- partial(tuned_mars, pred.var = c("p_ws", "p_hh"), grid.resolution = 25) %>% 
   plotPartial(levelplot = FALSE, zlab = "runtime_hat", drape = TRUE, colorkey = TRUE, screen = list(z = -20, x = -60))
-
+#plot.engine = "ggplot2"
 gridExtra::grid.arrange(p1, p2, p3, ncol = 2)
 
 partial(tuned_mars, pred.var = c("p_ws", "p_hh"), grid.resolution = 25) %>% 
   plotPartial(levelplot = FALSE, zlab = "runtime_hat", drape = TRUE, colorkey = TRUE, screen = list(z = 100, x = -60))
+
+
+
+
+
+
+
+
+
+
+
+install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("GGally")
+install.packages("caret")
+install.packages("rsample")
+install.packages("earth")
+install.packages("pdp")
+install.packages("AmesHousing")
+install.packages("pls")
+install.packages("glmnet")
+install.packages("kableExtra")
+install.packages("plot3D")
+devtools::install_github("koalaverse/vip")
+
+library(rsample)   # data splitting 
+library(ggplot2)   # plotting
+library(earth)     # fit MARS models
+library(caret)     # automating the tuning process
+library(vip)       # variable importance
+library(pdp)       # variable relationships
+library(plot3D)
+library("AmesHousing")
+library("pls")
+library("glmnet")
+library("kableExtra")
+
+set.seed(1984)
+
+# loads individuals run results data set
+results <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals_runtime_jonquera.txt', header=T)
+ds <- subset(results, select=c(paste("p", 0:9, sep=""), "runtime", "maxRSS"))
+
+params <- c("p_1h", "p_10h", "p_100h", "p_herb", "p_1000h", "p_ws", "p_wd", "p_th", "p_hh", "p_adj")
+colnames(ds) <- c(params, "runtime", "maxRSS")
+
+dsRuntime <- subset(ds, select=c(params, "runtime"))
+head(dsRuntime)
+
+dsRuntime_split <- initial_split(dsRuntime, prop = .7, strata = "runtime")
+dsRuntime_train <- training(dsRuntime_split)
+dsRuntime_test  <- testing(dsRuntime_split)
+
+hyper_grid <- expand.grid(
+  degree = 1:5, 
+  nprune = seq(2, 100, length.out = 10) %>% floor()
+)
+marsRuntime <- train(
+  x = subset(dsRuntime_train, select = -runtime),
+  y = dsRuntime_train$runtime,
+  method = "earth",
+  metric = "RMSE",
+  trControl = trainControl(method = "cv", number = 10),
+  tuneGrid = hyper_grid
+)
+marsRuntime$bestTune
+marsRuntime$finalModel
+summary(marsRuntime)
+ggplot(marsRuntime)
+
+coef(marsRuntime$finalModel) %>%
+  tidy() %>%
+  dplyr::filter(stringr::str_detect(names, "\\*"))
+
+p1 <- partial(tuned_mars, pred.var = "p_ws", grid.resolution = 10) %>% autoplot()
+p2 <- partial(tuned_mars, pred.var = "p_hh", grid.resolution = 10) %>% autoplot()
+p3 <- partial(tuned_mars, pred.var = c("p_ws", "p_hh"), grid.resolution = 25) %>% 
+  plotPartial(levelplot = FALSE, zlab = "runtime_hat", drape = TRUE, colorkey = TRUE, screen = list(z = 100, x = -60))
+gridExtra::grid.arrange(p1, p2, p3, ncol = 2)
+
+scatter3D(
+    x=ds$p_wd, y=ds$p_hh, z=log(ds$maxRSS), 
+    theta = 85, phi = 45, 
+    bty = "g",
+    ticktype = "detailed"
+    #,type = "h" 
+)
+
+
+
+
+
+
+individualHeader <- c(params, paste("p", seq(11,21), sep=""))
+individuals <- read.table('https://raw.githubusercontent.com/edigley/spif/master/results/farsite_individuals.txt', skip=1, col.names=individualHeader)
+individuals <- subset(individuals, select=params)
+individuals <- tibble::rowid_to_column(individuals, "id")
+individuals$id <- (individuals$id - 1)
+setdiff(0:1000, individuals$id)
+head(individuals, 6)
+
+log(predict(tuned_mars, head(individuals, 1001)))
