@@ -10,7 +10,7 @@ FILES = $(PATH_PROY)main.c $(PATH_PROY)master.c $(PATH_PROY)worker.c $(PATH_PROY
 
 # Business default variable's values
 SCENARIO=jonquera # arkadia | jonquera | ashley | hinckley
-PLAYPEN=playpen/${SCENARIO}
+PLAYPEN=playpen/cloud/${SCENARIO}
 
 genetic:
 	$(CC) $(CFLAGS) $(FILES) -o genetic $(LIBS)
@@ -71,6 +71,31 @@ set-up-scenario:
 	cp ~/git/fire-scenarios/${scenario}/input/pob_0.txt ${playpen}/input/
 	cp ~/dropbox/farsite-scenarios-results/farsite_individuals.txt ${playpen}/${individuals}
 	cd ~/git/spif/${playpen}/
+set-up-scenario-from-git:
+	mkdir ~/git
+	cd ~/git
+	git clone https://github.com/edigley/spif.git
+	git clone https://github.com/edigley/fire-scenarios.git
+	scenario=jonquera
+	playpen=playpen
+	scenarioFile=scenario_${scenario}.ini
+	outputFile=scenario_${scenario}.out
+	individuals=farsite_individuals.txt
+	runtimeOutput=farsite_individuals_runtime_${scenario}.txt
+	runtimeHistogram=farsite_individuals_runtime_${scenario}_histogram.png
+	mkdir -p ${playpen}/input ${playpen}/output ${playpen}/trace
+	ln -s ~/git/fire-scenarios/${scenario}/landscape/  ${playpen}/
+	ln -s ~/git/fire-scenarios/${scenario}/perimetres/ ${playpen}/
+	ln -s ~/git/fire-scenarios/${scenario}/qgis/${scenario}_central_point.{shp,shx} ${playpen}/perimetres/
+	ln -s ~/git/fire-scenarios/${scenario}/qgis/${scenario}_central_polygon.{shp,shx} ${playpen}/perimetres/
+	ln -s ~/git/fire-scenarios/${scenario}/aux_files/  ${playpen}/
+	ln -s ~/git/fire-scenarios/${scenario}/bases/      ${playpen}/
+	ln -s ~/git/fire-scenarios/${scenario}/scripts/    ${playpen}/
+	cp ~/git/fire-scenarios/${scenario}/scenario_template_for_histogram.ini ${playpen}/scenario_${scenario}.ini
+	sed -i "s/${scenario}_central_point/${scenario}_central_polygon_2/g" ${playpen}/scenario_${scenario}.ini
+	cp ~/git/fire-scenarios/${scenario}/input/pob_0.txt ${playpen}/input/
+	cp ~/git/spif/results/farsite_individuals.txt ${playpen}/${individuals}
+	cd ~/git/${playpen}/
 run-scenario:
 	# Input Files: individuals.txt, ignition_area.*, landscape.lcp
 	cd ~/git/spif/${playpen}/
