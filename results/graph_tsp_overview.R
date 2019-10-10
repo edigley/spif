@@ -1,4 +1,4 @@
-graph_tsp_overview <- function(ds) { 
+graph_tsp_overview <- function(ds, subtitle, platform) { 
 
     ggplot(
         title = "Runtime"
@@ -8,8 +8,8 @@ graph_tsp_overview <- function(ds) {
     ) + 
     labs(
         title = "Effect of Vitamin C on Tooth Growth",
-        subtitle = "subtitle...",
-        caption = "Running in 8Core Cluster XEN",
+        subtitle = subtitle,
+        caption = platform,
         color = "Runtime (hours)"
     ) + 
     geom_rect(
