@@ -7,4 +7,4 @@ names(ws) <- c("Worker", "start", "end")
 ws$start  <- ws$start * 10
 ws$end    <- ws$end   * 10
 
-graph_tsp_overview(ws)
+graph_tsp_overview(ws, "Deadline-Driven" ,"Running in 8Core XEN Cluster")
