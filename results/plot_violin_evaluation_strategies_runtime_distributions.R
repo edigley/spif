@@ -28,7 +28,8 @@ theme(
     axis.title.x = element_blank(),
     legend.position = "none",
 ) +
-scale_x_discrete(limits=c("Deadline-Driven", "Adaptive-Evaluation"))
+scale_x_discrete(limits=c("Deadline-Driven", "Adaptive-Evaluation")) +
+scale_y_continuous(breaks = seq(0, 60, 15))
 print(p)
 dev.off()
 p
