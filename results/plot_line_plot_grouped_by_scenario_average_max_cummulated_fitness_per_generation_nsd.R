@@ -9,4 +9,8 @@ dsAll <- generateAggregatedStats(resultsTSPNSD)
 
 ggplot(data=dsAll, aes(x=generation, y=minCummFitnees, group=scenario)) +
   geom_line(aes(color=scenario)) +
-geom_point(aes(color=scenario))
+  geom_point(aes(color=scenario))
+
+ggplot(data=dsAll, aes(x=generation, y=averageFitness, group=scenario)) +
+  geom_line(aes(color=scenario)) +
+  geom_point(aes(color=scenario))
